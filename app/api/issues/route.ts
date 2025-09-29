@@ -15,14 +15,14 @@ export async function GET(req: Request) {
   const where: any = {};
   if (projectId) {
     if (!canViewProject(session, projectId)) return NextResponse.json([], { status: 200 });
-    where.projectId = projectId;
+    where.project_id = projectId;
   } else {
     // Limit to user's projects
-    where.projectId = { in: session.projects };
+    where.project_id = { in: session.projects };
   }
   if (q) where.summary = { contains: q };
 
-  const rows = await prisma.issue.findMany({ where, take: 100, orderBy: { lastUpdated: "desc" } as any });
+  const rows = await prisma.mantis_bug_table.findMany({ where, take: 100, orderBy: { last_updated: "desc" } });
   return NextResponse.json(rows);
 }
 
@@ -36,25 +36,29 @@ export async function POST(req: Request) {
   if (!canViewProject(session, projectId)) return NextResponse.json({ ok: false }, { status: 403 });
 
   // Create text row first (mantis_bug_text_table), then issue row
-  const text = await prisma.issueText.create({
-    data: { description, stepsToReproduce: "", additionalInfo: "" } as any
+  const text = await prisma.mantis_bug_text_table.create({
+    data: {
+      description: description || "",
+      steps_to_reproduce: "",
+      additional_information: ""
+    }
   });
 
-  const issue = await prisma.issue.create({
+  const issue = await prisma.mantis_bug_table.create({
     data: {
-      projectId,
-      reporterId: session.uid,
-      handlerId: null,
+      project_id: projectId,
+      reporter_id: session.uid,
+      handler_id: 0,
       priority: 30,
       severity: 50,
       status: 10,
       resolution: 10,
-      categoryId: null,
-      dateSubmitted: Math.floor(Date.now() / 1000),
-      lastUpdated: Math.floor(Date.now() / 1000),
-      bugTextId: (text as any).id,
+      category_id: 1,
+      date_submitted: Math.floor(Date.now() / 1000),
+      last_updated: Math.floor(Date.now() / 1000),
+      bug_text_id: text.id,
       summary
-    } as any
+    }
   });
 
   return NextResponse.json(issue, { status: 201 });

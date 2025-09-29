@@ -114,10 +114,20 @@ model mantis_bug_table {
   due_date          Int    @default(1) @db.UnsignedInt
   last_updated      Int    @default(1) @db.UnsignedInt
 
+  // Relations
+  project           mantis_project_table      @relation(fields: [project_id], references: [id], map: "fk_bug_project")
+  reporter          mantis_user_table         @relation("bug_reporter", fields: [reporter_id], references: [id], map: "fk_bug_reporter")
+  handler           mantis_user_table?        @relation("bug_handler", fields: [handler_id], references: [id], map: "fk_bug_handler")
+  text              mantis_bug_text_table     @relation(fields: [bug_text_id], references: [id], map: "fk_bug_text")
+  notes             mantis_bugnote_table[]
+
   @@index([fixed_in_version], map: "idx_bug_fixed_in_version")
   @@index([sponsorship_total], map: "idx_bug_sponsorship_total")
   @@index([status], map: "idx_bug_status")
   @@index([project_id], map: "idx_project")
+  @@index([reporter_id], map: "idx_reporter")
+  @@index([handler_id], map: "idx_handler")
+  @@index([bug_text_id], map: "idx_bug_text")
 }
 
 model mantis_bug_tag_table {
@@ -131,10 +141,13 @@ model mantis_bug_tag_table {
 }
 
 model mantis_bug_text_table {
-  id                     Int    @id @default(autoincrement()) @db.UnsignedInt
-  description            String @db.LongText
-  steps_to_reproduce     String @db.LongText
-  additional_information String @db.LongText
+  id                     Int                 @id @default(autoincrement()) @db.UnsignedInt
+  description            String              @db.LongText
+  steps_to_reproduce     String              @db.LongText
+  additional_information String              @db.LongText
+
+  // Relations
+  bugs                   mantis_bug_table[]
 }
 
 model mantis_bugnote_table {
@@ -149,13 +162,23 @@ model mantis_bugnote_table {
   last_modified   Int     @default(1) @db.UnsignedInt
   date_submitted  Int     @default(1) @db.UnsignedInt
 
+  // Relations
+  bug             mantis_bug_table            @relation(fields: [bug_id], references: [id], map: "fk_bugnote_bug")
+  reporter        mantis_user_table           @relation("bugnote_reporter", fields: [reporter_id], references: [id], map: "fk_bugnote_reporter")
+  text            mantis_bugnote_text_table   @relation(fields: [bugnote_text_id], references: [id], map: "fk_bugnote_text")
+
   @@index([bug_id], map: "idx_bug")
   @@index([last_modified], map: "idx_last_mod")
+  @@index([reporter_id], map: "idx_bugnote_reporter")
+  @@index([bugnote_text_id], map: "idx_bugnote_text")
 }
 
 model mantis_bugnote_text_table {
-  id   Int    @id @default(autoincrement()) @db.UnsignedInt
-  note String @db.LongText
+  id        Int                     @id @default(autoincrement()) @db.UnsignedInt
+  note      String                  @db.LongText
+
+  // Relations
+  bugnotes  mantis_bugnote_table[]
 }
 
 model mantis_category_table {
@@ -368,6 +391,10 @@ model mantis_project_table {
   category_id    Int    @default(1) @db.UnsignedInt
   inherit_global Int    @default(0) @db.TinyInt
 
+  // Relations
+  bugs           mantis_bug_table[]
+  users          mantis_project_user_list_table[]
+
   @@index([view_state], map: "idx_project_view")
 }
 
@@ -375,6 +402,10 @@ model mantis_project_user_list_table {
   project_id   Int @default(0) @db.UnsignedInt
   user_id      Int @default(0) @db.UnsignedInt
   access_level Int @default(10) @db.SmallInt
+
+  // Relations
+  project      mantis_project_table @relation(fields: [project_id], references: [id], map: "fk_project_user_project")
+  user         mantis_user_table    @relation("project_users", fields: [user_id], references: [id], map: "fk_project_user_user")
 
   @@id([project_id, user_id])
   @@index([user_id], map: "idx_project_user")
@@ -491,6 +522,12 @@ model mantis_user_table {
   cookie_string               String @unique(map: "idx_user_cookie_string") @default("") @db.VarChar(64)
   last_visit                  Int    @default(1) @db.UnsignedInt
   date_created                Int    @default(1) @db.UnsignedInt
+
+  // Relations
+  reported_bugs               mantis_bug_table[]                   @relation("bug_reporter")
+  handled_bugs                mantis_bug_table[]                   @relation("bug_handler")
+  bugnotes                    mantis_bugnote_table[]               @relation("bugnote_reporter")
+  projects                    mantis_project_user_list_table[]     @relation("project_users")
 
   @@index([access_level], map: "idx_access")
   @@index([email], map: "idx_email")

@@ -8,6 +8,16 @@ const config: Config = {
   ],
   theme: {
     extend: {
+      colors: {
+        primary: "#3b82f6",
+        secondary: "#10b981",
+        stroke: "#e5e7eb",
+        "gray-2": "#f9fafb",
+        bodydark: "#6b7280",
+        bodydark1: "#9ca3af",
+        bodydark2: "#d1d5db",
+        "meta-7": "#ef4444",
+      },
       backgroundImage: {
         "gradient-radial": "radial-gradient(var(--tw-gradient-stops))",
         "gradient-conic":
@@ -16,5 +26,6 @@ const config: Config = {
     },
   },
   plugins: [],
+  darkMode: "class",
 };
 export default config;
