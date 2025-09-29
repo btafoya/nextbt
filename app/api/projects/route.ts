@@ -1,71 +1,119 @@
 // /app/api/projects/route.ts
 import { NextResponse } from "next/server";
+import { requireAdmin } from "@/lib/auth";
 import { prisma } from "@/db/client";
-import { getSession, requireSession } from "@/lib/auth";
 
+// GET /api/projects - List all projects (admin only)
 export async function GET() {
-  const session = getSession();
-  if (!session) return NextResponse.json({ ok: false }, { status: 401 });
+  try {
+    requireAdmin();
 
-  const projects = await prisma.mantis_project_table.findMany({
-    where: {
-      id: { in: session.projects }
-    },
-    select: {
-      id: true,
-      name: true
-    },
-    orderBy: { name: "asc" }
-  });
+    const projects = await prisma.mantis_project_table.findMany({
+      select: {
+        id: true,
+        name: true,
+        status: true,
+        enabled: true,
+        view_state: true,
+        description: true,
+        users: {
+          select: {
+            user_id: true,
+            access_level: true,
+          }
+        }
+      },
+      orderBy: { name: 'asc' }
+    });
 
-  return NextResponse.json(projects);
+    return NextResponse.json(projects);
+  } catch (err) {
+    console.error("List projects error:", err);
+    return NextResponse.json(
+      { error: err instanceof Error ? err.message : "Unauthorized" },
+      { status: err instanceof Error && err.message === "Not authenticated" ? 401 : 403 }
+    );
+  }
 }
 
+// POST /api/projects - Create new project (admin only)
 export async function POST(req: Request) {
   try {
-    const session = requireSession();
+    requireAdmin();
 
-    // Check if user is admin (access_level >= 90)
-    const user = await prisma.mantis_user_table.findUnique({
-      where: { id: session.uid }
+    const body = await req.json();
+    const { name, description, enabled, status, view_state, access_min, user_ids } = body;
+
+    // Validate required fields
+    if (!name) {
+      return NextResponse.json(
+        { error: "Project name is required" },
+        { status: 400 }
+      );
+    }
+
+    // Check if project name already exists
+    const existing = await prisma.mantis_project_table.findFirst({
+      where: { name }
     });
 
-    if (!user || user.access_level < 90) {
-      return NextResponse.json({ error: "Unauthorized: Admin access required" }, { status: 403 });
+    if (existing) {
+      return NextResponse.json(
+        { error: "Project name already exists" },
+        { status: 409 }
+      );
     }
 
-    const { name, description, status, enabled, view_state } = await req.json();
-
-    if (!name || name.trim() === "") {
-      return NextResponse.json({ error: "Project name is required" }, { status: 400 });
-    }
-
+    // Create project
     const project = await prisma.mantis_project_table.create({
       data: {
-        name: name.trim(),
-        status: status || 10,
-        enabled: enabled !== false,
-        view_state: view_state || 10,
+        name,
         description: description || "",
-        category_id: 1,
-        inherit_global: true,
+        enabled: enabled !== undefined ? enabled : 1,
+        status: status || 10,
+        view_state: view_state || 10,
+        access_min: access_min || 10,
         file_path: "",
-        access_min: 10
+        category_id: 1,
+        inherit_global: 0,
       }
     });
 
-    // Grant manager access to the creator
-    await prisma.mantis_project_user_list_table.create({
-      data: {
-        project_id: project.id,
-        user_id: session.uid,
-        access_level: 90
+    // Add user assignments if provided
+    if (user_ids && Array.isArray(user_ids) && user_ids.length > 0) {
+      await prisma.mantis_project_user_list_table.createMany({
+        data: user_ids.map((userId: number) => ({
+          project_id: project.id,
+          user_id: userId,
+          access_level: 10,
+        }))
+      });
+    }
+
+    // Fetch complete project with users
+    const completeProject = await prisma.mantis_project_table.findUnique({
+      where: { id: project.id },
+      include: {
+        users: {
+          include: {
+            user: {
+              select: {
+                id: true,
+                username: true,
+                realname: true,
+              }
+            }
+          }
+        }
       }
     });
 
-    return NextResponse.json(project, { status: 201 });
-  } catch (err: any) {
-    console.error("Project creation error:", err);
-    return NextResponse.json({ error: err.message || "Failed to create project" }, { status: 500 });
+    return NextResponse.json(completeProject, { status: 201 });
+  } catch (err) {
+    console.error("Create project error:", err);
+    return NextResponse.json(
+      { error: err instanceof Error ? err.message : "Internal server error" },
+      { status: 500 }
+    );
   }
 }

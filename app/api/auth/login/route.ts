@@ -30,7 +30,12 @@ export async function POST(req: Request) {
     projects = memberships.map((m) => m.project_id);
   }
 
-  cookies().set("mantislite", JSON.stringify({ uid: user.id, username, projects }), {
+  cookies().set("mantislite", JSON.stringify({
+    uid: user.id,
+    username,
+    projects,
+    access_level: user.access_level
+  }), {
     httpOnly: true,
     sameSite: "lax",
     secure: true,
