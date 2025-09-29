@@ -3,6 +3,7 @@ import { NextResponse } from "next/server";
 import { prisma } from "@/db/client";
 import { getSession } from "@/lib/auth";
 import { canViewProject } from "@/lib/permissions";
+import { notifyIssueAction } from "@/lib/notify/issue-notifications";
 
 export async function GET(req: Request) {
   const session = getSession();
@@ -60,6 +61,17 @@ export async function POST(req: Request) {
       summary
     }
   });
+
+  // Send notifications for issue creation
+  const baseUrl = new URL(req.url).origin;
+  await notifyIssueAction({
+    issueId: issue.id,
+    issueSummary: issue.summary,
+    projectId: issue.project_id,
+    action: "created",
+    actorId: session.uid,
+    actorName: session.username
+  }, baseUrl);
 
   return NextResponse.json(issue, { status: 201 });
 }

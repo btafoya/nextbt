@@ -3,6 +3,7 @@ import { NextResponse } from "next/server";
 import { prisma } from "@/db/client";
 import { getSession } from "@/lib/auth";
 import { canViewProject, canComment } from "@/lib/permissions";
+import { notifyIssueAction } from "@/lib/notify/issue-notifications";
 
 type Ctx = { params: { id: string } };
 
@@ -83,6 +84,18 @@ export async function POST(req: Request, { params }: Ctx) {
     where: { id: bugId },
     data: { last_updated: Math.floor(Date.now() / 1000) }
   });
+
+  // Send notifications for note creation
+  const baseUrl = new URL(req.url).origin;
+  await notifyIssueAction({
+    issueId: issue.id,
+    issueSummary: issue.summary,
+    projectId: issue.project_id,
+    action: "commented",
+    actorId: session.uid,
+    actorName: session.username,
+    changes: "New comment added"
+  }, baseUrl);
 
   return NextResponse.json({ ...bn, text: note.trim() }, { status: 201 });
 }
