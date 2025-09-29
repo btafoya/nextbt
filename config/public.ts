@@ -2,5 +2,6 @@
 import { secrets } from "./secrets";
 
 export const publicConfig = {
+  turnstileEnabled: secrets.turnstileEnabled,
   turnstileSiteKey: secrets.turnstileSiteKey,
 } as const;
