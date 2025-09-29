@@ -32,7 +32,7 @@ export default function LoginPage() {
   const router = useRouter();
 
   useEffect(() => {
-    if (turnstileLoaded && turnstileRef.current && !widgetIdRef.current) {
+    if (publicConfig.turnstileEnabled && turnstileLoaded && turnstileRef.current && !widgetIdRef.current) {
       widgetIdRef.current = window.turnstile.render(turnstileRef.current, {
         sitekey: publicConfig.turnstileSiteKey,
         callback: (token: string) => {
@@ -50,7 +50,7 @@ export default function LoginPage() {
     e.preventDefault();
     setError("");
 
-    if (!turnstileToken) {
+    if (publicConfig.turnstileEnabled && !turnstileToken) {
       setError("Please complete the verification");
       return;
     }
@@ -67,7 +67,7 @@ export default function LoginPage() {
       const data = await res.json();
       setError(data.error || "Invalid credentials");
       // Reset Turnstile widget
-      if (widgetIdRef.current) {
+      if (publicConfig.turnstileEnabled && widgetIdRef.current) {
         window.turnstile.reset(widgetIdRef.current);
         setTurnstileToken("");
       }
@@ -76,11 +76,13 @@ export default function LoginPage() {
 
   return (
     <>
-      <Script
-        src="https://challenges.cloudflare.com/turnstile/v0/api.js"
-        onLoad={() => setTurnstileLoaded(true)}
-        strategy="afterInteractive"
-      />
+      {publicConfig.turnstileEnabled && (
+        <Script
+          src="https://challenges.cloudflare.com/turnstile/v0/api.js"
+          onLoad={() => setTurnstileLoaded(true)}
+          strategy="afterInteractive"
+        />
+      )}
       <main className="min-h-screen flex items-center justify-center bg-gray-50">
         <form onSubmit={submit} className="bg-white p-6 rounded shadow w-full max-w-sm space-y-3">
           <h1 className="text-xl font-semibold">Sign in to MantisLite</h1>
@@ -99,12 +101,14 @@ export default function LoginPage() {
             onChange={e=>setPassword(e.target.value)}
             required
           />
-          <div ref={turnstileRef} className="flex justify-center" />
+          {publicConfig.turnstileEnabled && (
+            <div ref={turnstileRef} className="flex justify-center" />
+          )}
           {error && <p className="text-red-600 text-sm">{error}</p>}
           <button
             type="submit"
             className="w-full border rounded p-2 bg-blue-600 text-white hover:bg-blue-700 disabled:opacity-50"
-            disabled={!turnstileToken}
+            disabled={publicConfig.turnstileEnabled && !turnstileToken}
           >
             Sign in
           </button>
