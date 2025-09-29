@@ -5,11 +5,20 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 ## Critical Context (Read First)
 
 - **Tech Stack**: Next.js 14 (App Router), TypeScript, Tailwind CSS, Prisma ORM, MySQL
+- **UI Framework**: [TailAdmin Free Next.js Admin Dashboard](https://github.com/TailAdmin/free-nextjs-admin-dashboard)
 - **Core Purpose**: Simplified UI for existing MantisBT 2.x bug tracking system
 - **Database Approach**: Read/write to existing MantisBT schema via Prisma (non-destructive, uses `@@map`/`@map`)
 - **Key Integration**: TipTap WYSIWYG editor with AI assist (OpenRouter), multi-channel notifications (Postmark, Pushover, Rocket.Chat, Teams, Web Push)
 - **Platform**: Web application interfacing with existing MantisBT MySQL database
 - **DO NOT**: Modify MantisBT schema directly, rename existing database tables, create destructive migrations, use .env files (use `/config/*.ts` instead)
+
+## Additional Documentation
+
+Complete design documentation available:
+- **15_UIUX_DESIGN.md** - UI/UX design system, layout specifications, component patterns
+- **16_COMPONENT_LIBRARY.md** - Component specifications with TypeScript examples
+- **17_ARCHITECTURE_DIAGRAMS.md** - System architecture diagrams and data flow visualizations
+- **18_DEPLOYMENT_GUIDE.md** - Deployment options (Vercel, Docker, VPS), environment setup
 
 ## Development Commands
 
@@ -30,7 +39,7 @@ pnpm start
 pnpm lint
 
 # Prisma operations (use DATABASE_URL env var temporarily for these commands)
-DATABASE_URL="mysql://user:pass@host:3306/mantis" pnpm dlx prisma db pull  # Introspect existing schema
+DATABASE_URL="mysql://mantisbt:mantisbt@localhost:3306/mantisbt" pnpm dlx prisma db pull  # Introspect existing schema
 pnpm dlx prisma generate  # Generate Prisma client
 pnpm dlx prisma studio     # Open Prisma Studio GUI
 ```
