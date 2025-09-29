@@ -9,7 +9,7 @@ export function middleware(req: NextRequest) {
 
   const inDash = url.startsWith("/issues") || url.startsWith("/projects") || url === "/";
   if (inDash && !isAuthed) {
-    const loginUrl = new URL("/(auth)/login", req.url);
+    const loginUrl = new URL("/login", req.url);
     return NextResponse.redirect(loginUrl);
   }
   return NextResponse.next();
