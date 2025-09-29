@@ -2,31 +2,87 @@
 import { NextResponse } from "next/server";
 import { prisma } from "@/db/client";
 import { getSession } from "@/lib/auth";
-import { canComment } from "@/lib/permissions";
+import { canViewProject, canComment } from "@/lib/permissions";
 
 type Ctx = { params: { id: string } };
+
+export async function GET(req: Request, { params }: Ctx) {
+  const session = getSession();
+  if (!session) return NextResponse.json({ ok: false }, { status: 401 });
+
+  const bugId = parseInt(params.id, 10);
+
+  // Verify issue exists and user has access
+  const issue = await prisma.mantis_bug_table.findUnique({ where: { id: bugId } });
+  if (!issue) return NextResponse.json({ error: "Issue not found" }, { status: 404 });
+  if (!canViewProject(session, issue.project_id)) return NextResponse.json({ error: "Access denied" }, { status: 403 });
+
+  // Get all notes for this issue
+  const notes = await prisma.mantis_bugnote_table.findMany({
+    where: { bug_id: bugId },
+    orderBy: { date_submitted: "asc" }
+  });
+
+  // Get text and reporter for each note
+  const notesWithText = await Promise.all(
+    notes.map(async (note) => {
+      const text = await prisma.mantis_bugnote_text_table.findUnique({
+        where: { id: note.bugnote_text_id }
+      });
+      const reporter = await prisma.mantis_user_table.findUnique({
+        where: { id: note.reporter_id },
+        select: { username: true, realname: true }
+      });
+      return {
+        ...note,
+        text: text?.note ?? "",
+        reporter: reporter?.realname || reporter?.username || "Unknown"
+      };
+    })
+  );
+
+  return NextResponse.json(notesWithText);
+}
 
 export async function POST(req: Request, { params }: Ctx) {
   const session = getSession();
   if (!session) return NextResponse.json({ ok: false }, { status: 401 });
+
   const bugId = parseInt(params.id, 10);
   const { note } = await req.json();
 
-  const issue = await prisma.issue.findUnique({ where: { id: bugId } as any });
-  if (!issue) return NextResponse.json({ ok: false }, { status: 404 });
-  if (!canComment(session, (issue as any).projectId)) return NextResponse.json({ ok: false }, { status: 403 });
+  if (!note || note.trim() === "") {
+    return NextResponse.json({ error: "Note text is required" }, { status: 400 });
+  }
 
-  const noteText = await prisma.issueNoteText.create({ data: { note } as any });
-  const bn = await prisma.issueNote.create({
-    data: {
-      bugId,
-      reporter: session.uid,
-      viewState: 10,
-      dateSubmitted: Math.floor(Date.now() / 1000),
-      lastModified: Math.floor(Date.now() / 1000),
-      noteTextId: (noteText as any).id
-    } as any
+  const issue = await prisma.mantis_bug_table.findUnique({ where: { id: bugId } });
+  if (!issue) return NextResponse.json({ ok: false }, { status: 404 });
+  if (!canComment(session, issue.project_id)) return NextResponse.json({ ok: false }, { status: 403 });
+
+  // Create note text first
+  const noteText = await prisma.mantis_bugnote_text_table.create({
+    data: { note: note.trim() }
   });
 
-  return NextResponse.json(bn, { status: 201 });
+  // Create the note
+  const bn = await prisma.mantis_bugnote_table.create({
+    data: {
+      bug_id: bugId,
+      reporter_id: session.uid,
+      bugnote_text_id: noteText.id,
+      date_submitted: Math.floor(Date.now() / 1000),
+      last_modified: Math.floor(Date.now() / 1000),
+      view_state: 10, // Public
+      note_type: 0,
+      note_attr: ""
+    }
+  });
+
+  // Update issue last_updated timestamp
+  await prisma.mantis_bug_table.update({
+    where: { id: bugId },
+    data: { last_updated: Math.floor(Date.now() / 1000) }
+  });
+
+  return NextResponse.json({ ...bn, text: note.trim() }, { status: 201 });
 }
