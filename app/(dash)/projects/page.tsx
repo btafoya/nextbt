@@ -30,7 +30,7 @@ export default async function ProjectsPage() {
         <h1 className="text-2xl font-bold">Projects</h1>
         {isAdmin && (
           <Link href="/projects/new">
-            <Button>New Project</Button>
+            <Button className="bg-blue-600 text-white hover:bg-blue-700">New Project</Button>
           </Link>
         )}
       </div>

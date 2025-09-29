@@ -28,6 +28,7 @@ export const columns: ColumnDef<Project>[] = [
         <Button
           variant="ghost"
           onClick={() => column.toggleSorting(column.getIsSorted() === "asc")}
+          className="text-white hover:bg-blue-500 hover:text-white"
         >
           ID
           <ArrowUpDown className="ml-2 h-4 w-4" />
@@ -49,6 +50,7 @@ export const columns: ColumnDef<Project>[] = [
         <Button
           variant="ghost"
           onClick={() => column.toggleSorting(column.getIsSorted() === "asc")}
+          className="text-white hover:bg-blue-500 hover:text-white"
         >
           Project Name
           <ArrowUpDown className="ml-2 h-4 w-4" />
@@ -65,7 +67,7 @@ export const columns: ColumnDef<Project>[] = [
   },
   {
     accessorKey: "description",
-    header: "Description",
+    header: () => <span className="text-white font-semibold">Description</span>,
     cell: ({ row }) => {
       const description = row.getValue("description") as string
       return (
@@ -82,6 +84,7 @@ export const columns: ColumnDef<Project>[] = [
         <Button
           variant="ghost"
           onClick={() => column.toggleSorting(column.getIsSorted() === "asc")}
+          className="text-white hover:bg-blue-500 hover:text-white"
         >
           Status
           <ArrowUpDown className="ml-2 h-4 w-4" />
@@ -111,6 +114,7 @@ export const columns: ColumnDef<Project>[] = [
         <Button
           variant="ghost"
           onClick={() => column.toggleSorting(column.getIsSorted() === "asc")}
+          className="text-white hover:bg-blue-500 hover:text-white"
         >
           Enabled
           <ArrowUpDown className="ml-2 h-4 w-4" />
