@@ -1,121 +1,196 @@
 // /app/api/projects/[id]/route.ts
-import { NextResponse } from "next/server";
-import { requireSession } from "@/lib/auth";
+import { NextRequest, NextResponse } from "next/server";
+import { requireAdmin } from "@/lib/auth";
 import { prisma } from "@/db/client";
 
-async function canManageProject(projectId: number, userId: number) {
-  const user = await prisma.mantis_user_table.findUnique({
-    where: { id: userId }
-  });
-
-  // Admins can manage any project
-  if (user && user.access_level >= 90) return true;
-
-  // Check project-specific manager/developer access
-  const access = await prisma.mantis_project_user_list_table.findFirst({
-    where: {
-      project_id: projectId,
-      user_id: userId,
-      access_level: { gte: 70 } // Developer or Manager
-    }
-  });
-
-  return !!access;
-}
-
-export async function GET(req: Request, { params }: { params: { id: string } }) {
+// GET /api/projects/[id] - Get single project (admin only)
+export async function GET(
+  req: NextRequest,
+  { params }: { params: { id: string } }
+) {
   try {
-    const session = requireSession();
-    const projectId = parseInt(params.id, 10);
+    requireAdmin();
 
+    const projectId = parseInt(params.id, 10);
     if (isNaN(projectId)) {
       return NextResponse.json({ error: "Invalid project ID" }, { status: 400 });
     }
 
     const project = await prisma.mantis_project_table.findUnique({
-      where: { id: projectId }
+      where: { id: projectId },
+      include: {
+        users: {
+          include: {
+            user: {
+              select: {
+                id: true,
+                username: true,
+                realname: true,
+                email: true,
+              }
+            }
+          }
+        }
+      }
     });
 
-    if (!project || !session.projects.includes(project.id)) {
+    if (!project) {
       return NextResponse.json({ error: "Project not found" }, { status: 404 });
     }
 
     return NextResponse.json(project);
-  } catch (err: any) {
-    console.error("Project fetch error:", err);
-    return NextResponse.json({ error: err.message || "Failed to fetch project" }, { status: 500 });
+  } catch (err) {
+    console.error("Get project error:", err);
+    return NextResponse.json(
+      { error: err instanceof Error ? err.message : "Unauthorized" },
+      { status: err instanceof Error && err.message === "Not authenticated" ? 401 : 403 }
+    );
   }
 }
 
-export async function PUT(req: Request, { params }: { params: { id: string } }) {
+// PUT /api/projects/[id] - Update project (admin only)
+export async function PUT(
+  req: NextRequest,
+  { params }: { params: { id: string } }
+) {
   try {
-    const session = requireSession();
-    const projectId = parseInt(params.id, 10);
+    requireAdmin();
 
+    const projectId = parseInt(params.id, 10);
     if (isNaN(projectId)) {
       return NextResponse.json({ error: "Invalid project ID" }, { status: 400 });
     }
 
-    const canManage = await canManageProject(projectId, session.uid);
-    if (!canManage) {
-      return NextResponse.json({ error: "Unauthorized: Manager/Admin access required" }, { status: 403 });
+    const body = await req.json();
+    const { name, description, enabled, status, view_state, access_min, user_ids } = body;
+
+    // Check if project exists
+    const existing = await prisma.mantis_project_table.findUnique({
+      where: { id: projectId }
+    });
+
+    if (!existing) {
+      return NextResponse.json({ error: "Project not found" }, { status: 404 });
     }
 
-    const { name, description, status, enabled, view_state } = await req.json();
+    // Check if trying to change name to one that's taken
+    if (name && name !== existing.name) {
+      const nameExists = await prisma.mantis_project_table.findFirst({
+        where: {
+          name,
+          id: { not: projectId }
+        }
+      });
 
-    if (!name || name.trim() === "") {
-      return NextResponse.json({ error: "Project name is required" }, { status: 400 });
+      if (nameExists) {
+        return NextResponse.json(
+          { error: "Project name already exists" },
+          { status: 409 }
+        );
+      }
     }
 
-    const project = await prisma.mantis_project_table.update({
+    // Build update data
+    const updateData: any = {};
+    if (name) updateData.name = name;
+    if (description !== undefined) updateData.description = description;
+    if (enabled !== undefined) updateData.enabled = enabled;
+    if (status !== undefined) updateData.status = status;
+    if (view_state !== undefined) updateData.view_state = view_state;
+    if (access_min !== undefined) updateData.access_min = access_min;
+
+    // Update project
+    await prisma.mantis_project_table.update({
       where: { id: projectId },
-      data: {
-        name: name.trim(),
-        status: status ?? 10,
-        enabled: enabled !== false,
-        view_state: view_state ?? 10,
-        description: description || ""
+      data: updateData,
+    });
+
+    // Update user assignments if provided
+    if (user_ids !== undefined && Array.isArray(user_ids)) {
+      // Delete all existing assignments
+      await prisma.mantis_project_user_list_table.deleteMany({
+        where: { project_id: projectId }
+      });
+
+      // Add new assignments
+      if (user_ids.length > 0) {
+        await prisma.mantis_project_user_list_table.createMany({
+          data: user_ids.map((userId: number) => ({
+            project_id: projectId,
+            user_id: userId,
+            access_level: 10,
+          }))
+        });
+      }
+    }
+
+    // Fetch updated project with users
+    const updatedProject = await prisma.mantis_project_table.findUnique({
+      where: { id: projectId },
+      include: {
+        users: {
+          include: {
+            user: {
+              select: {
+                id: true,
+                username: true,
+                realname: true,
+              }
+            }
+          }
+        }
       }
     });
 
-    return NextResponse.json(project);
-  } catch (err: any) {
-    console.error("Project update error:", err);
-    return NextResponse.json({ error: err.message || "Failed to update project" }, { status: 500 });
+    return NextResponse.json(updatedProject);
+  } catch (err) {
+    console.error("Update project error:", err);
+    return NextResponse.json(
+      { error: err instanceof Error ? err.message : "Internal server error" },
+      { status: 500 }
+    );
   }
 }
 
-export async function DELETE(req: Request, { params }: { params: { id: string } }) {
+// DELETE /api/projects/[id] - Delete project (admin only)
+export async function DELETE(
+  req: NextRequest,
+  { params }: { params: { id: string } }
+) {
   try {
-    const session = requireSession();
-    const projectId = parseInt(params.id, 10);
+    requireAdmin();
 
+    const projectId = parseInt(params.id, 10);
     if (isNaN(projectId)) {
       return NextResponse.json({ error: "Invalid project ID" }, { status: 400 });
     }
 
-    // Only admins can delete projects
-    const user = await prisma.mantis_user_table.findUnique({
-      where: { id: session.uid }
+    // Check if project exists
+    const project = await prisma.mantis_project_table.findUnique({
+      where: { id: projectId },
+      select: { id: true }
     });
 
-    if (!user || user.access_level < 90) {
-      return NextResponse.json({ error: "Unauthorized: Admin access required" }, { status: 403 });
+    if (!project) {
+      return NextResponse.json({ error: "Project not found" }, { status: 404 });
     }
 
-    // Delete project user associations first
+    // Delete user assignments first
     await prisma.mantis_project_user_list_table.deleteMany({
       where: { project_id: projectId }
     });
 
-    // Delete the project
+    // Delete project
     await prisma.mantis_project_table.delete({
       where: { id: projectId }
     });
 
-    return NextResponse.json({ success: true });
-  } catch (err: any) {
-    console.error("Project deletion error:", err);
-    return NextResponse.json({ error: err.message || "Failed to delete project" }, { status: 500 });
+    return NextResponse.json({ ok: true });
+  } catch (err) {
+    console.error("Delete project error:", err);
+    return NextResponse.json(
+      { error: err instanceof Error ? err.message : "Internal server error" },
+      { status: 500 }
+    );
   }
 }

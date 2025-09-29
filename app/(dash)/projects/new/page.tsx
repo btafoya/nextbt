@@ -4,6 +4,7 @@
 import React, { useState } from "react";
 import { useRouter } from "next/navigation";
 import Editor from "@/components/wysiwyg/Editor";
+import { UserAssignment } from "@/components/projects/UserAssignment";
 
 export default function NewProjectPage() {
   const [name, setName] = useState("");
@@ -11,6 +12,7 @@ export default function NewProjectPage() {
   const [status, setStatus] = useState(10); // 10 = Development
   const [enabled, setEnabled] = useState(true);
   const [viewState, setViewState] = useState(10); // 10 = Public
+  const [userIds, setUserIds] = useState<number[]>([]);
   const [error, setError] = useState("");
   const [loading, setLoading] = useState(false);
   const router = useRouter();
@@ -23,7 +25,7 @@ export default function NewProjectPage() {
     const res = await fetch("/api/projects", {
       method: "POST",
       headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ name, description, status, enabled, view_state: viewState })
+      body: JSON.stringify({ name, description, status, enabled, view_state: viewState, user_ids: userIds })
     });
 
     if (res.ok) {
@@ -96,6 +98,10 @@ export default function NewProjectPage() {
             />
             <span className="text-sm font-medium">Enabled</span>
           </label>
+        </div>
+
+        <div className="border-t pt-4">
+          <UserAssignment selectedUserIds={userIds} onChange={setUserIds} />
         </div>
 
         {error && <p className="text-red-600 text-sm">{error}</p>}
