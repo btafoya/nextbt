@@ -1,0 +1,498 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "mysql"
+  url      = env("DATABASE_URL")
+}
+
+model mantis_api_token_table {
+  id           Int    @id @default(autoincrement()) @db.UnsignedInt
+  user_id      Int    @default(0) @db.UnsignedInt
+  name         String @db.VarChar(128)
+  hash         String @db.VarChar(128)
+  date_created Int    @default(1) @db.UnsignedInt
+  date_used    Int    @default(1) @db.UnsignedInt
+
+  @@unique([user_id, name], map: "idx_user_id_name")
+}
+
+model mantis_bug_file_table {
+  id          Int    @id @default(autoincrement()) @db.UnsignedInt
+  bug_id      Int    @default(0) @db.UnsignedInt
+  title       String @default("") @db.VarChar(250)
+  description String @default("") @db.VarChar(250)
+  diskfile    String @default("") @db.VarChar(250)
+  filename    String @default("") @db.VarChar(250)
+  folder      String @default("") @db.VarChar(250)
+  filesize    Int    @default(0)
+  file_type   String @default("") @db.VarChar(250)
+  content     Bytes?
+  date_added  Int    @default(1) @db.UnsignedInt
+  user_id     Int    @default(0) @db.UnsignedInt
+  bugnote_id  Int?   @default(0) @db.UnsignedInt
+
+  @@index([bug_id], map: "idx_bug_file_bug_id")
+  @@index([diskfile], map: "idx_diskfile")
+}
+
+model mantis_bug_history_table {
+  id            Int    @id @default(autoincrement()) @db.UnsignedInt
+  user_id       Int    @default(0) @db.UnsignedInt
+  bug_id        Int    @default(0) @db.UnsignedInt
+  field_name    String @db.VarChar(64)
+  old_value     String @db.VarChar(255)
+  new_value     String @db.VarChar(255)
+  type          Int    @default(0) @db.SmallInt
+  date_modified Int    @default(1) @db.UnsignedInt
+
+  @@index([bug_id], map: "idx_bug_history_bug_id")
+  @@index([date_modified], map: "idx_bug_history_date_modified")
+  @@index([user_id], map: "idx_history_user_id")
+}
+
+model mantis_bug_monitor_table {
+  user_id Int @default(0) @db.UnsignedInt
+  bug_id  Int @default(0) @db.UnsignedInt
+
+  @@id([user_id, bug_id])
+  @@index([bug_id], map: "idx_bug_id")
+}
+
+model mantis_bug_relationship_table {
+  id                 Int @id @default(autoincrement()) @db.UnsignedInt
+  source_bug_id      Int @default(0) @db.UnsignedInt
+  destination_bug_id Int @default(0) @db.UnsignedInt
+  relationship_type  Int @default(0) @db.SmallInt
+
+  @@index([destination_bug_id], map: "idx_relationship_destination")
+  @@index([source_bug_id], map: "idx_relationship_source")
+}
+
+model mantis_bug_revision_table {
+  id         Int    @id @default(autoincrement()) @db.UnsignedInt
+  bug_id     Int    @db.UnsignedInt
+  bugnote_id Int    @default(0) @db.UnsignedInt
+  user_id    Int    @db.UnsignedInt
+  type       Int    @db.UnsignedInt
+  value      String @db.LongText
+  timestamp  Int    @default(1) @db.UnsignedInt
+
+  @@index([bug_id, timestamp], map: "idx_bug_rev_id_time")
+  @@index([type], map: "idx_bug_rev_type")
+}
+
+model mantis_bug_table {
+  id                Int    @id @default(autoincrement()) @db.UnsignedInt
+  project_id        Int    @default(0) @db.UnsignedInt
+  reporter_id       Int    @default(0) @db.UnsignedInt
+  handler_id        Int    @default(0) @db.UnsignedInt
+  duplicate_id      Int    @default(0) @db.UnsignedInt
+  priority          Int    @default(30) @db.SmallInt
+  severity          Int    @default(50) @db.SmallInt
+  reproducibility   Int    @default(10) @db.SmallInt
+  status            Int    @default(10) @db.SmallInt
+  resolution        Int    @default(10) @db.SmallInt
+  projection        Int    @default(10) @db.SmallInt
+  eta               Int    @default(10) @db.SmallInt
+  bug_text_id       Int    @default(0) @db.UnsignedInt
+  os                String @default("") @db.VarChar(32)
+  os_build          String @default("") @db.VarChar(32)
+  platform          String @default("") @db.VarChar(32)
+  version           String @default("") @db.VarChar(64)
+  fixed_in_version  String @default("") @db.VarChar(64)
+  build             String @default("") @db.VarChar(32)
+  profile_id        Int    @default(0) @db.UnsignedInt
+  view_state        Int    @default(10) @db.SmallInt
+  summary           String @default("") @db.VarChar(128)
+  sponsorship_total Int    @default(0)
+  sticky            Int    @default(0) @db.TinyInt
+  target_version    String @default("") @db.VarChar(64)
+  category_id       Int    @default(1) @db.UnsignedInt
+  date_submitted    Int    @default(1) @db.UnsignedInt
+  due_date          Int    @default(1) @db.UnsignedInt
+  last_updated      Int    @default(1) @db.UnsignedInt
+
+  @@index([fixed_in_version], map: "idx_bug_fixed_in_version")
+  @@index([sponsorship_total], map: "idx_bug_sponsorship_total")
+  @@index([status], map: "idx_bug_status")
+  @@index([project_id], map: "idx_project")
+}
+
+model mantis_bug_tag_table {
+  bug_id        Int @default(0) @db.UnsignedInt
+  tag_id        Int @default(0) @db.UnsignedInt
+  user_id       Int @default(0) @db.UnsignedInt
+  date_attached Int @default(1) @db.UnsignedInt
+
+  @@id([bug_id, tag_id])
+  @@index([tag_id], map: "idx_bug_tag_tag_id")
+}
+
+model mantis_bug_text_table {
+  id                     Int    @id @default(autoincrement()) @db.UnsignedInt
+  description            String @db.LongText
+  steps_to_reproduce     String @db.LongText
+  additional_information String @db.LongText
+}
+
+model mantis_bugnote_table {
+  id              Int     @id @default(autoincrement()) @db.UnsignedInt
+  bug_id          Int     @default(0) @db.UnsignedInt
+  reporter_id     Int     @default(0) @db.UnsignedInt
+  bugnote_text_id Int     @default(0) @db.UnsignedInt
+  view_state      Int     @default(10) @db.SmallInt
+  note_type       Int?    @default(0)
+  note_attr       String? @default("") @db.VarChar(250)
+  time_tracking   Int     @default(0) @db.UnsignedInt
+  last_modified   Int     @default(1) @db.UnsignedInt
+  date_submitted  Int     @default(1) @db.UnsignedInt
+
+  @@index([bug_id], map: "idx_bug")
+  @@index([last_modified], map: "idx_last_mod")
+}
+
+model mantis_bugnote_text_table {
+  id   Int    @id @default(autoincrement()) @db.UnsignedInt
+  note String @db.LongText
+}
+
+model mantis_category_table {
+  id         Int    @id @default(autoincrement()) @db.UnsignedInt
+  project_id Int    @default(0) @db.UnsignedInt
+  user_id    Int    @default(0) @db.UnsignedInt
+  name       String @default("") @db.VarChar(128)
+  status     Int    @default(1) @db.UnsignedInt
+
+  @@unique([project_id, name], map: "idx_category_project_name")
+}
+
+model mantis_config_table {
+  config_id   String @db.VarChar(64)
+  project_id  Int    @default(0)
+  user_id     Int    @default(0)
+  access_reqd Int?   @default(0)
+  type        Int?   @default(90)
+  value       String @db.LongText
+
+  @@id([config_id, project_id, user_id])
+}
+
+model mantis_custom_field_project_table {
+  field_id   Int @default(0)
+  project_id Int @default(0) @db.UnsignedInt
+  sequence   Int @default(0) @db.SmallInt
+
+  @@id([field_id, project_id])
+}
+
+model mantis_custom_field_string_table {
+  field_id Int     @default(0)
+  bug_id   Int     @default(0)
+  value    String  @default("") @db.VarChar(255)
+  text     String? @db.LongText
+
+  @@id([field_id, bug_id])
+  @@index([bug_id], map: "idx_custom_field_bug")
+}
+
+model mantis_custom_field_table {
+  id               Int     @id @default(autoincrement())
+  name             String  @default("") @db.VarChar(64)
+  type             Int     @default(0) @db.SmallInt
+  possible_values  String? @db.Text
+  default_value    String  @default("") @db.VarChar(255)
+  valid_regexp     String  @default("") @db.VarChar(255)
+  access_level_r   Int     @default(0) @db.SmallInt
+  access_level_rw  Int     @default(0) @db.SmallInt
+  length_min       Int     @default(0)
+  length_max       Int     @default(0)
+  require_report   Int     @default(0) @db.TinyInt
+  require_update   Int     @default(0) @db.TinyInt
+  display_report   Int     @default(0) @db.TinyInt
+  display_update   Int     @default(1) @db.TinyInt
+  require_resolved Int     @default(0) @db.TinyInt
+  display_resolved Int     @default(0) @db.TinyInt
+  display_closed   Int     @default(0) @db.TinyInt
+  require_closed   Int     @default(0) @db.TinyInt
+  filter_by        Int     @default(1) @db.TinyInt
+
+  @@index([name], map: "idx_custom_field_name")
+}
+
+model mantis_email_table {
+  email_id  Int    @id @default(autoincrement()) @db.UnsignedInt
+  email     String @default("")
+  subject   String @default("") @db.VarChar(250)
+  metadata  String @db.LongText
+  body      String @db.LongText
+  submitted Int    @default(1) @db.UnsignedInt
+}
+
+model mantis_filters_table {
+  id            Int    @id @default(autoincrement()) @db.UnsignedInt
+  user_id       Int    @default(0)
+  project_id    Int    @default(0)
+  is_public     Int?   @db.TinyInt
+  name          String @default("") @db.VarChar(64)
+  filter_string String @db.LongText
+}
+
+model mantis_news_table {
+  id            Int    @id @default(autoincrement()) @db.UnsignedInt
+  project_id    Int    @default(0) @db.UnsignedInt
+  poster_id     Int    @default(0) @db.UnsignedInt
+  view_state    Int    @default(10) @db.SmallInt
+  announcement  Int    @default(0) @db.TinyInt
+  headline      String @default("") @db.VarChar(64)
+  body          String @db.LongText
+  last_modified Int    @default(1) @db.UnsignedInt
+  date_posted   Int    @default(1) @db.UnsignedInt
+}
+
+model mantis_plugin_Calendar_event_member_table {
+  user_id  Int @default(0) @db.UnsignedInt
+  event_id Int @default(0) @db.UnsignedInt
+
+  @@id([user_id, event_id])
+  @@index([event_id], map: "idx_event_id")
+}
+
+model mantis_plugin_Calendar_events_table {
+  id                 Int    @id @default(autoincrement())
+  project_id         Int
+  name               String @db.VarChar(255)
+  activity           String @db.VarChar(1)
+  author_id          Int?
+  date_changed       Int?
+  changed_user_id    Int?
+  date_from          Int    @default(1) @db.UnsignedInt
+  date_to            Int    @default(1) @db.UnsignedInt
+  duration           Int    @db.UnsignedInt
+  recurrence_pattern String @db.Text
+  parent_id          Int
+}
+
+model mantis_plugin_Calendar_google_sync_table {
+  event_id  Int    @id @default(0) @db.UnsignedInt
+  google_id String @db.VarChar(255)
+  last_sync Int    @default(0) @db.UnsignedInt
+
+  @@index([event_id], map: "idx_goole_sync_event_id")
+}
+
+/// The underlying table does not contain a valid unique identifier and can therefore currently not be handled by Prisma Client.
+model mantis_plugin_Calendar_relationship_table {
+  event_id Int
+  bug_id   Int
+
+  @@ignore
+}
+
+model mantis_plugin_FAQ_results_table {
+  id            Int      @id @default(autoincrement()) @db.UnsignedInt
+  project_id    Int      @db.UnsignedInt
+  poster_id     Int      @db.UnsignedInt
+  date_posted   DateTime @db.DateTime(0)
+  last_modified DateTime @db.DateTime(0)
+  question      String?  @default("") @db.VarChar(250)
+  answere       String   @db.LongText
+  view_access   Int      @default(10) @db.UnsignedInt
+}
+
+/// The underlying table does not contain a valid unique identifier and can therefore currently not be handled by Prisma Client.
+model mantis_plugin_MonProj_monitored_projects_table {
+  user_id    Int @db.UnsignedInt
+  project_id Int @db.UnsignedInt
+
+  @@ignore
+}
+
+model mantis_plugin_TelegramBot_message_relationship_table {
+  id      Int     @id @default(autoincrement())
+  bug_id  Int     @db.UnsignedInt
+  chat_id Decimal @db.Decimal(10, 0)
+  msg_id  Int     @db.UnsignedInt
+
+  @@index([chat_id], map: "idx_chatid")
+  @@index([msg_id, chat_id], map: "idx_msgid_chatid")
+}
+
+model mantis_plugin_TelegramBot_user_relationship_table {
+  mantis_user_id   Int    @id
+  telegram_user_id BigInt
+}
+
+model mantis_plugin_table {
+  basename  String @id @db.VarChar(40)
+  enabled   Int    @default(0) @db.TinyInt
+  protected Int    @default(0) @db.TinyInt
+  priority  Int    @default(3) @db.UnsignedInt
+}
+
+model mantis_project_file_table {
+  id          Int    @id @default(autoincrement()) @db.UnsignedInt
+  project_id  Int    @default(0) @db.UnsignedInt
+  title       String @default("") @db.VarChar(250)
+  description String @default("") @db.VarChar(250)
+  diskfile    String @default("") @db.VarChar(250)
+  filename    String @default("") @db.VarChar(250)
+  folder      String @default("") @db.VarChar(250)
+  filesize    Int    @default(0)
+  file_type   String @default("") @db.VarChar(250)
+  content     Bytes?
+  date_added  Int    @default(1) @db.UnsignedInt
+  user_id     Int    @default(0) @db.UnsignedInt
+}
+
+model mantis_project_hierarchy_table {
+  child_id       Int @db.UnsignedInt
+  parent_id      Int @db.UnsignedInt
+  inherit_parent Int @default(0) @db.TinyInt
+
+  @@unique([child_id, parent_id], map: "idx_project_hierarchy")
+  @@index([child_id], map: "idx_project_hierarchy_child_id")
+  @@index([parent_id], map: "idx_project_hierarchy_parent_id")
+}
+
+model mantis_project_table {
+  id             Int    @id @default(autoincrement()) @db.UnsignedInt
+  name           String @unique(map: "idx_project_name") @default("") @db.VarChar(128)
+  status         Int    @default(10) @db.SmallInt
+  enabled        Int    @default(1) @db.TinyInt
+  view_state     Int    @default(10) @db.SmallInt
+  access_min     Int    @default(10) @db.SmallInt
+  file_path      String @default("") @db.VarChar(250)
+  description    String @db.LongText
+  category_id    Int    @default(1) @db.UnsignedInt
+  inherit_global Int    @default(0) @db.TinyInt
+
+  @@index([view_state], map: "idx_project_view")
+}
+
+model mantis_project_user_list_table {
+  project_id   Int @default(0) @db.UnsignedInt
+  user_id      Int @default(0) @db.UnsignedInt
+  access_level Int @default(10) @db.SmallInt
+
+  @@id([project_id, user_id])
+  @@index([user_id], map: "idx_project_user")
+}
+
+model mantis_project_version_table {
+  id          Int    @id @default(autoincrement())
+  project_id  Int    @default(0) @db.UnsignedInt
+  version     String @default("") @db.VarChar(64)
+  description String @db.LongText
+  released    Int    @default(1) @db.TinyInt
+  obsolete    Int    @default(0) @db.TinyInt
+  date_order  Int    @default(1) @db.UnsignedInt
+
+  @@unique([project_id, version], map: "idx_project_version")
+}
+
+model mantis_sponsorship_table {
+  id             Int    @id @default(autoincrement())
+  bug_id         Int    @default(0)
+  user_id        Int    @default(0)
+  amount         Int    @default(0)
+  logo           String @default("") @db.VarChar(128)
+  url            String @default("") @db.VarChar(128)
+  paid           Int    @default(0) @db.TinyInt
+  date_submitted Int    @default(1) @db.UnsignedInt
+  last_updated   Int    @default(1) @db.UnsignedInt
+
+  @@index([bug_id], map: "idx_sponsorship_bug_id")
+  @@index([user_id], map: "idx_sponsorship_user_id")
+}
+
+model mantis_tag_table {
+  id           Int    @default(autoincrement()) @db.UnsignedInt
+  user_id      Int    @default(0) @db.UnsignedInt
+  name         String @default("") @db.VarChar(100)
+  description  String @db.LongText
+  date_created Int    @default(1) @db.UnsignedInt
+  date_updated Int    @default(1) @db.UnsignedInt
+
+  @@id([id, name])
+  @@index([name], map: "idx_tag_name")
+}
+
+model mantis_tokens_table {
+  id        Int    @id @default(autoincrement())
+  owner     Int
+  type      Int
+  value     String @db.LongText
+  timestamp Int    @default(1) @db.UnsignedInt
+  expiry    Int    @default(1) @db.UnsignedInt
+
+  @@index([type, owner], map: "idx_typeowner")
+}
+
+model mantis_user_pref_table {
+  id                             Int    @id @default(autoincrement()) @db.UnsignedInt
+  user_id                        Int    @default(0) @db.UnsignedInt
+  project_id                     Int    @default(0) @db.UnsignedInt
+  default_profile                Int    @default(0) @db.UnsignedInt
+  default_project                Int    @default(0) @db.UnsignedInt
+  refresh_delay                  Int    @default(0)
+  redirect_delay                 Int    @default(0)
+  bugnote_order                  String @default("ASC") @db.VarChar(4)
+  email_on_new                   Int    @default(0) @db.TinyInt
+  email_on_assigned              Int    @default(0) @db.TinyInt
+  email_on_feedback              Int    @default(0) @db.TinyInt
+  email_on_resolved              Int    @default(0) @db.TinyInt
+  email_on_closed                Int    @default(0) @db.TinyInt
+  email_on_reopened              Int    @default(0) @db.TinyInt
+  email_on_bugnote               Int    @default(0) @db.TinyInt
+  email_on_status                Int    @default(0) @db.TinyInt
+  email_on_priority              Int    @default(0) @db.TinyInt
+  email_on_priority_min_severity Int    @default(10) @db.SmallInt
+  email_on_status_min_severity   Int    @default(10) @db.SmallInt
+  email_on_bugnote_min_severity  Int    @default(10) @db.SmallInt
+  email_on_reopened_min_severity Int    @default(10) @db.SmallInt
+  email_on_closed_min_severity   Int    @default(10) @db.SmallInt
+  email_on_resolved_min_severity Int    @default(10) @db.SmallInt
+  email_on_feedback_min_severity Int    @default(10) @db.SmallInt
+  email_on_assigned_min_severity Int    @default(10) @db.SmallInt
+  email_on_new_min_severity      Int    @default(10) @db.SmallInt
+  email_bugnote_limit            Int    @default(0) @db.SmallInt
+  language                       String @default("english") @db.VarChar(32)
+  timezone                       String @default("") @db.VarChar(32)
+}
+
+model mantis_user_print_pref_table {
+  user_id    Int    @id @default(0) @db.UnsignedInt
+  print_pref String @db.VarChar(64)
+}
+
+model mantis_user_profile_table {
+  id          Int    @id @default(autoincrement()) @db.UnsignedInt
+  user_id     Int    @default(0) @db.UnsignedInt
+  platform    String @default("") @db.VarChar(32)
+  os          String @default("") @db.VarChar(32)
+  os_build    String @default("") @db.VarChar(32)
+  description String @db.LongText
+}
+
+model mantis_user_table {
+  id                          Int    @id @default(autoincrement()) @db.UnsignedInt
+  username                    String @unique(map: "idx_user_username") @default("")
+  realname                    String @default("")
+  email                       String @default("")
+  password                    String @default("") @db.VarChar(64)
+  enabled                     Int    @default(1) @db.TinyInt
+  protected                   Int    @default(0) @db.TinyInt
+  access_level                Int    @default(10) @db.SmallInt
+  login_count                 Int    @default(0)
+  lost_password_request_count Int    @default(0) @db.SmallInt
+  failed_login_count          Int    @default(0) @db.SmallInt
+  cookie_string               String @unique(map: "idx_user_cookie_string") @default("") @db.VarChar(64)
+  last_visit                  Int    @default(1) @db.UnsignedInt
+  date_created                Int    @default(1) @db.UnsignedInt
+
+  @@index([access_level], map: "idx_access")
+  @@index([email], map: "idx_email")
+  @@index([enabled], map: "idx_enable")
+}
