@@ -6,7 +6,7 @@ const client = new Postmark.ServerClient(secrets.postmarkServerToken);
 
 export async function sendEmail(to: string, subject: string, html: string) {
   await client.sendEmail({
-    From: secrets.fromEmail,
+    From: `${secrets.fromName} <${secrets.fromEmail}>`,
     To: to,
     Subject: subject,
     HtmlBody: html,
