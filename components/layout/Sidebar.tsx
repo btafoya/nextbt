@@ -2,15 +2,29 @@
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 
-export function Sidebar() {
+type SidebarProps = {
+  session: {
+    uid: number;
+    username: string;
+    projects: number[];
+    access_level: number;
+  };
+};
+
+export function Sidebar({ session }: SidebarProps) {
   const pathname = usePathname();
+  const isAdmin = session.access_level >= 90;
 
   const navItems = [
     { href: "/", label: "Dashboard", icon: "📊" },
     { href: "/issues", label: "Issues", icon: "🐛" },
     { href: "/projects", label: "Projects", icon: "📁" },
-    { href: "/search", label: "Search", icon: "🔍" },
   ];
+
+  // Add Users link for admins
+  if (isAdmin) {
+    navItems.push({ href: "/users", label: "Users", icon: "👥" });
+  }
 
   return (
     <aside className="sidebar">

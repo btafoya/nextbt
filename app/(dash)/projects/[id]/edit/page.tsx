@@ -4,6 +4,7 @@
 import React, { useState, useEffect } from "react";
 import { useRouter, useParams } from "next/navigation";
 import Editor from "@/components/wysiwyg/Editor";
+import { UserAssignment } from "@/components/projects/UserAssignment";
 
 export default function EditProjectPage() {
   const params = useParams();
@@ -15,6 +16,7 @@ export default function EditProjectPage() {
   const [status, setStatus] = useState(10);
   const [enabled, setEnabled] = useState(true);
   const [viewState, setViewState] = useState(10);
+  const [userIds, setUserIds] = useState<number[]>([]);
   const [error, setError] = useState("");
   const [loading, setLoading] = useState(false);
   const [loadingProject, setLoadingProject] = useState(true);
@@ -30,6 +32,7 @@ export default function EditProjectPage() {
         setStatus(data.status);
         setEnabled(data.enabled);
         setViewState(data.view_state);
+        setUserIds(data.users ? data.users.map((u: any) => u.user_id) : []);
       } else {
         setError("Failed to load project");
       }
@@ -46,7 +49,7 @@ export default function EditProjectPage() {
     const res = await fetch(`/api/projects/${projectId}`, {
       method: "PUT",
       headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ name, description, status, enabled, view_state: viewState })
+      body: JSON.stringify({ name, description, status, enabled, view_state: viewState, user_ids: userIds })
     });
 
     if (res.ok) {
@@ -145,6 +148,10 @@ export default function EditProjectPage() {
             />
             <span className="text-sm font-medium">Enabled</span>
           </label>
+        </div>
+
+        <div className="border-t pt-4">
+          <UserAssignment selectedUserIds={userIds} onChange={setUserIds} />
         </div>
 
         {error && <p className="text-red-600 text-sm">{error}</p>}

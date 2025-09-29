@@ -1,0 +1,19 @@
+// /app/(dash)/users/new/page.tsx
+import { requireAdmin } from "@/lib/auth";
+import { notFound } from "next/navigation";
+import { UserForm } from "@/components/users/UserForm";
+
+export default async function NewUserPage() {
+  try {
+    requireAdmin();
+  } catch {
+    notFound();
+  }
+
+  return (
+    <div className="space-y-4">
+      <h1 className="text-2xl font-bold">Create New User</h1>
+      <UserForm mode="create" />
+    </div>
+  );
+}
