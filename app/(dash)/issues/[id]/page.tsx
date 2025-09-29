@@ -8,23 +8,26 @@ import ActivityTimeline from "@/components/issues/ActivityTimeline";
 import StatusActions from "@/components/issues/StatusActions";
 import HtmlContent from "@/components/issues/HtmlContent";
 import { notFound } from "next/navigation";
+import Link from "next/link";
+import { getSeverityLabel } from "@/lib/mantis-enums";
 
 async function getIssue(id: number) {
   const session = requireSession();
 
   const issue = await prisma.mantis_bug_table.findUnique({
-    where: { id }
+    where: { id },
+    include: {
+      project: true,
+      reporter: true,
+      text: true
+    }
   });
 
   if (!issue || !session.projects.includes(issue.project_id)) {
     return null;
   }
 
-  const text = await prisma.mantis_bug_text_table.findUnique({
-    where: { id: issue.bug_text_id }
-  });
-
-  return { ...issue, text };
+  return issue;
 }
 
 export default async function IssueShow({ params }: { params: { id: string } }) {
@@ -54,13 +57,19 @@ export default async function IssueShow({ params }: { params: { id: string } }) 
       <div className="bg-white border rounded p-6 space-y-4">
         <div className="grid grid-cols-2 gap-4 text-sm">
           <div>
-            <span className="font-semibold">Project ID:</span> {issue.project_id}
+            <span className="font-semibold">Project:</span>{" "}
+            <Link href={`/projects/${issue.project_id}`} className="text-blue-600 hover:underline">
+              {issue.project.name}
+            </Link>
           </div>
           <div>
-            <span className="font-semibold">Reporter ID:</span> {issue.reporter_id}
+            <span className="font-semibold">Reporter:</span>{" "}
+            <Link href={`/issues?reporter=${issue.reporter_id}`} className="text-blue-600 hover:underline">
+              {issue.reporter.realname || issue.reporter.username}
+            </Link>
           </div>
           <div>
-            <span className="font-semibold">Severity:</span> {issue.severity}
+            <span className="font-semibold">Severity:</span> {getSeverityLabel(issue.severity)}
           </div>
           <div>
             <span className="font-semibold">Date Submitted:</span> {new Date(issue.date_submitted * 1000).toLocaleDateString()}
