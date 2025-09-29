@@ -3,6 +3,7 @@ import { NextResponse } from "next/server";
 import { prisma } from "@/db/client";
 import { getSession } from "@/lib/auth";
 import { canViewProject, canEditIssue, canDeleteIssue } from "@/lib/permissions";
+import { notifyIssueAction } from "@/lib/notify/issue-notifications";
 
 type Ctx = { params: { id: string } };
 
@@ -52,6 +53,31 @@ export async function PATCH(req: Request, { params }: Ctx) {
       last_updated: Math.floor(Date.now() / 1000)
     }
   });
+
+  // Detect what changed for notification
+  let changes: string | undefined;
+  let action: "updated" | "status_changed" | "assigned" = "updated";
+
+  if (payload.status !== undefined && payload.status !== row.status) {
+    action = "status_changed";
+    changes = `Status changed from ${row.status} to ${payload.status}`;
+  } else if (payload.handler_id !== undefined && payload.handler_id !== row.handler_id) {
+    action = "assigned";
+    changes = `Issue assigned`;
+  }
+
+  // Send notifications for issue update
+  const baseUrl = new URL(req.url).origin;
+  await notifyIssueAction({
+    issueId: updated.id,
+    issueSummary: updated.summary,
+    projectId: updated.project_id,
+    action,
+    actorId: session.uid,
+    actorName: session.username,
+    changes
+  }, baseUrl);
+
   return NextResponse.json(updated);
 }
 
@@ -70,6 +96,17 @@ export async function DELETE(req: Request, { params }: Ctx) {
   if (!canDelete) {
     return NextResponse.json({ error: "You don't have permission to delete this issue" }, { status: 403 });
   }
+
+  // Send notifications before deletion
+  const baseUrl = new URL(req.url).origin;
+  await notifyIssueAction({
+    issueId: row.id,
+    issueSummary: row.summary,
+    projectId: row.project_id,
+    action: "deleted",
+    actorId: session.uid,
+    actorName: session.username
+  }, baseUrl);
 
   // Delete associated records first
   await prisma.mantis_bugnote_table.deleteMany({ where: { bug_id: id } });
