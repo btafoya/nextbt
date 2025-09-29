@@ -17,6 +17,18 @@ export default function HtmlContent({ html }: HtmlContentProps) {
     const images = containerRef.current.querySelectorAll("img");
 
     images.forEach((img) => {
+      // Transform file_download.php URLs to Next.js API endpoints
+      if (img.src.includes("file_download.php")) {
+        const url = new URL(img.src, window.location.origin);
+        const fileId = url.searchParams.get("file_id");
+        const type = url.searchParams.get("type") || "bug";
+
+        if (fileId) {
+          // Replace with Next.js API endpoint
+          img.src = `/api/files/${fileId}?type=${type}&show_inline=1`;
+        }
+      }
+
       // Create a wrapper for the lightbox
       const wrapper = document.createElement("span");
       wrapper.style.display = "inline-block";
