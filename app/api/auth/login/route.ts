@@ -3,10 +3,39 @@ import { NextResponse } from "next/server";
 import { cookies } from "next/headers";
 import { prisma } from "@/db/client";
 import { verifyMantisPassword } from "@/lib/mantis-crypto";
+import { secrets } from "@/config/secrets";
 
 export async function POST(req: Request) {
-  const { username, password } = await req.json();
-  if (!username || !password) return NextResponse.json({ ok: false, error: "Missing" }, { status: 400 });
+  const { username, password, turnstileToken } = await req.json();
+  if (!username || !password) return NextResponse.json({ ok: false, error: "Missing credentials" }, { status: 400 });
+
+  // Verify Cloudflare Turnstile token
+  if (!turnstileToken) {
+    return NextResponse.json({ error: "Missing verification token" }, { status: 400 });
+  }
+
+  try {
+    const turnstileResponse = await fetch(
+      "https://challenges.cloudflare.com/turnstile/v0/siteverify",
+      {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          secret: secrets.turnstileSecretKey,
+          response: turnstileToken,
+        }),
+      }
+    );
+
+    const turnstileData = await turnstileResponse.json();
+
+    if (!turnstileData.success) {
+      return NextResponse.json({ error: "Verification failed" }, { status: 400 });
+    }
+  } catch (error) {
+    console.error("Turnstile verification error:", error);
+    return NextResponse.json({ error: "Verification error" }, { status: 500 });
+  }
 
   const user = await prisma.mantis_user_table.findFirst({ where: { username } });
   if (!user) return NextResponse.json({ ok: false }, { status: 401 });

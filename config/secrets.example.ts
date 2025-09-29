@@ -20,5 +20,8 @@ export const secrets = {
   // Web Push (VAPID)
   vapidPublicKey: "B...",
   vapidPrivateKey: "x...",
-  vapidSubject: "mailto:admin@example.com"
+  vapidSubject: "mailto:admin@example.com",
+  // Cloudflare Turnstile
+  turnstileSiteKey: "0x4AAAAAAA...",
+  turnstileSecretKey: "0x4AAAAAAA..."
 } as const;
