@@ -22,6 +22,8 @@ Complete design documentation available:
 - **18_DEPLOYMENT_GUIDE.md** - Deployment options (Vercel, Docker, VPS), environment setup
 - **19_MCP_INTEGRATION.md** - MCP (Model Context Protocol) integration guide for Claude Code
 - **20_TESTING_GUIDE.md** - Comprehensive testing guide with Vitest (40+ tests)
+- **ACCESSIBILITY-TESTING-GUIDE.md** - WCAG 2.1 AA accessibility testing with Playwright (47 tests)
+- **CODE-ANALYSIS-REPORT.md** - Comprehensive code quality, security, and architecture analysis
 
 ## Development Commands
 
