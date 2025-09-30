@@ -69,10 +69,18 @@ The MantisLite Next.js project has been successfully built with all core compone
 - PATCH /api/issues/[id] - Update issue
 - POST /api/issues/[id]/notes - Add note to issue
 
+**MCP Integration:**
+- GET /api/mcp/tools - List available MCP tools
+- POST /api/mcp/tools - Execute MCP tool with arguments
+- GET /api/mcp/resources - List available MCP resources
+- POST /api/mcp/resources - Read MCP resource content
+- GET /api/mcp/status - Check MCP connection status
+
 ### 8. Libraries (/lib)
 - **auth.ts** - Session management (getSession, requireSession)
 - **mantis-crypto.ts** - Password verification for MantisBT
 - **permissions.ts** - Project-based permissions (canViewProject, canComment)
+- **mcp/client.ts** - MCP (Model Context Protocol) remote client for Claude Code integration
 - **notify/** - Multi-channel notification system:
   - postmark.ts (email)
   - pushover.ts (push)
@@ -109,10 +117,12 @@ The MantisLite Next.js project has been successfully built with all core compone
 
 ## 📝 Documentation
 - CLAUDE.md with project overview and commands
-- 18 detailed markdown design documents
+- 20 detailed markdown design documents
 - Component examples and specifications
 - API documentation
 - Architecture diagrams
+- MCP integration guide (19_MCP_INTEGRATION.md)
+- Testing guide (20_TESTING_GUIDE.md)
 
 ## ✅ Build Status
 **SUCCESS** - All TypeScript compilation passed
@@ -148,6 +158,8 @@ pnpm start
 - **Project-based access**: All permissions based on project membership
 - **Multi-channel notifications**: Email, push, chat, teams
 - **AI-enhanced editing**: OpenRouter integration for writing assistance
+- **MCP Integration**: Claude Code remote server support with SSE transport
+- **Comprehensive testing**: 40+ tests with Vitest (unit + integration)
 - **Mobile-friendly**: Responsive design for all screen sizes
 - **Dark mode**: Full dark mode support
 
@@ -159,3 +171,5 @@ pnpm start
 - Tailwind CSS 3.4
 - TipTap Editor 3.6
 - iron-session 8.0
+- Vitest 3.2 (testing framework)
+- Model Context Protocol (MCP) for Claude Code integration

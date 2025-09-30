@@ -8,7 +8,7 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 - **UI Framework**: [TailAdmin Free Next.js Admin Dashboard](https://github.com/TailAdmin/free-nextjs-admin-dashboard)
 - **Core Purpose**: Simplified UI for existing MantisBT 2.x bug tracking system
 - **Database Approach**: Read/write to existing MantisBT schema via Prisma (non-destructive, uses `@@map`/`@map`)
-- **Key Integration**: TipTap WYSIWYG editor with AI assist (OpenRouter), multi-channel notifications (Postmark, Pushover, Rocket.Chat, Teams, Web Push)
+- **Key Integration**: TipTap WYSIWYG editor with AI assist (OpenRouter), MCP (Model Context Protocol) for Claude Code, multi-channel notifications (Postmark, Pushover, Rocket.Chat, Teams, Web Push)
 - **Platform**: Web application interfacing with existing MantisBT MySQL database
 - **DO NOT**: Modify MantisBT schema directly, rename existing database tables, create destructive migrations, use .env files (use `/config/*.ts` instead)
 
@@ -19,6 +19,8 @@ Complete design documentation available:
 - **16_COMPONENT_LIBRARY.md** - Component specifications with TypeScript examples
 - **17_ARCHITECTURE_DIAGRAMS.md** - System architecture diagrams and data flow visualizations
 - **18_DEPLOYMENT_GUIDE.md** - Deployment options (Vercel, Docker, VPS), environment setup
+- **19_MCP_INTEGRATION.md** - MCP (Model Context Protocol) integration guide for Claude Code
+- **20_TESTING_GUIDE.md** - Comprehensive testing guide with Vitest (40+ tests)
 
 ## Development Commands
 
@@ -37,6 +39,11 @@ pnpm start
 
 # Linting
 pnpm lint
+
+# Testing
+pnpm test              # Run all tests
+pnpm test:ui           # Run tests with UI
+pnpm test:coverage     # Run tests with coverage report
 
 # Prisma operations (use DATABASE_URL env var temporarily for these commands)
 DATABASE_URL="mysql://mantisbt:mantisbt@localhost:3306/mantisbt" pnpm dlx prisma db pull  # Introspect existing schema
@@ -75,6 +82,7 @@ pnpm dlx prisma studio     # Open Prisma Studio GUI
   - `issues/` - Issue CRUD
   - `issues/[id]/notes/` - Bug notes
   - `auth/` - Login/logout
+  - `mcp/` - MCP integration endpoints (tools, resources, status)
 
 ### Key Components
 - **`/components/wysiwyg/Editor.tsx`**: TipTap rich text editor integration
@@ -85,6 +93,12 @@ pnpm dlx prisma studio     # Open Prisma Studio GUI
 - **Multi-channel**: Postmark (email), Pushover, Rocket.Chat, Microsoft Teams, Web Push
 - **Dispatch**: `notify/dispatch.ts` routes notifications to configured channels
 - **Project-based**: Notifications configured per project access, not user type
+
+### MCP Integration (`/lib/mcp/`)
+- **MCP Client**: `mcp/client.ts` - Claude Code remote server client
+- **Protocol**: Server-Sent Events (SSE) transport with Bearer token authentication
+- **API Endpoints**: `/app/api/mcp/*` for tools, resources, and status
+- **Configuration**: `config/secrets.ts` with mcpRemoteEnabled, mcpRemoteUrl, mcpRemoteAuthKey
 
 ### AI Integration (`/lib/ai/`)
 - **OpenRouter client**: `ai/openrouter.ts` for inline writing assistance
@@ -152,9 +166,15 @@ await dispatchNotification({
 ```
 
 ## Testing Approach
-- Use MantisBT test accounts for development authentication
-- Verify operations against existing MantisBT data (read-only initially)
-- Test notification channels independently via `/lib/notify/*` modules
+- **Test Framework**: Vitest 3.2 with jsdom environment and React Testing Library
+- **Test Suites**: 40+ tests covering unit and integration scenarios
+  - `__tests__/lib/mcp/client.test.ts` - MCP client unit tests (17 tests)
+  - `__tests__/app/api/mcp/*.test.ts` - MCP API integration tests (24 tests)
+- **Coverage**: v8 provider with text, JSON, and HTML reports
+- **Development**: Use MantisBT test accounts for authentication testing
+- **Validation**: Verify operations against existing MantisBT data (read-only initially)
+- **Notifications**: Test channels independently via `/lib/notify/*` modules
+- See **20_TESTING_GUIDE.md** for comprehensive testing documentation
 
 ## Code Style
 - TypeScript strict mode enabled
