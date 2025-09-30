@@ -13,8 +13,10 @@ import Blockquote from "@tiptap/extension-blockquote";
 import Heading from "@tiptap/extension-heading";
 import TextAlign from "@tiptap/extension-text-align";
 import Highlight from "@tiptap/extension-highlight";
-import React, { useCallback } from "react";
+import React, { useCallback, useState, useEffect } from "react";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
+import WriterChat from "@/components/ai/WriterChat";
+import PromptBar from "@/components/ai/PromptBar";
 import {
   faBold,
   faItalic,
@@ -33,7 +35,27 @@ import {
   faHighlighter
 } from "@fortawesome/free-solid-svg-icons";
 
-export default function Editor({ value, onChange }: { value?: string; onChange?: (html: string) => void }) {
+interface EditorProps {
+  value?: string;
+  onChange?: (html: string) => void;
+  fieldKey?: string;
+  projectName?: string;
+  issueCategory?: string;
+  enableAI?: boolean;
+}
+
+export default function Editor({
+  value,
+  onChange,
+  fieldKey,
+  projectName,
+  issueCategory,
+  enableAI = true
+}: EditorProps) {
+  const [isAIOpen, setIsAIOpen] = useState(false);
+  const [selectedText, setSelectedText] = useState("");
+  const [initialAction, setInitialAction] = useState<{ action: string; customPrompt?: string } | null>(null);
+
   const editor = useEditor({
     extensions: [
       StarterKit.configure({
@@ -57,8 +79,24 @@ export default function Editor({ value, onChange }: { value?: string; onChange?:
     immediatelyRender: false,
     onUpdate({ editor }) {
       onChange?.(editor.getHTML());
-    }
+    },
+    onSelectionUpdate({ editor }) {
+      const { from, to } = editor.state.selection;
+      const text = editor.state.doc.textBetween(from, to, " ");
+      setSelectedText(text);
+    },
   });
+
+  // Sync editor content when value prop changes externally
+  useEffect(() => {
+    if (editor && value !== undefined) {
+      const currentContent = editor.getHTML();
+      // Only update if the content is actually different to avoid infinite loops
+      if (currentContent !== value) {
+        editor.commands.setContent(value);
+      }
+    }
+  }, [value, editor]);
 
   const addImage = useCallback(() => {
     // Create a modal dialog for image insertion
@@ -130,10 +168,43 @@ export default function Editor({ value, onChange }: { value?: string; onChange?:
     }
   }, [editor]);
 
+  const handleAIAction = useCallback((action: string, customPrompt?: string) => {
+    setInitialAction({ action, customPrompt });
+    setIsAIOpen(true);
+  }, []);
+
+  const handleAIInsert = useCallback((content: string, targetFieldKey?: string) => {
+    if (editor && targetFieldKey === fieldKey) {
+      editor.chain().focus().insertContent(content).run();
+    }
+  }, [editor, fieldKey]);
+
+  const handleAIReplace = useCallback((content: string, targetFieldKey?: string) => {
+    if (editor && targetFieldKey === fieldKey) {
+      const { from, to } = editor.state.selection;
+      if (from !== to) {
+        editor.chain().focus().deleteSelection().insertContent(content).run();
+      } else {
+        // Replace all content if nothing selected
+        editor.chain().focus().setContent(content).run();
+      }
+    }
+  }, [editor, fieldKey]);
+
   if (!editor) return null;
 
   return (
     <div className="border rounded-md">
+      {/* AI Prompt Bar */}
+      {enableAI && (
+        <PromptBar
+          onAction={handleAIAction}
+          selectedText={selectedText}
+          fieldKey={fieldKey}
+          disabled={false}
+        />
+      )}
+
       {/* Toolbar */}
       <div className="border-b p-2 flex flex-wrap gap-1">
         {/* Text Formatting */}
@@ -293,12 +364,47 @@ export default function Editor({ value, onChange }: { value?: string; onChange?:
         >
           <FontAwesomeIcon icon={faImage} />
         </button>
+
+        {/* AI Assistant Toggle */}
+        {enableAI && (
+          <>
+            <span className="border-r mx-1" />
+            <button
+              type="button"
+              className={`text-sm border px-2 py-1 rounded ${isAIOpen ? "bg-blue-100" : ""}`}
+              onClick={() => setIsAIOpen(!isAIOpen)}
+              title="AI Writing Assistant"
+            >
+              <span>✨</span> AI
+            </button>
+          </>
+        )}
       </div>
 
       {/* Editor Content */}
       <div className="p-2 prose max-w-none">
         <EditorContent editor={editor} />
       </div>
+
+      {/* AI Writer Chat Panel */}
+      {enableAI && isAIOpen && (
+        <WriterChat
+          docType="issue"
+          fieldKey={fieldKey}
+          projectName={projectName}
+          issueCategory={issueCategory}
+          onInsert={handleAIInsert}
+          onReplace={handleAIReplace}
+          selectedText={selectedText}
+          isOpen={isAIOpen}
+          onClose={() => {
+            setIsAIOpen(false);
+            setInitialAction(null);
+          }}
+          initialAction={initialAction}
+          currentContent={editor?.getHTML() || ""}
+        />
+      )}
     </div>
   );
 }

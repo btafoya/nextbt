@@ -1,7 +1,6 @@
 import "server-only";
 import { secrets } from "@/config/secrets";
 
-export type AIProvider = "openai" | "openrouter";
 export type AIRole = "system" | "user" | "assistant";
 
 export interface AIMessage {
@@ -10,7 +9,6 @@ export interface AIMessage {
 }
 
 export interface AIGenerateOptions {
-  provider: AIProvider;
   model?: string;
   messages: AIMessage[];
   stream?: boolean;
@@ -19,21 +17,13 @@ export interface AIGenerateOptions {
 }
 
 export class AIClient {
-  private static getDefaultModel(provider: AIProvider): string {
-    if (provider === "openai") {
-      return secrets.aiWriterDefaultModelOpenAI || "gpt-4-turbo-preview";
-    }
-    return (
-      secrets.aiWriterDefaultModelOpenRouter ||
-      secrets.openrouterModel ||
-      "openai/gpt-4-turbo-preview"
-    );
+  private static getDefaultModel(): string {
+    return secrets.openrouterModel || "openai/gpt-4o-mini";
   }
 
   static async generate(options: AIGenerateOptions) {
     const {
-      provider,
-      model = this.getDefaultModel(provider),
+      model = this.getDefaultModel(),
       messages,
       stream = true,
       temperature = 0.7,
@@ -41,27 +31,18 @@ export class AIClient {
     } = options;
 
     const apiKey = secrets.openrouterApiKey;
-    const baseURL =
-      provider === "openai"
-        ? "https://api.openai.com/v1"
-        : secrets.openrouterBaseUrl;
+    const baseURL = secrets.openrouterBaseUrl;
 
     if (!apiKey) {
-      throw new Error(`API key not configured for provider: ${provider}`);
+      throw new Error("OpenRouter API key not configured");
     }
 
     const headers: Record<string, string> = {
       "Content-Type": "application/json",
       Authorization: `Bearer ${apiKey}`,
+      "HTTP-Referer": secrets.openrouterSiteUrl || "https://nextbt.local",
+      "X-Title": secrets.openrouterSiteName || "NextBT Bug Tracker",
     };
-
-    // Add OpenRouter specific headers
-    if (provider === "openrouter") {
-      headers["HTTP-Referer"] =
-        secrets.openrouterSiteUrl || "https://nextbt.local";
-      headers["X-Title"] =
-        secrets.openrouterSiteName || "NextBT Bug Tracker";
-    }
 
     try {
       const response = await fetch(`${baseURL}/chat/completions`, {

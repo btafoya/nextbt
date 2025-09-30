@@ -163,7 +163,6 @@ export default function WriterChat({
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
-          provider: "openrouter",
           messages: [
             ...messages.map((m) => ({ role: m.role, content: m.content })),
             { role: "user", content: userMessage.content },
@@ -240,21 +239,83 @@ export default function WriterChat({
     handleSendWithPrompt(input);
   };
 
+  // Convert markdown-style content to HTML for TipTap editor
+  const convertToHTML = (content: string): string => {
+    let html = content;
+
+    // Convert markdown-style formatting to HTML
+    // Bold: **text** or __text__ -> <strong>text</strong>
+    html = html.replace(/\*\*([^*]+)\*\*/g, "<strong>$1</strong>");
+    html = html.replace(/__([^_]+)__/g, "<strong>$1</strong>");
+
+    // Italic: *text* or _text_ -> <em>text</em>
+    html = html.replace(/\*([^*]+)\*/g, "<em>$1</em>");
+    html = html.replace(/_([^_]+)_/g, "<em>$1</em>");
+
+    // Code: `code` -> <code>code</code>
+    html = html.replace(/`([^`]+)`/g, "<code>$1</code>");
+
+    // Headings: ## text -> <h2>text</h2>
+    html = html.replace(/^### (.+)$/gm, "<h3>$1</h3>");
+    html = html.replace(/^## (.+)$/gm, "<h2>$1</h2>");
+    html = html.replace(/^# (.+)$/gm, "<h1>$1</h1>");
+
+    // Unordered lists: - item or * item -> <ul><li>item</li></ul>
+    html = html.replace(/^[\-\*] (.+)$/gm, "<li>$1</li>");
+    html = html.replace(/(<li>.*<\/li>\n?)+/g, (match) => `<ul>${match}</ul>`);
+
+    // Ordered lists: 1. item -> <ol><li>item</li></ol>
+    html = html.replace(/^\d+\. (.+)$/gm, "<li>$1</li>");
+    html = html.replace(/(<li>.*<\/li>\n?)+/g, (match) => {
+      // Only wrap in <ol> if not already wrapped in <ul>
+      if (!match.includes("<ul>")) {
+        return `<ol>${match}</ol>`;
+      }
+      return match;
+    });
+
+    // Line breaks: double newline -> <p>
+    html = html.replace(/\n\n+/g, "</p><p>");
+    html = html.replace(/\n/g, "<br>");
+
+    // Wrap in paragraph if not already structured
+    if (!html.match(/^<[huo]/)) {
+      html = `<p>${html}</p>`;
+    }
+
+    return html;
+  };
+
   const handleCopy = (content: string, id: string) => {
-    navigator.clipboard.writeText(content);
+    // Copy as HTML to preserve formatting
+    const html = convertToHTML(content);
+
+    // Copy both plain text and HTML to clipboard
+    const clipboardItem = new ClipboardItem({
+      "text/html": new Blob([html], { type: "text/html" }),
+      "text/plain": new Blob([content], { type: "text/plain" }),
+    });
+
+    navigator.clipboard.write([clipboardItem]).catch(() => {
+      // Fallback to plain text if ClipboardItem not supported
+      navigator.clipboard.writeText(content);
+    });
+
     setCopiedId(id);
     setTimeout(() => setCopiedId(null), 2000);
   };
 
   const handleInsert = (content: string) => {
     if (onInsert) {
-      onInsert(content, fieldKey);
+      const html = convertToHTML(content);
+      onInsert(html, fieldKey);
     }
   };
 
   const handleReplace = (content: string) => {
     if (onReplace) {
-      onReplace(content, fieldKey);
+      const html = convertToHTML(content);
+      onReplace(html, fieldKey);
     }
   };
 

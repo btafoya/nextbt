@@ -13,9 +13,6 @@ export const secrets = {
   openrouterSiteName: "Your Bug Tracker",
   // AI Writer Settings
   aiWriterEnabled: true,
-  aiWriterDefaultProvider: "openrouter", // 'openai' or 'openrouter'
-  aiWriterDefaultModelOpenAI: "gpt-4-turbo-preview",
-  aiWriterDefaultModelOpenRouter: "openai/gpt-4-turbo-preview",
   aiRateLimitRequests: 60, // requests per window
   aiRateLimitWindow: 600, // window in seconds (10 minutes)
   // Email (Postmark)
