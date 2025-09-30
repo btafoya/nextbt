@@ -1,4 +1,5 @@
 // /lib/file-url-transform.ts
+import { logger } from "@/lib/logger";
 
 /**
  * Transform MantisBT file_download.php URLs to Next.js API endpoints
