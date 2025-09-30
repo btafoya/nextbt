@@ -16,11 +16,34 @@ import {
 export type { SessionData };
 
 /**
- * Get the current session with automatic activity tracking and expiration validation
+ * Get the current session (read-only, for page components)
+ * Does NOT update activity timestamp - use in page components to avoid cookie modification
  *
  * @returns SessionData if valid session exists, null otherwise
  */
 export async function getSession(): Promise<SessionData | null> {
+  const session = await getIronSession<SessionData>(cookies(), getSessionOptions());
+
+  // No session data
+  if (!session.uid) {
+    return null;
+  }
+
+  // Check if session is expired
+  if (isSessionExpired(session)) {
+    return null; // Don't destroy - that modifies cookies
+  }
+
+  return session as SessionData;
+}
+
+/**
+ * Get the current session with automatic activity tracking
+ * Only use in Server Actions or Route Handlers (not page components)
+ *
+ * @returns SessionData if valid session exists, null otherwise
+ */
+export async function getSessionWithUpdate(): Promise<SessionData | null> {
   const session = await getIronSession<SessionData>(cookies(), getSessionOptions());
 
   // No session data

@@ -1,6 +1,7 @@
 "use client";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
+import { ThemeToggle } from "@/components/ThemeToggle";
 
 type SidebarProps = {
   session: {
@@ -52,6 +53,9 @@ export function Sidebar({ session }: SidebarProps) {
       </nav>
 
       <div className="border-t border-gray-200 p-4 dark:border-gray-700">
+        <div className="mb-3 flex items-center justify-center">
+          <ThemeToggle />
+        </div>
         <form action="/api/auth/logout" method="POST">
           <button
             type="submit"

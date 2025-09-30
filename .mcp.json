@@ -9,11 +9,11 @@
     },
     "nextbt-remote": {
       "type": "sse",
-      "url": "${MCP_REMOTE_URL:-https://api.example.com/mcp}",
+      "url": "${MCP_REMOTE_URL:-http://localhost:3000/api/mcp/sse}",
       "headers": {
         "Authorization": "Bearer ${MCP_REMOTE_AUTH_KEY}"
       },
-      "disabled": true
+      "disabled": false
     }
   }
 }

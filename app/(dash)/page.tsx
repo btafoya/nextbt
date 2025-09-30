@@ -1,7 +1,7 @@
 // /app/(dash)/page.tsx
 import Link from "next/link";
 import { prisma } from "@/db/client";
-import { requireSession, refreshSession } from "@/lib/auth";
+import { requireSession } from "@/lib/auth";
 import { DataTable } from "@/components/ui/data-table";
 import { columns } from "./issues/columns";
 import { Button } from "@/components/ui/button";
@@ -105,9 +105,6 @@ async function getReportedIssues() {
 
 export default async function HomePage() {
   const session = await requireSession();
-
-  // Refresh session if nearing expiration (automatic session renewal)
-  await refreshSession(session);
 
   const [assignedIssues, reportedIssues] = await Promise.all([
     getAssignedIssues(),
