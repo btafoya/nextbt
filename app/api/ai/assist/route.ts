@@ -8,7 +8,7 @@ import { secrets } from "@/config/secrets";
 export async function POST(request: NextRequest) {
   try {
     // Check authentication
-    const session = requireSession();
+    const session = await requireSession();
 
     // Check if AI Writer is enabled
     if (!secrets.aiWriterEnabled) {

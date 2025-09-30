@@ -7,7 +7,7 @@ import { logger } from "@/lib/logger";
 // GET /api/categories?project_id=X - List categories for a project
 export async function GET(req: Request) {
   try {
-    const session = requireSession();
+    const session = await requireSession();
     const { searchParams } = new URL(req.url);
     const projectIdStr = searchParams.get("project_id");
 
@@ -46,7 +46,7 @@ export async function GET(req: Request) {
 // POST /api/categories - Create new category
 export async function POST(req: Request) {
   try {
-    const session = requireSession();
+    const session = await requireSession();
     const body = await req.json();
     const { project_id, name } = body;
 

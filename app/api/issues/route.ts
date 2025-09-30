@@ -6,7 +6,7 @@ import { canViewProject } from "@/lib/permissions";
 import { notifyIssueAction } from "@/lib/notify/issue-notifications";
 
 export async function GET(req: Request) {
-  const session = getSession();
+  const session = await getSession();
   if (!session) return NextResponse.json({ ok: false }, { status: 401 });
 
   const { searchParams } = new URL(req.url);
@@ -28,7 +28,7 @@ export async function GET(req: Request) {
 }
 
 export async function POST(req: Request) {
-  const session = getSession();
+  const session = await getSession();
   if (!session) return NextResponse.json({ ok: false }, { status: 401 });
 
   const body = await req.json();

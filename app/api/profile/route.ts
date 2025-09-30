@@ -10,7 +10,7 @@ import { logger } from "@/lib/logger";
  */
 export async function GET() {
   try {
-    const session = requireSession();
+    const session = await requireSession();
 
     const user = await prisma.mantis_user_table.findUnique({
       where: { id: session.uid },
@@ -45,7 +45,7 @@ export async function GET() {
  */
 export async function PUT(req: Request) {
   try {
-    const session = requireSession();
+    const session = await requireSession();
     const body = await req.json();
     const { realname, email } = body;
 

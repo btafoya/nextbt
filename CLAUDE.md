@@ -66,11 +66,14 @@ pnpm dlx prisma studio     # Open Prisma Studio GUI
 - **Key Pattern**: All Prisma models use `@@map` and `@map` to preserve original MantisBT table/column names
 - **Non-Destructive**: Never run migrations that alter MantisBT schema; use SQL views/functions for compatibility layers
 
-### Authentication & Sessions (`/lib/auth.ts`, `/middleware.ts`)
-- **Session mechanism**: JSON cookie named "nextbt" with `{uid, username, projects[]}`
-- **Middleware**: Protects dashboard routes, redirects unauthenticated users to login
+### Authentication & Sessions (`/lib/auth.ts`, `/lib/session-config.ts`, `/middleware.ts`)
+- **Session mechanism**: iron-session encrypted cookie with AES-256-GCM encryption
+- **Session data**: `{uid, username, projects[], createdAt, lastActivity, expiresAt}`
+- **Security**: 7-day expiration, 2-hour inactivity timeout, automatic refresh
+- **Middleware**: Protects dashboard routes, validates sessions, redirects unauthenticated users to login
 - **Auth endpoints**: `/app/api/auth/login/route.ts` and `/app/api/auth/logout/route.ts`
 - **Validation**: Uses MantisBT password hashing (`lib/mantis-crypto.ts`)
+- **Important**: All auth functions are async (use `await requireSession()`, `await getSession()`)
 
 ### Route Organization
 - **`/app/(auth)/login/`**: Login page (outside dashboard layout)
@@ -79,11 +82,13 @@ pnpm dlx prisma studio     # Open Prisma Studio GUI
   - `projects/` - Project management (planned)
   - `search/` - Power search interface (planned)
   - `admin/` - Admin configuration (planned)
-- **`/app/api/`**: API routes for CRUD operations
+- **`/app/api/`**: REST API routes for CRUD operations
   - `issues/` - Issue CRUD
   - `issues/[id]/notes/` - Bug notes
   - `auth/` - Login/logout
   - `mcp/` - MCP integration endpoints (tools, resources, status)
+  - `openapi.json` - OpenAPI 3.0 specification
+- **`/app/api-docs/`**: Interactive Swagger UI for API documentation
 
 ### Key Components
 - **`/components/wysiwyg/Editor.tsx`**: TipTap rich text editor integration
@@ -104,6 +109,14 @@ pnpm dlx prisma studio     # Open Prisma Studio GUI
 ### AI Integration (`/lib/ai/`)
 - **OpenRouter client**: `ai/openrouter.ts` for inline writing assistance
 - **TipTap integration**: AI suggestions directly in WYSIWYG editor
+
+### API Documentation (`/lib/api-docs.ts`, `/app/api-docs/`)
+- **OpenAPI 3.0 Specification**: Complete API documentation with 26 endpoints
+- **Interactive Swagger UI**: Available at `/api-docs` for testing and exploration
+- **JSON Endpoint**: OpenAPI spec available at `/api/openapi.json`
+- **Categories**: Authentication, Issues, Projects, Users, Notes, Categories, Files, MCP, AI, Profile
+- **Schema Definitions**: Request/response types for all endpoints
+- **Authentication**: iron-session cookie-based authentication documented
 
 ### MantisBT Schema Notes
 - **Core tables**:
@@ -131,7 +144,7 @@ const bugs = await prisma.mantis_bug_table.findMany();
 ### Session Validation
 ```typescript
 import { requireSession } from "@/lib/auth";
-const session = requireSession(); // Throws if not authenticated
+const session = await requireSession(); // Async - returns encrypted session data
 const { uid, username, projects } = session;
 ```
 
@@ -143,7 +156,7 @@ import { prisma } from "@/db/client";
 
 export async function GET() {
   try {
-    const session = requireSession();
+    const session = await requireSession(); // Always await session functions
     const data = await prisma.mantis_bug_table.findMany({
       where: { project_id: { in: session.projects } }
     });

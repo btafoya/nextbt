@@ -8,7 +8,7 @@ import { logger } from "@/lib/logger";
  * Check MCP remote server status and test connection
  */
 export async function GET() {
-  const session = getSession();
+  const session = await getSession();
   if (!session) {
     return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
   }

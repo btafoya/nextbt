@@ -13,7 +13,7 @@ export const revalidate = 0
 // GET /api/projects - List projects (all for admins, filtered for regular users)
 export async function GET(req: Request) {
   try {
-    const session = requireSession();
+    const session = await requireSession();
     const { searchParams } = new URL(req.url);
     const activeOnly = searchParams.get('active') === 'true';
 
@@ -129,7 +129,7 @@ export async function POST(req: Request) {
     });
 
     // Create default "General" category for the new project
-    const session = requireAdmin();
+    const session = await requireAdmin();
     const defaultCategory = await prisma.mantis_category_table.create({
       data: {
         project_id: project.id,

@@ -11,7 +11,7 @@ export const dynamic = 'force-dynamic'
 export const revalidate = 0
 
 async function getProjects() {
-  const session = requireSession();
+  const session = await requireSession();
 
   // Check if user is admin
   const user = await prisma.mantis_user_table.findUnique({
@@ -32,7 +32,7 @@ async function getProjects() {
 }
 
 export default async function ProjectsPage() {
-  const session = requireSession();
+  const session = await requireSession();
   const projects = await getProjects();
   const user = session.uid ? await prisma.mantis_user_table.findUnique({ where: { id: session.uid } }) : null;
   const isAdmin = user ? user.access_level >= 90 : false;

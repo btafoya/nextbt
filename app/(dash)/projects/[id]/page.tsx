@@ -12,7 +12,7 @@ export const dynamic = 'force-dynamic'
 export const revalidate = 0
 
 async function getProject(id: number) {
-  const session = requireSession();
+  const session = await requireSession();
 
   // Check if user is admin
   const user = await prisma.mantis_user_table.findUnique({
@@ -85,7 +85,7 @@ export default async function ProjectDetailPage({ params }: { params: { id: stri
   const projectId = parseInt(params.id, 10);
   if (isNaN(projectId)) notFound();
 
-  const session = requireSession();
+  const session = await requireSession();
   const [project, issues] = await Promise.all([
     getProject(projectId),
     getProjectIssues(projectId)

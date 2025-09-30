@@ -7,7 +7,7 @@ import { canViewProject, canEditNote, canDeleteNote } from "@/lib/permissions";
 type Ctx = { params: { id: string; noteId: string } };
 
 export async function PATCH(req: Request, { params }: Ctx) {
-  const session = getSession();
+  const session = await getSession();
   if (!session) return NextResponse.json({ ok: false }, { status: 401 });
 
   const noteId = parseInt(params.noteId, 10);
@@ -56,7 +56,7 @@ export async function PATCH(req: Request, { params }: Ctx) {
 }
 
 export async function DELETE(req: Request, { params }: Ctx) {
-  const session = getSession();
+  const session = await getSession();
   if (!session) return NextResponse.json({ ok: false }, { status: 401 });
 
   const noteId = parseInt(params.noteId, 10);

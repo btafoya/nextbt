@@ -10,7 +10,7 @@ export async function DELETE(
   { params }: { params: { id: string } }
 ) {
   try {
-    const session = requireSession();
+    const session = await requireSession();
     const categoryId = parseInt(params.id, 10);
 
     // Get category to verify ownership
@@ -78,7 +78,7 @@ export async function PATCH(
   { params }: { params: { id: string } }
 ) {
   try {
-    const session = requireSession();
+    const session = await requireSession();
     const categoryId = parseInt(params.id, 10);
     const body = await req.json();
     const { name } = body;

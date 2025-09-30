@@ -11,7 +11,7 @@ import { logger } from "@/lib/logger";
  */
 export async function PUT(req: Request) {
   try {
-    const session = requireSession();
+    const session = await requireSession();
     const body = await req.json();
     const { currentPassword, newPassword } = body;
 

@@ -8,7 +8,7 @@ import { notifyIssueAction } from "@/lib/notify/issue-notifications";
 type Ctx = { params: { id: string } };
 
 export async function GET(req: Request, { params }: Ctx) {
-  const session = getSession();
+  const session = await getSession();
   if (!session) return NextResponse.json({ ok: false }, { status: 401 });
 
   const id = parseInt(params.id, 10);
@@ -22,7 +22,7 @@ export async function GET(req: Request, { params }: Ctx) {
 }
 
 export async function PATCH(req: Request, { params }: Ctx) {
-  const session = getSession();
+  const session = await getSession();
   if (!session) return NextResponse.json({ ok: false }, { status: 401 });
 
   const id = parseInt(params.id, 10);
@@ -91,7 +91,7 @@ export async function PATCH(req: Request, { params }: Ctx) {
 }
 
 export async function DELETE(req: Request, { params }: Ctx) {
-  const session = getSession();
+  const session = await getSession();
   if (!session) return NextResponse.json({ ok: false }, { status: 401 });
 
   const id = parseInt(params.id, 10);

@@ -10,9 +10,10 @@ A modern, user-friendly web interface for MantisBT 2.x bug tracking systems. Nex
 - 📝 **Rich Text Editor** - TipTap WYSIWYG editor with AI-powered writing assistance via OpenRouter
 - 🔔 **Multi-Channel Notifications** - Email (Postmark), Push (Pushover), Chat (Rocket.Chat, Microsoft Teams), and Web Push
 - 🔌 **MCP Integration** - Model Context Protocol support for Claude Code remote server integration
+- 📚 **API Documentation** - Interactive OpenAPI 3.0 documentation with Swagger UI at `/api-docs`
 - 🗃️ **Non-Destructive** - Reads/writes to existing MantisBT tables via Prisma ORM without schema changes
 - ✅ **Comprehensive Testing** - 40+ unit and integration tests with Vitest
-- 🔐 **Secure Authentication** - Session-based auth using existing MantisBT user accounts
+- 🔐 **Secure Authentication** - Encrypted session-based auth with iron-session using existing MantisBT user accounts
 
 ## Tech Stack
 
@@ -72,6 +73,10 @@ pnpm dev
 
 Visit http://localhost:3000 and log in with your existing MantisBT credentials.
 
+### 5. View API Documentation
+
+Interactive API documentation is available at http://localhost:3000/api-docs with Swagger UI for testing all endpoints.
+
 ## Configuration
 
 ### Application Settings
@@ -113,10 +118,12 @@ export const secrets = {
 │   │   ├── issues/          # Issue management (list, create, view, edit)
 │   │   ├── projects/        # Project views
 │   │   └── search/          # Power search interface
-│   └── api/                 # API routes
-│       ├── issues/          # Issue CRUD endpoints
-│       ├── mcp/             # MCP integration endpoints
-│       └── users/           # User management endpoints
+│   ├── api/                 # REST API routes
+│   │   ├── issues/          # Issue CRUD endpoints
+│   │   ├── mcp/             # MCP integration endpoints
+│   │   ├── users/           # User management endpoints
+│   │   └── openapi.json/    # OpenAPI 3.0 specification endpoint
+│   └── api-docs/            # Interactive Swagger UI documentation
 ├── components/              # React components
 │   ├── issues/              # Issue-related components
 │   └── wysiwyg/             # TipTap editor components
@@ -124,6 +131,8 @@ export const secrets = {
 ├── db/                      # Database client and utilities
 ├── lib/                     # Shared utilities
 │   ├── auth.ts              # Authentication helpers
+│   ├── session-config.ts    # iron-session configuration
+│   ├── api-docs.ts          # OpenAPI specification
 │   ├── mantis-enums.ts      # MantisBT enum helpers
 │   ├── mcp/                 # MCP client library
 │   └── notify/              # Notification dispatchers
@@ -240,6 +249,29 @@ Tests cover:
 - Authentication and session management
 - Notification dispatchers
 
+## API Documentation
+
+NextBT provides comprehensive REST API documentation with OpenAPI 3.0 and Swagger UI:
+
+- **Interactive Documentation**: Visit `/api-docs` for Swagger UI interface
+- **OpenAPI Spec**: JSON specification available at `/api/openapi.json`
+- **26 Endpoints**: Covering Authentication, Issues, Projects, Users, Notes, Categories, Files, MCP, AI, and Profile
+- **Try It Out**: Test API endpoints directly in the browser with authentication
+- **Schema Definitions**: Complete request/response type documentation
+
+### API Categories
+
+- **Authentication** - Login, logout, session management
+- **Issues** - Create, read, update, delete bug reports
+- **Projects** - Project management and access control
+- **Users** - User management and assignments
+- **Notes** - Bug comments and discussions
+- **Categories** - Project categories
+- **Files** - Attachment downloads
+- **MCP** - Model Context Protocol integration
+- **AI** - AI writing assistance endpoints
+- **Profile** - User profile management
+
 ## MCP Integration
 
 NextBT includes Model Context Protocol (MCP) support for Claude Code integration:
@@ -249,6 +281,8 @@ NextBT includes Model Context Protocol (MCP) support for Claude Code integration
 - `GET /api/mcp/resources` - List available resources
 - `POST /api/mcp/resources` - Read a resource
 - `GET /api/mcp/status` - Check connection status
+
+See `/api-docs` for detailed endpoint documentation.
 
 ## Contributing
 

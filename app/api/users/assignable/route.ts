@@ -11,7 +11,7 @@ import { logger } from "@/lib/logger";
  */
 export async function GET(req: Request) {
   try {
-    const session = requireSession();
+    const session = await requireSession();
     const { searchParams } = new URL(req.url);
     const projectIdParam = searchParams.get("projectId");
 

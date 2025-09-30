@@ -4,7 +4,7 @@ import { getSession } from "@/lib/auth";
 import { prisma } from "@/db/client";
 
 export async function GET() {
-  const session = getSession();
+  const session = await getSession();
   if (!session) return NextResponse.json({ error: "No session" }, { status: 401 });
 
   const user = await prisma.mantis_user_table.findUnique({

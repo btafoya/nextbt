@@ -11,7 +11,7 @@ export const dynamic = 'force-dynamic'
 export const revalidate = 0
 
 async function getIssues() {
-  const session = requireSession();
+  const session = await requireSession();
 
   // Check if user is admin
   const user = await prisma.mantis_user_table.findUnique({

@@ -7,7 +7,7 @@ import { canViewProject, getProjectAccessLevel } from "@/lib/permissions";
 type Ctx = { params: { id: string; fileId: string } };
 
 export async function GET(req: Request, { params }: Ctx) {
-  const session = getSession();
+  const session = await getSession();
   if (!session) return NextResponse.json({ ok: false }, { status: 401 });
 
   const fileId = parseInt(params.fileId, 10);
@@ -38,7 +38,7 @@ export async function GET(req: Request, { params }: Ctx) {
 }
 
 export async function DELETE(req: Request, { params }: Ctx) {
-  const session = getSession();
+  const session = await getSession();
   if (!session) return NextResponse.json({ ok: false }, { status: 401 });
 
   const fileId = parseInt(params.fileId, 10);

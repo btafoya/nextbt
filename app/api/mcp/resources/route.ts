@@ -8,7 +8,7 @@ import { logger } from "@/lib/logger";
  * List available MCP resources
  */
 export async function GET() {
-  const session = getSession();
+  const session = await getSession();
   if (!session) {
     return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
   }
@@ -38,7 +38,7 @@ export async function GET() {
  * Read an MCP resource
  */
 export async function POST(req: Request) {
-  const session = getSession();
+  const session = await getSession();
   if (!session) {
     return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
   }

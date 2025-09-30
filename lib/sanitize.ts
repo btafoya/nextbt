@@ -14,7 +14,7 @@ import DOMPurify from "isomorphic-dompurify";
  * Default sanitization configuration for MantisBT content
  * Allows common formatting tags while blocking dangerous elements
  */
-const DEFAULT_CONFIG: DOMPurify.Config = {
+const DEFAULT_CONFIG = {
   // Allowed HTML tags (MantisBT standard formatting)
   ALLOWED_TAGS: [
     // Text formatting
@@ -74,13 +74,13 @@ const DEFAULT_CONFIG: DOMPurify.Config = {
  * // Returns: '<p>Hello</p>' (script tag removed)
  * ```
  */
-export function sanitizeHtml(html: string, config?: DOMPurify.Config): string {
+export function sanitizeHtml(html: string, config?: any): string {
   if (!html) return '';
 
   const mergedConfig = { ...DEFAULT_CONFIG, ...config };
 
   try {
-    return DOMPurify.sanitize(html, mergedConfig);
+    return DOMPurify.sanitize(html, mergedConfig) as unknown as string;
   } catch (error) {
     console.error('HTML sanitization error:', error);
     // Return empty string on error for safety
