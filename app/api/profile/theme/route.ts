@@ -1,7 +1,7 @@
 import { NextResponse } from "next/server";
 
 export const dynamic = "force-dynamic";
-import { requireSession } from "@/lib/auth";
+import { getSession } from "@/lib/auth";
 import { prisma } from "@/db/client";
 
 /**
@@ -11,7 +11,13 @@ import { prisma } from "@/db/client";
  */
 export async function GET() {
   try {
-    const session = await requireSession();
+    // Use getSession instead of requireSession to allow unauthenticated access
+    const session = await getSession();
+
+    // If no session, return default theme
+    if (!session) {
+      return NextResponse.json({ theme: "system" });
+    }
 
     // Look up theme preference in config table
     const config = await prisma.mantis_config_table.findUnique({
@@ -44,7 +50,15 @@ export async function GET() {
  */
 export async function POST(request: Request) {
   try {
-    const session = await requireSession();
+    const session = await getSession();
+
+    // Require authentication for setting theme
+    if (!session) {
+      return NextResponse.json(
+        { error: "Authentication required" },
+        { status: 401 }
+      );
+    }
     const body = await request.json();
 
     const { theme } = body;
