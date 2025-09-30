@@ -1,9 +1,9 @@
-// /app/(dash)/issues/new/page.tsx
+// /app/(dash)/issues/[id]/edit/page.tsx
 "use client";
 
 import { useState, useEffect } from "react";
+import { useRouter } from "next/navigation";
 import Editor from "@/components/wysiwyg/Editor";
-import InlineAI from "@/components/wysiwyg/InlineAI";
 import {
   getAllStatuses,
   getAllPriorities,
@@ -22,51 +22,103 @@ interface User {
   realname: string;
 }
 
-export default function NewIssuePage() {
+interface Issue {
+  id: number;
+  project_id: number;
+  summary: string;
+  status: number;
+  priority: number;
+  severity: number;
+  reproducibility: number;
+  handler_id: number;
+  text?: {
+    description: string;
+  };
+}
+
+export default function EditIssuePage({ params }: { params: { id: string } }) {
+  const router = useRouter();
+  const issueId = parseInt(params.id, 10);
+
   const [summary, setSummary] = useState("");
   const [projectId, setProjectId] = useState<number>(0);
   const [description, setDescription] = useState("");
-  const [status, setStatus] = useState(10); // Default: new
-  const [priority, setPriority] = useState(30); // Default: normal
-  const [severity, setSeverity] = useState(50); // Default: minor
-  const [reproducibility, setReproducibility] = useState(10); // Default: always
-  const [handlerId, setHandlerId] = useState(0); // Default: unassigned
+  const [status, setStatus] = useState(10);
+  const [priority, setPriority] = useState(30);
+  const [severity, setSeverity] = useState(50);
+  const [reproducibility, setReproducibility] = useState(10);
+  const [handlerId, setHandlerId] = useState(0);
   const [projects, setProjects] = useState<Project[]>([]);
   const [users, setUsers] = useState<User[]>([]);
   const [loading, setLoading] = useState(true);
+  const [saving, setSaving] = useState(false);
+  const [error, setError] = useState<string | null>(null);
 
   useEffect(() => {
     Promise.all([
+      fetch(`/api/issues/${issueId}`).then(res => res.json()),
       fetch("/api/projects").then(res => res.json()),
       fetch("/api/users/assignable").then(res => res.json()),
-    ]).then(([projectsData, usersData]) => {
+    ]).then(([issueData, projectsData, usersData]) => {
+      if (issueData.error) {
+        setError(issueData.error);
+        setLoading(false);
+        return;
+      }
+
+      const issue: Issue = issueData;
+      setSummary(issue.summary);
+      setProjectId(issue.project_id);
+      setDescription(issue.text?.description || "");
+      setStatus(issue.status);
+      setPriority(issue.priority);
+      setSeverity(issue.severity);
+      setReproducibility(issue.reproducibility);
+      setHandlerId(issue.handler_id);
       setProjects(projectsData);
-      if (projectsData.length > 0) setProjectId(projectsData[0].id);
       setUsers(usersData);
       setLoading(false);
+    }).catch(err => {
+      setError("Failed to load issue data");
+      setLoading(false);
     });
-  }, []);
+  }, [issueId]);
 
   async function submit(e: React.FormEvent) {
     e.preventDefault();
-    await fetch("/api/issues", {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({
-        projectId,
-        summary,
-        description,
-        status,
-        priority,
-        severity,
-        reproducibility,
-        handler_id: handlerId || null,
-      })
-    });
-    window.location.href = "/issues";
+    setSaving(true);
+    setError(null);
+
+    try {
+      const response = await fetch(`/api/issues/${issueId}`, {
+        method: "PATCH",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          projectId,
+          summary,
+          description,
+          status,
+          priority,
+          severity,
+          reproducibility,
+          handler_id: handlerId || null,
+        })
+      });
+
+      if (!response.ok) {
+        const data = await response.json();
+        throw new Error(data.error || "Failed to update issue");
+      }
+
+      router.push(`/issues/${issueId}`);
+    } catch (err) {
+      setError(err instanceof Error ? err.message : "Failed to update issue");
+      setSaving(false);
+    }
   }
 
   if (loading) return <div>Loading...</div>;
+  if (error && !summary) return <div className="text-red-600">Error: {error}</div>;
 
   const statuses = getAllStatuses();
   const priorities = getAllPriorities();
@@ -76,7 +128,22 @@ export default function NewIssuePage() {
   return (
     <div className="grid md:grid-cols-3 gap-4">
       <form onSubmit={submit} className="md:col-span-2 bg-white border rounded p-4 space-y-3">
-        <h1 className="text-lg font-semibold">New Issue</h1>
+        <div className="flex items-center justify-between">
+          <h1 className="text-lg font-semibold">Edit Issue #{issueId}</h1>
+          <button
+            type="button"
+            onClick={() => router.push(`/issues/${issueId}`)}
+            className="text-sm text-gray-600 hover:text-gray-800"
+          >
+            Cancel
+          </button>
+        </div>
+
+        {error && (
+          <div className="bg-red-50 border border-red-200 text-red-700 px-3 py-2 rounded">
+            {error}
+          </div>
+        )}
 
         <div>
           <label className="block text-sm font-medium mb-1">Summary *</label>
@@ -179,13 +246,23 @@ export default function NewIssuePage() {
           <Editor value={description} onChange={setDescription} />
         </div>
 
-        <button className="border rounded px-3 py-1 bg-blue-600 text-white hover:bg-blue-700">
-          Create Issue
-        </button>
+        <div className="flex gap-2">
+          <button
+            type="submit"
+            disabled={saving}
+            className="border rounded px-3 py-1 bg-blue-600 text-white hover:bg-blue-700 disabled:opacity-50 disabled:cursor-not-allowed"
+          >
+            {saving ? "Saving..." : "Save Changes"}
+          </button>
+          <button
+            type="button"
+            onClick={() => router.push(`/issues/${issueId}`)}
+            className="border rounded px-3 py-1 bg-gray-100 hover:bg-gray-200"
+          >
+            Cancel
+          </button>
+        </div>
       </form>
-      <div className="space-y-3">
-        <InlineAI onInsert={(text) => setDescription((d) => d + `\n\n<blockquote>${text}</blockquote>`)} />
-      </div>
     </div>
   );
 }
