@@ -33,5 +33,9 @@ export const secrets = {
   // Cloudflare Turnstile
   turnstileEnabled: false,
   turnstileSiteKey: "0x4AAAAAAA...",
-  turnstileSecretKey: "0x4AAAAAAA..."
+  turnstileSecretKey: "0x4AAAAAAA...",
+  // MCP Remote Server (Claude Code)
+  mcpRemoteEnabled: false,
+  mcpRemoteUrl: "https://api.example.com/mcp",
+  mcpRemoteAuthKey: "your-mcp-api-key-here"
 } as const;
