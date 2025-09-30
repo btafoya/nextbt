@@ -78,3 +78,5 @@ logs
 
 .playwright-mcp/
 file_download.php
+.serena/.gitignore
+.serena/project.yml
