@@ -1,14 +1,31 @@
 // /app/api/projects/route.ts
 import { NextResponse } from "next/server";
-import { requireAdmin } from "@/lib/auth";
+import { revalidatePath } from "next/cache";
+import { requireAdmin, requireSession } from "@/lib/auth";
 import { prisma } from "@/db/client";
+import { apiResponse } from "@/lib/api-response";
 
-// GET /api/projects - List all projects (admin only)
+// Disable caching for all API responses
+export const dynamic = 'force-dynamic'
+export const revalidate = 0
+
+// GET /api/projects - List projects (all for admins, filtered for regular users)
 export async function GET() {
   try {
-    requireAdmin();
+    const session = requireSession();
+
+    // Check if user is admin
+    const user = await prisma.mantis_user_table.findUnique({
+      where: { id: session.uid },
+      select: { access_level: true }
+    });
+
+    const isAdmin = user && user.access_level >= 90;
 
     const projects = await prisma.mantis_project_table.findMany({
+      where: isAdmin ? {} : {
+        id: { in: session.projects }
+      },
       select: {
         id: true,
         name: true,
@@ -23,15 +40,16 @@ export async function GET() {
           }
         }
       },
-      orderBy: { name: 'asc' }
+      orderBy: { id: 'desc' }
     });
 
-    return NextResponse.json(projects);
+    return apiResponse(projects);
   } catch (err) {
     console.error("List projects error:", err);
+    const status = err instanceof Error && err.message === "Not authenticated" ? 401 : 500;
     return NextResponse.json(
-      { error: err instanceof Error ? err.message : "Unauthorized" },
-      { status: err instanceof Error && err.message === "Not authenticated" ? 401 : 403 }
+      { error: err instanceof Error ? err.message : "Internal server error" },
+      { status }
     );
   }
 }
@@ -125,7 +143,11 @@ export async function POST(req: Request) {
       }
     });
 
-    return NextResponse.json(completeProject, { status: 201 });
+    // Revalidate projects list page
+    revalidatePath('/projects');
+    revalidatePath('/');
+
+    return apiResponse(completeProject, { status: 201 });
   } catch (err) {
     console.error("Create project error:", err);
     return NextResponse.json(

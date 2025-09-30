@@ -37,8 +37,8 @@ export default function NewIssuePage() {
 
   useEffect(() => {
     Promise.all([
-      fetch("/api/projects").then(res => res.json()),
-      fetch("/api/users/assignable").then(res => res.json()),
+      fetch("/api/projects", { cache: 'no-store' }).then(res => res.json()),
+      fetch("/api/users/assignable", { cache: 'no-store' }).then(res => res.json()),
     ]).then(([projectsData, usersData]) => {
       setProjects(projectsData);
       if (projectsData.length > 0) setProjectId(projectsData[0].id);
@@ -61,7 +61,8 @@ export default function NewIssuePage() {
         severity,
         reproducibility,
         handler_id: handlerId || null,
-      })
+      }),
+      cache: 'no-store'
     });
     window.location.href = "/issues";
   }

@@ -25,11 +25,12 @@ export default function NewProjectPage() {
     const res = await fetch("/api/projects", {
       method: "POST",
       headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ name, description, status, enabled, view_state: viewState, user_ids: userIds })
+      body: JSON.stringify({ name, description, status, enabled, view_state: viewState, user_ids: userIds }),
+      cache: 'no-store'
     });
 
     if (res.ok) {
-      router.push("/projects");
+      window.location.href = "/projects";
     } else {
       const data = await res.json();
       setError(data.error || "Failed to create project");

@@ -24,7 +24,9 @@ export default function EditProjectPage() {
 
   useEffect(() => {
     async function loadProject() {
-      const res = await fetch(`/api/projects/${projectId}`);
+      const res = await fetch(`/api/projects/${projectId}`, {
+        cache: 'no-store'
+      });
       if (res.ok) {
         const data = await res.json();
         setName(data.name);
@@ -49,11 +51,12 @@ export default function EditProjectPage() {
     const res = await fetch(`/api/projects/${projectId}`, {
       method: "PUT",
       headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ name, description, status, enabled, view_state: viewState, user_ids: userIds })
+      body: JSON.stringify({ name, description, status, enabled, view_state: viewState, user_ids: userIds }),
+      cache: 'no-store'
     });
 
     if (res.ok) {
-      router.push(`/projects/${projectId}`);
+      window.location.href = `/projects/${projectId}`;
     } else {
       const data = await res.json();
       setError(data.error || "Failed to update project");
@@ -66,11 +69,12 @@ export default function EditProjectPage() {
     setLoading(true);
 
     const res = await fetch(`/api/projects/${projectId}`, {
-      method: "DELETE"
+      method: "DELETE",
+      cache: 'no-store'
     });
 
     if (res.ok) {
-      router.push("/projects");
+      window.location.href = "/projects";
     } else {
       const data = await res.json();
       setError(data.error || "Failed to delete project");

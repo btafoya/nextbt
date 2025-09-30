@@ -11,11 +11,20 @@ export const revalidate = 0
 async function getProject(id: number) {
   const session = requireSession();
 
+  // Check if user is admin
+  const user = await prisma.mantis_user_table.findUnique({
+    where: { id: session.uid },
+    select: { access_level: true }
+  });
+
+  const isAdmin = user && user.access_level >= 90;
+
   const project = await prisma.mantis_project_table.findUnique({
     where: { id }
   });
 
-  if (!project || !session.projects.includes(project.id)) {
+  // Admins can access all projects, regular users only their assigned projects
+  if (!project || (!isAdmin && !session.projects.includes(project.id))) {
     return null;
   }
 
