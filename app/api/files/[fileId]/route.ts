@@ -158,7 +158,14 @@ export async function GET(
     }
 
     // Return file content
-    return new NextResponse(fileContent, {
+    if (!fileContent) {
+      return NextResponse.json(
+        { error: "File content is empty" },
+        { status: 500 }
+      );
+    }
+
+    return new Response(new Uint8Array(fileContent), {
       status: 200,
       headers,
     });

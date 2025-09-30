@@ -49,7 +49,7 @@ export default async function UsersPage() {
         </Link>
       </div>
 
-      <DataTable columns={columns} data={users} filterColumn="username" />
+      <DataTable columns={columns} data={users} searchColumn="username" />
     </div>
   );
 }
