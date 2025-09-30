@@ -4,6 +4,7 @@ import { revalidatePath } from "next/cache";
 import { requireAdmin, requireSession } from "@/lib/auth";
 import { prisma } from "@/db/client";
 import { apiResponse } from "@/lib/api-response";
+import { logger } from "@/lib/logger";
 
 // Disable caching for all API responses
 export const dynamic = 'force-dynamic'
@@ -75,7 +76,7 @@ export async function GET(req: Request) {
 
     return apiResponse(projects);
   } catch (err) {
-    console.error("List projects error:", err);
+    logger.error("List projects error:", err);
     const status = err instanceof Error && err.message === "Not authenticated" ? 401 : 500;
     return NextResponse.json(
       { error: err instanceof Error ? err.message : "Internal server error" },
@@ -179,7 +180,7 @@ export async function POST(req: Request) {
 
     return apiResponse(completeProject, { status: 201 });
   } catch (err) {
-    console.error("Create project error:", err);
+    logger.error("Create project error:", err);
     return NextResponse.json(
       { error: err instanceof Error ? err.message : "Internal server error" },
       { status: 500 }

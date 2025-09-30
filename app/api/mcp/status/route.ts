@@ -2,6 +2,7 @@
 import { NextResponse } from "next/server";
 import { getSession } from "@/lib/auth";
 import { getMCPClient } from "@/lib/mcp/client";
+import { logger } from "@/lib/logger";
 
 /**
  * Check MCP remote server status and test connection
@@ -34,14 +35,14 @@ export async function GET() {
           status.tools = tools.length;
           status.resources = resources.length;
         } catch (error) {
-          console.error("Error getting MCP counts:", error);
+          logger.error("Error getting MCP counts:", error);
         }
       }
     }
 
     return NextResponse.json(status);
   } catch (error) {
-    console.error("Error checking MCP status:", error);
+    logger.error("Error checking MCP status:", error);
     return NextResponse.json({
       enabled: false,
       connected: false,

@@ -2,6 +2,7 @@
 
 import { useState, useEffect } from "react";
 import Editor from "@/components/wysiwyg/Editor";
+import { logger } from "@/lib/logger";
 
 interface Note {
   id: number;
@@ -33,7 +34,7 @@ export default function NotesSection({ issueId, currentUserId }: { issueId: numb
         setNotes(data);
       }
     } catch (err) {
-      console.error("Failed to load notes:", err);
+      logger.error("Failed to load notes:", err);
     }
   }
 

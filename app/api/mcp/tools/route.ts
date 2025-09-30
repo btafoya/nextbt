@@ -2,6 +2,7 @@
 import { NextResponse } from "next/server";
 import { getSession } from "@/lib/auth";
 import { getMCPClient } from "@/lib/mcp/client";
+import { logger } from "@/lib/logger";
 
 /**
  * List available MCP tools
@@ -25,7 +26,7 @@ export async function GET() {
     const tools = await client.listTools();
     return NextResponse.json({ tools });
   } catch (error) {
-    console.error("Error listing MCP tools:", error);
+    logger.error("Error listing MCP tools:", error);
     return NextResponse.json({
       error: "Failed to list MCP tools",
       tools: []
@@ -63,7 +64,7 @@ export async function POST(req: Request) {
     const result = await client.callTool({ name, arguments: args });
     return NextResponse.json(result);
   } catch (error) {
-    console.error("Error calling MCP tool:", error);
+    logger.error("Error calling MCP tool:", error);
     return NextResponse.json({
       error: "Failed to call MCP tool",
       isError: true

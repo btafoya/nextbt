@@ -3,6 +3,7 @@
 import { useState, useEffect, useRef } from "react";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { faDownload, faTrash, faFile, faUpload } from "@fortawesome/free-solid-svg-icons";
+import { logger } from "@/lib/logger";
 
 interface Attachment {
   id: number;
@@ -32,7 +33,7 @@ export default function AttachmentsSection({ issueId, currentUserId }: { issueId
         setAttachments(data);
       }
     } catch (err) {
-      console.error("Failed to load attachments:", err);
+      logger.error("Failed to load attachments:", err);
     }
   }
 

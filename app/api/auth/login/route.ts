@@ -4,6 +4,7 @@ import { cookies } from "next/headers";
 import { prisma } from "@/db/client";
 import { verifyMantisPassword } from "@/lib/mantis-crypto";
 import { secrets } from "@/config/secrets";
+import { logger } from "@/lib/logger";
 
 export async function POST(req: Request) {
   const { username, password, turnstileToken } = await req.json();
@@ -34,7 +35,7 @@ export async function POST(req: Request) {
         return NextResponse.json({ error: "Verification failed" }, { status: 400 });
       }
     } catch (error) {
-      console.error("Turnstile verification error:", error);
+      logger.error("Turnstile verification error:", error);
       return NextResponse.json({ error: "Verification error" }, { status: 500 });
     }
   }

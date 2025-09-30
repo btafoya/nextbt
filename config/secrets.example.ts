@@ -37,5 +37,7 @@ export const secrets = {
   // MCP Remote Server (Claude Code)
   mcpRemoteEnabled: false,
   mcpRemoteUrl: "https://api.example.com/mcp",
-  mcpRemoteAuthKey: "your-mcp-api-key-here"
+  mcpRemoteAuthKey: "your-mcp-api-key-here",
+  // Logging
+  enableLogging: true, // Set to false in production to disable console logging
 } as const;

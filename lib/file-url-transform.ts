@@ -28,7 +28,7 @@ export function transformFileUrl(url: string, showInline: boolean = true): strin
     // Return original URL if not a file_download.php URL
     return url;
   } catch (err) {
-    console.error("Failed to transform file URL:", err);
+    logger.error("Failed to transform file URL:", err);
     return url;
   }
 }
@@ -50,7 +50,7 @@ export function transformHtmlFileUrls(html: string, showInline: boolean = true):
           return `/api/files/${fileId}?type=${type}&show_inline=${showInline ? "1" : "0"}`;
         }
       } catch (err) {
-        console.error("Failed to parse file URL:", err);
+        logger.error("Failed to parse file URL:", err);
       }
       return match;
     }

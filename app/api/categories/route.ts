@@ -2,6 +2,7 @@
 import { NextResponse } from "next/server";
 import { requireSession } from "@/lib/auth";
 import { prisma } from "@/db/client";
+import { logger } from "@/lib/logger";
 
 // GET /api/categories?project_id=X - List categories for a project
 export async function GET(req: Request) {
@@ -34,7 +35,7 @@ export async function GET(req: Request) {
 
     return NextResponse.json(categories);
   } catch (err) {
-    console.error("List categories error:", err);
+    logger.error("List categories error:", err);
     return NextResponse.json(
       { error: err instanceof Error ? err.message : "Internal server error" },
       { status: 500 }
@@ -92,7 +93,7 @@ export async function POST(req: Request) {
 
     return NextResponse.json(category, { status: 201 });
   } catch (err) {
-    console.error("Create category error:", err);
+    logger.error("Create category error:", err);
     return NextResponse.json(
       { error: err instanceof Error ? err.message : "Internal server error" },
       { status: 500 }

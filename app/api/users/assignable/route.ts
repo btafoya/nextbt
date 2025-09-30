@@ -2,6 +2,7 @@
 import { NextResponse } from "next/server";
 import { requireSession } from "@/lib/auth";
 import { prisma } from "@/db/client";
+import { logger } from "@/lib/logger";
 
 /**
  * GET /api/users/assignable
@@ -77,7 +78,7 @@ export async function GET(req: Request) {
 
     return NextResponse.json(uniqueUsers);
   } catch (err) {
-    console.error("Get assignable users error:", err);
+    logger.error("Get assignable users error:", err);
     return NextResponse.json(
       { error: err instanceof Error ? err.message : "Internal server error" },
       { status: err instanceof Error && err.message.includes("authenticated") ? 401 : 500 }

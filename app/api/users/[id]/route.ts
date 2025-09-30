@@ -3,6 +3,7 @@ import { NextRequest, NextResponse } from "next/server";
 import { requireAdmin } from "@/lib/auth";
 import { prisma } from "@/db/client";
 import { createHash } from "crypto";
+import { logger } from "@/lib/logger";
 
 // GET /api/users/[id] - Get single user (admin only)
 export async function GET(
@@ -39,7 +40,7 @@ export async function GET(
 
     return NextResponse.json(user);
   } catch (err) {
-    console.error("Get user error:", err);
+    logger.error("Get user error:", err);
     return NextResponse.json(
       { error: err instanceof Error ? err.message : "Unauthorized" },
       { status: err instanceof Error && err.message === "Not authenticated" ? 401 : 403 }
@@ -119,7 +120,7 @@ export async function PUT(
 
     return NextResponse.json(user);
   } catch (err) {
-    console.error("Update user error:", err);
+    logger.error("Update user error:", err);
     return NextResponse.json(
       { error: err instanceof Error ? err.message : "Internal server error" },
       { status: 500 }
@@ -165,7 +166,7 @@ export async function DELETE(
 
     return NextResponse.json({ ok: true });
   } catch (err) {
-    console.error("Delete user error:", err);
+    logger.error("Delete user error:", err);
     return NextResponse.json(
       { error: err instanceof Error ? err.message : "Internal server error" },
       { status: 500 }

@@ -3,6 +3,7 @@ import { NextResponse } from "next/server";
 import { prisma } from "@/db/client";
 import { getSession } from "@/lib/auth";
 import { canViewProject, canComment } from "@/lib/permissions";
+import { logger } from "@/lib/logger";
 
 type Ctx = { params: { id: string } };
 
@@ -92,7 +93,7 @@ export async function POST(req: Request, { params }: Ctx) {
 
     return NextResponse.json(attachment, { status: 201 });
   } catch (error: any) {
-    console.error("File upload error:", error);
+    logger.error("File upload error:", error);
     return NextResponse.json({ error: "Failed to upload file" }, { status: 500 });
   }
 }
