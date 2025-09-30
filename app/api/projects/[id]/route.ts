@@ -94,7 +94,7 @@ export async function PUT(
     const updateData: any = {};
     if (name) updateData.name = name;
     if (description !== undefined) updateData.description = description;
-    if (enabled !== undefined) updateData.enabled = enabled;
+    if (enabled !== undefined) updateData.enabled = enabled ? 1 : 0;
     if (status !== undefined) updateData.status = status;
     if (view_state !== undefined) updateData.view_state = view_state;
     if (access_min !== undefined) updateData.access_min = access_min;
