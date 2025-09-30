@@ -26,6 +26,9 @@ export function Sidebar({ session }: SidebarProps) {
     navItems.push({ href: "/users", label: "Users", icon: "👥" });
   }
 
+  // Add Profile link for all users
+  navItems.push({ href: "/profile", label: "Profile", icon: "👤" });
+
   return (
     <aside className="sidebar">
       <div className="px-6 py-4">
