@@ -3,6 +3,8 @@ export const secrets = {
   // NOTE: Prisma needs DATABASE_URL at generate time.
   // For dev, you can export it in your shell just for `prisma generate`/`prisma db pull`.
   databaseUrl: "mysql://user:pass@host:3306/mantis",
+  // iron-session encryption
+  sessionSecret: "complex_password_at_least_32_characters_long_for_iron_session_encryption",
   // MantisBT crypto
   cryptoMasterSalt: "YOUR_CRYPTO_MASTER_SALT_HERE",
   // OpenRouter (AI Writer)
