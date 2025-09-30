@@ -41,15 +41,15 @@ export default function NewProjectPage() {
   return (
     <div className="space-y-4">
       <div className="flex items-center justify-between">
-        <h1 className="text-2xl font-bold">Create New Project</h1>
+        <h1 className="text-2xl font-bold dark:text-white">Create New Project</h1>
       </div>
 
-      <form onSubmit={submit} className="bg-white border rounded p-6 space-y-4">
+      <form onSubmit={submit} className="bg-white dark:bg-boxdark border dark:border-strokedark rounded p-6 space-y-4">
         <div>
-          <label className="block text-sm font-medium mb-1">Project Name *</label>
+          <label className="block text-sm font-medium mb-1 dark:text-gray-200">Project Name *</label>
           <input
             type="text"
-            className="border w-full p-2 rounded"
+            className="border dark:border-strokedark w-full p-2 rounded dark:bg-meta-4 dark:text-white"
             placeholder="Project name"
             value={name}
             onChange={e => setName(e.target.value)}
@@ -58,15 +58,15 @@ export default function NewProjectPage() {
         </div>
 
         <div>
-          <label className="block text-sm font-medium mb-1">Description</label>
+          <label className="block text-sm font-medium mb-1 dark:text-gray-200">Description</label>
           <Editor value={description} onChange={setDescription} />
         </div>
 
         <div className="grid grid-cols-2 gap-4">
           <div>
-            <label className="block text-sm font-medium mb-1">Status</label>
+            <label className="block text-sm font-medium mb-1 dark:text-gray-200">Status</label>
             <select
-              className="border w-full p-2 rounded"
+              className="border dark:border-strokedark w-full p-2 rounded dark:bg-meta-4 dark:text-white"
               value={status}
               onChange={e => setStatus(parseInt(e.target.value, 10))}
             >
@@ -78,9 +78,9 @@ export default function NewProjectPage() {
           </div>
 
           <div>
-            <label className="block text-sm font-medium mb-1">View State</label>
+            <label className="block text-sm font-medium mb-1 dark:text-gray-200">View State</label>
             <select
-              className="border w-full p-2 rounded"
+              className="border dark:border-strokedark w-full p-2 rounded dark:bg-meta-4 dark:text-white"
               value={viewState}
               onChange={e => setViewState(parseInt(e.target.value, 10))}
             >
@@ -97,11 +97,11 @@ export default function NewProjectPage() {
               checked={enabled}
               onChange={e => setEnabled(e.target.checked)}
             />
-            <span className="text-sm font-medium">Enabled</span>
+            <span className="text-sm font-medium dark:text-gray-200">Enabled</span>
           </label>
         </div>
 
-        <div className="border-t pt-4">
+        <div className="border-t dark:border-strokedark pt-4">
           <UserAssignment selectedUserIds={userIds} onChange={setUserIds} />
         </div>
 

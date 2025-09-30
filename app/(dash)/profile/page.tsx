@@ -130,25 +130,25 @@ export default function ProfilePage() {
       )}
 
       {/* Profile Information */}
-      <div className="bg-white border rounded p-6">
-        <h2 className="text-xl font-semibold mb-4">Profile Information</h2>
+      <div className="bg-white dark:bg-boxdark border dark:border-strokedark rounded p-6">
+        <h2 className="text-xl font-semibold mb-4 dark:text-white">Profile Information</h2>
         <form onSubmit={updateProfile} className="space-y-4">
           <div>
-            <label className="block text-sm font-medium mb-1">Username</label>
+            <label className="block text-sm font-medium mb-1 dark:text-gray-200">Username</label>
             <input
               type="text"
-              className="border w-full p-2 rounded bg-gray-50"
+              className="border dark:border-strokedark w-full p-2 rounded bg-gray-50 dark:bg-meta-4 dark:text-white"
               value={profile.username}
               disabled
             />
-            <p className="text-xs text-gray-500 mt-1">Username cannot be changed</p>
+            <p className="text-xs text-gray-500 dark:text-gray-400 mt-1">Username cannot be changed</p>
           </div>
 
           <div>
-            <label className="block text-sm font-medium mb-1">Real Name</label>
+            <label className="block text-sm font-medium mb-1 dark:text-gray-200">Real Name</label>
             <input
               type="text"
-              className="border w-full p-2 rounded"
+              className="border dark:border-strokedark w-full p-2 rounded dark:bg-boxdark dark:text-white"
               value={realname}
               onChange={e => setRealname(e.target.value)}
               placeholder="Your full name"
@@ -156,10 +156,10 @@ export default function ProfilePage() {
           </div>
 
           <div>
-            <label className="block text-sm font-medium mb-1">Email</label>
+            <label className="block text-sm font-medium mb-1 dark:text-gray-200">Email</label>
             <input
               type="email"
-              className="border w-full p-2 rounded"
+              className="border dark:border-strokedark w-full p-2 rounded dark:bg-boxdark dark:text-white"
               value={email}
               onChange={e => setEmail(e.target.value)}
               placeholder="your.email@example.com"
@@ -177,14 +177,14 @@ export default function ProfilePage() {
       </div>
 
       {/* Change Password */}
-      <div className="bg-white border rounded p-6">
-        <h2 className="text-xl font-semibold mb-4">Change Password</h2>
+      <div className="bg-white dark:bg-boxdark border dark:border-strokedark rounded p-6">
+        <h2 className="text-xl font-semibold mb-4 dark:text-white">Change Password</h2>
         <form onSubmit={changePassword} className="space-y-4">
           <div>
-            <label className="block text-sm font-medium mb-1">Current Password *</label>
+            <label className="block text-sm font-medium mb-1 dark:text-gray-200">Current Password *</label>
             <input
               type="password"
-              className="border w-full p-2 rounded"
+              className="border dark:border-strokedark w-full p-2 rounded dark:bg-boxdark dark:text-white"
               value={currentPassword}
               onChange={e => setCurrentPassword(e.target.value)}
               required
@@ -192,23 +192,23 @@ export default function ProfilePage() {
           </div>
 
           <div>
-            <label className="block text-sm font-medium mb-1">New Password *</label>
+            <label className="block text-sm font-medium mb-1 dark:text-gray-200">New Password *</label>
             <input
               type="password"
-              className="border w-full p-2 rounded"
+              className="border dark:border-strokedark w-full p-2 rounded dark:bg-boxdark dark:text-white"
               value={newPassword}
               onChange={e => setNewPassword(e.target.value)}
               required
               minLength={8}
             />
-            <p className="text-xs text-gray-500 mt-1">Minimum 8 characters</p>
+            <p className="text-xs text-gray-500 dark:text-gray-400 mt-1">Minimum 8 characters</p>
           </div>
 
           <div>
-            <label className="block text-sm font-medium mb-1">Confirm New Password *</label>
+            <label className="block text-sm font-medium mb-1 dark:text-gray-200">Confirm New Password *</label>
             <input
               type="password"
-              className="border w-full p-2 rounded"
+              className="border dark:border-strokedark w-full p-2 rounded dark:bg-boxdark dark:text-white"
               value={confirmPassword}
               onChange={e => setConfirmPassword(e.target.value)}
               required

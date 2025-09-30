@@ -87,13 +87,13 @@ export default function NewIssuePage() {
 
   return (
     <div className="max-w-4xl">
-      <form onSubmit={submit} className="bg-white border rounded p-4 space-y-3">
-        <h1 className="text-lg font-semibold">New Issue</h1>
+      <form onSubmit={submit} className="bg-white dark:bg-boxdark border dark:border-strokedark rounded p-4 space-y-3">
+        <h1 className="text-lg font-semibold dark:text-white">New Issue</h1>
 
         <div>
-          <label className="block text-sm font-medium mb-1">Summary *</label>
+          <label className="block text-sm font-medium mb-1 dark:text-gray-200">Summary *</label>
           <input
-            className="border w-full p-2 rounded"
+            className="border dark:border-strokedark w-full p-2 rounded dark:bg-meta-4 dark:text-white"
             placeholder="Summary"
             value={summary}
             onChange={e=>setSummary(e.target.value)}
@@ -102,9 +102,9 @@ export default function NewIssuePage() {
         </div>
 
         <div>
-          <label className="block text-sm font-medium mb-1">Project *</label>
+          <label className="block text-sm font-medium mb-1 dark:text-gray-200">Project *</label>
           <select
-            className="border w-full p-2 rounded"
+            className="border dark:border-strokedark w-full p-2 rounded dark:bg-meta-4 dark:text-white"
             value={projectId}
             onChange={e=>setProjectId(parseInt(e.target.value,10))}
             required
@@ -118,9 +118,9 @@ export default function NewIssuePage() {
 
         <div className="grid grid-cols-2 gap-3">
           <div>
-            <label className="block text-sm font-medium mb-1">Status</label>
+            <label className="block text-sm font-medium mb-1 dark:text-gray-200">Status</label>
             <select
-              className="border w-full p-2 rounded"
+              className="border dark:border-strokedark w-full p-2 rounded dark:bg-meta-4 dark:text-white"
               value={status}
               onChange={e=>setStatus(parseInt(e.target.value,10))}
             >
@@ -131,9 +131,9 @@ export default function NewIssuePage() {
           </div>
 
           <div>
-            <label className="block text-sm font-medium mb-1">Priority</label>
+            <label className="block text-sm font-medium mb-1 dark:text-gray-200">Priority</label>
             <select
-              className="border w-full p-2 rounded"
+              className="border dark:border-strokedark w-full p-2 rounded dark:bg-meta-4 dark:text-white"
               value={priority}
               onChange={e=>setPriority(parseInt(e.target.value,10))}
             >
@@ -146,9 +146,9 @@ export default function NewIssuePage() {
 
         <div className="grid grid-cols-2 gap-3">
           <div>
-            <label className="block text-sm font-medium mb-1">Severity</label>
+            <label className="block text-sm font-medium mb-1 dark:text-gray-200">Severity</label>
             <select
-              className="border w-full p-2 rounded"
+              className="border dark:border-strokedark w-full p-2 rounded dark:bg-meta-4 dark:text-white"
               value={severity}
               onChange={e=>setSeverity(parseInt(e.target.value,10))}
             >
@@ -159,9 +159,9 @@ export default function NewIssuePage() {
           </div>
 
           <div>
-            <label className="block text-sm font-medium mb-1">Reproducibility</label>
+            <label className="block text-sm font-medium mb-1 dark:text-gray-200">Reproducibility</label>
             <select
-              className="border w-full p-2 rounded"
+              className="border dark:border-strokedark w-full p-2 rounded dark:bg-meta-4 dark:text-white"
               value={reproducibility}
               onChange={e=>setReproducibility(parseInt(e.target.value,10))}
             >
@@ -173,9 +173,9 @@ export default function NewIssuePage() {
         </div>
 
         <div>
-          <label className="block text-sm font-medium mb-1">Assignee</label>
+          <label className="block text-sm font-medium mb-1 dark:text-gray-200">Assignee</label>
           <select
-            className="border w-full p-2 rounded"
+            className="border dark:border-strokedark w-full p-2 rounded dark:bg-meta-4 dark:text-white"
             value={handlerId}
             onChange={e=>setHandlerId(parseInt(e.target.value,10))}
           >
@@ -187,7 +187,7 @@ export default function NewIssuePage() {
         </div>
 
         <div>
-          <label className="block text-sm font-medium mb-1">Description</label>
+          <label className="block text-sm font-medium mb-1 dark:text-gray-200">Description</label>
           <Editor value={description} onChange={setDescription} />
         </div>
 

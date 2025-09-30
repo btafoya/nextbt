@@ -85,11 +85,11 @@ export function DataTable<TData, TValue>({
           />
         </div>
       )}
-      <div className="rounded-md border">
+      <div className="rounded-md border dark:border-strokedark">
         <Table>
-          <TableHeader className="bg-gradient-to-r from-blue-600 to-blue-700">
+          <TableHeader className="bg-gradient-to-r from-blue-600 to-blue-700 dark:from-blue-700 dark:to-blue-800">
             {table.getHeaderGroups().map((headerGroup) => (
-              <TableRow key={headerGroup.id} className="hover:bg-transparent border-blue-500">
+              <TableRow key={headerGroup.id} className="hover:bg-transparent border-blue-500 dark:border-blue-700">
                 {headerGroup.headers.map((header) => {
                   return (
                     <TableHead key={header.id} className="text-white font-semibold">
@@ -111,10 +111,10 @@ export function DataTable<TData, TValue>({
                 <TableRow
                   key={row.id}
                   data-state={row.getIsSelected() && "selected"}
-                  className={index % 2 === 0 ? "bg-white" : "bg-gray-50"}
+                  className={index % 2 === 0 ? "bg-white dark:bg-boxdark" : "bg-gray-50 dark:bg-meta-4"}
                 >
                   {row.getVisibleCells().map((cell) => (
-                    <TableCell key={cell.id}>
+                    <TableCell key={cell.id} className="dark:text-gray-200">
                       {flexRender(cell.column.columnDef.cell, cell.getContext())}
                     </TableCell>
                   ))}
@@ -122,7 +122,7 @@ export function DataTable<TData, TValue>({
               ))
             ) : (
               <TableRow>
-                <TableCell colSpan={columns.length} className="h-24 text-center">
+                <TableCell colSpan={columns.length} className="h-24 text-center dark:text-gray-300">
                   No results.
                 </TableCell>
               </TableRow>

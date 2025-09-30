@@ -110,7 +110,7 @@ export default async function ProjectDetailPage({ params }: { params: { id: stri
   return (
     <div className="space-y-4">
       <div className="flex items-center justify-between">
-        <h1 className="text-2xl font-bold">{project.name}</h1>
+        <h1 className="text-2xl font-bold dark:text-white">{project.name}</h1>
         <div className="flex gap-2">
           <Link href="/projects" className="border rounded p-2 text-sm">
             Back to Projects
@@ -123,45 +123,45 @@ export default async function ProjectDetailPage({ params }: { params: { id: stri
         </div>
       </div>
 
-      <div className="bg-white border rounded p-6 space-y-4">
-        <div className="grid grid-cols-2 gap-4 text-sm">
+      <div className="bg-white dark:bg-boxdark border dark:border-strokedark rounded p-6 space-y-4">
+        <div className="grid grid-cols-2 gap-4 text-sm dark:text-gray-200">
           <div>
-            <span className="font-semibold">Status:</span>{" "}
+            <span className="font-semibold dark:text-white">Status:</span>{" "}
             {statusLabels[project.status] || project.status}
           </div>
           <div>
-            <span className="font-semibold">View State:</span>{" "}
+            <span className="font-semibold dark:text-white">View State:</span>{" "}
             {viewStateLabels[project.view_state] || project.view_state}
           </div>
           <div>
-            <span className="font-semibold">Enabled:</span>{" "}
+            <span className="font-semibold dark:text-white">Enabled:</span>{" "}
             {project.enabled ? "Yes" : "No"}
           </div>
           <div>
-            <span className="font-semibold">Project ID:</span> {project.id}
+            <span className="font-semibold dark:text-white">Project ID:</span> {project.id}
           </div>
         </div>
 
         {project.description && (
           <>
-            <hr />
+            <hr className="dark:border-strokedark" />
             <div>
-              <h2 className="font-semibold mb-2">Description</h2>
+              <h2 className="font-semibold mb-2 dark:text-white">Description</h2>
               <div className="prose max-w-none" dangerouslySetInnerHTML={{ __html: sanitizeHtml(project.description) }} />
             </div>
           </>
         )}
       </div>
 
-      <div className="bg-white border rounded p-4 space-y-4">
+      <div className="bg-white dark:bg-boxdark border dark:border-strokedark rounded p-4 space-y-4">
         <div className="flex items-center justify-between">
-          <h2 className="text-xl font-semibold">Project Issues</h2>
+          <h2 className="text-xl font-semibold dark:text-white">Project Issues</h2>
           <Link href={`/issues/new`} className="bg-blue-600 text-white px-3 py-1.5 rounded text-sm hover:bg-blue-700">
             New Issue
           </Link>
         </div>
         {issues.length === 0 ? (
-          <div className="text-center py-8 text-gray-500">
+          <div className="text-center py-8 text-gray-500 dark:text-gray-400">
             No issues found for this project
           </div>
         ) : (

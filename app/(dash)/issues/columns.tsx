@@ -34,7 +34,7 @@ export const columns: ColumnDef<Issue>[] = [
     },
     cell: ({ row }) => {
       return (
-        <Link href={`/issues/${row.original.id}`} className="font-medium text-blue-600 hover:underline">
+        <Link href={`/issues/${row.original.id}`} className="font-medium text-blue-600 dark:text-blue-400 hover:underline">
           #{row.getValue("id")}
         </Link>
       )
@@ -55,7 +55,7 @@ export const columns: ColumnDef<Issue>[] = [
     },
     cell: ({ row }) => {
       return (
-        <Link href={`/issues/${row.original.id}`} className="hover:underline">
+        <Link href={`/issues/${row.original.id}`} className="hover:underline dark:text-gray-200">
           {row.getValue("summary")}
         </Link>
       )
@@ -75,7 +75,7 @@ export const columns: ColumnDef<Issue>[] = [
       )
     },
     cell: ({ row }) => {
-      return <span className="text-sm">{row.original.project.name}</span>
+      return <span className="text-sm dark:text-gray-200">{row.original.project.name}</span>
     },
   },
   {
@@ -127,7 +127,7 @@ export const columns: ColumnDef<Issue>[] = [
     },
     cell: ({ row }) => {
       const timestamp = row.getValue("last_updated") as number
-      return new Date(timestamp * 1000).toLocaleDateString()
+      return <span className="dark:text-gray-200">{new Date(timestamp * 1000).toLocaleDateString()}</span>
     },
   },
 ]

@@ -236,18 +236,18 @@ export default function ActivityTimeline({ issueId, currentUserId }: { issueId: 
   }
 
   return (
-    <div className="bg-white border rounded p-6 space-y-4">
-      <h2 className="text-xl font-semibold">Activity</h2>
+    <div className="bg-white dark:bg-boxdark border dark:border-strokedark rounded p-6 space-y-4">
+      <h2 className="text-xl font-semibold dark:text-white">Activity</h2>
 
       {error && (
-        <div className="bg-red-50 border border-red-200 text-red-700 px-4 py-3 rounded">
+        <div className="bg-red-50 dark:bg-red-900 border border-red-200 dark:border-red-800 text-red-700 dark:text-red-200 px-4 py-3 rounded">
           {error}
         </div>
       )}
 
       {/* Add new note form */}
-      <div className="border rounded p-4 space-y-2 bg-gray-50">
-        <h3 className="font-semibold flex items-center gap-2">
+      <div className="border dark:border-strokedark rounded p-4 space-y-2 bg-gray-50 dark:bg-meta-4">
+        <h3 className="font-semibold dark:text-white flex items-center gap-2">
           <FontAwesomeIcon icon={faComment} />
           Add Note
         </h3>
@@ -264,8 +264,8 @@ export default function ActivityTimeline({ issueId, currentUserId }: { issueId: 
       </div>
 
       {/* Upload file form */}
-      <div className="border rounded p-4 space-y-2 bg-gray-50">
-        <h3 className="font-semibold flex items-center gap-2">
+      <div className="border dark:border-strokedark rounded p-4 space-y-2 bg-gray-50 dark:bg-meta-4">
+        <h3 className="font-semibold dark:text-white flex items-center gap-2">
           <FontAwesomeIcon icon={faUpload} />
           Upload Attachment
         </h3>
@@ -285,17 +285,17 @@ export default function ActivityTimeline({ issueId, currentUserId }: { issueId: 
       {/* Activity timeline */}
       <div className="space-y-4">
         {activities.length === 0 ? (
-          <p className="text-gray-500 text-center py-4">No activity yet</p>
+          <p className="text-gray-500 dark:text-gray-400 text-center py-4">No activity yet</p>
         ) : (
           activities.map((activity, index) => (
-            <div key={`${activity.type}-${activity.type === "note" ? activity.data.id : activity.data.id}`} className="border rounded p-4 space-y-2">
+            <div key={`${activity.type}-${activity.type === "note" ? activity.data.id : activity.data.id}`} className="border dark:border-strokedark rounded p-4 space-y-2 dark:bg-boxdark-2">
               {activity.type === "note" ? (
                 // Note item
                 <>
                   <div className="flex items-center justify-between">
-                    <div className="text-sm text-gray-600 flex items-center gap-2">
-                      <FontAwesomeIcon icon={faComment} className="text-blue-500" />
-                      <strong>{activity.data.reporter}</strong> added a note ·{" "}
+                    <div className="text-sm text-gray-600 dark:text-gray-300 flex items-center gap-2">
+                      <FontAwesomeIcon icon={faComment} className="text-blue-500 dark:text-blue-400" />
+                      <strong className="dark:text-white">{activity.data.reporter}</strong> added a note ·{" "}
                       {new Date(activity.data.date_submitted * 1000).toLocaleString()}
                       {activity.data.last_modified !== activity.data.date_submitted && " (edited)"}
                     </div>
@@ -305,13 +305,13 @@ export default function ActivityTimeline({ issueId, currentUserId }: { issueId: 
                           <>
                             <button
                               onClick={() => startEditing(activity.data)}
-                              className="text-blue-600 hover:text-blue-800 text-sm"
+                              className="text-blue-600 dark:text-blue-400 hover:text-blue-800 dark:hover:text-blue-300 text-sm"
                             >
                               Edit
                             </button>
                             <button
                               onClick={() => handleDeleteNote(activity.data.id)}
-                              className="text-red-600 hover:text-red-800 text-sm"
+                              className="text-red-600 dark:text-red-400 hover:text-red-800 dark:hover:text-red-300 text-sm"
                             >
                               Delete
                             </button>
@@ -335,7 +335,7 @@ export default function ActivityTimeline({ issueId, currentUserId }: { issueId: 
                         <button
                           onClick={cancelEditing}
                           disabled={loading}
-                          className="border px-3 py-1 rounded text-sm hover:bg-gray-50"
+                          className="border dark:border-strokedark px-3 py-1 rounded text-sm hover:bg-gray-50 dark:hover:bg-meta-4 dark:text-white"
                         >
                           Cancel
                         </button>
@@ -350,10 +350,10 @@ export default function ActivityTimeline({ issueId, currentUserId }: { issueId: 
                 <>
                   <div className="flex items-center justify-between">
                     <div className="flex items-center gap-3">
-                      <FontAwesomeIcon icon={faFile} className="text-gray-400" />
+                      <FontAwesomeIcon icon={faFile} className="text-gray-400 dark:text-gray-500" />
                       <div>
-                        <div className="font-medium">{activity.data.filename}</div>
-                        <div className="text-sm text-gray-600">
+                        <div className="font-medium dark:text-white">{activity.data.filename}</div>
+                        <div className="text-sm text-gray-600 dark:text-gray-300">
                           {formatFileSize(activity.data.filesize)} · {activity.data.uploader} ·{" "}
                           {new Date(activity.data.date_added * 1000).toLocaleString()}
                         </div>
@@ -363,7 +363,7 @@ export default function ActivityTimeline({ issueId, currentUserId }: { issueId: 
                       <a
                         href={`/api/issues/${issueId}/attachments/${activity.data.id}`}
                         download={activity.data.filename}
-                        className="text-blue-600 hover:text-blue-800 px-3 py-1 rounded hover:bg-blue-50"
+                        className="text-blue-600 dark:text-blue-400 hover:text-blue-800 dark:hover:text-blue-300 px-3 py-1 rounded hover:bg-blue-50 dark:hover:bg-blue-900"
                         title="Download"
                       >
                         <FontAwesomeIcon icon={faDownload} />
@@ -371,7 +371,7 @@ export default function ActivityTimeline({ issueId, currentUserId }: { issueId: 
                       {activity.data.user_id === currentUserId && (
                         <button
                           onClick={() => handleDeleteAttachment(activity.data.id)}
-                          className="text-red-600 hover:text-red-800 px-3 py-1 rounded hover:bg-red-50"
+                          className="text-red-600 dark:text-red-400 hover:text-red-800 dark:hover:text-red-300 px-3 py-1 rounded hover:bg-red-50 dark:hover:bg-red-900"
                           title="Delete"
                         >
                           <FontAwesomeIcon icon={faTrash} />

@@ -94,15 +94,15 @@ export default function EditProjectPage() {
   return (
     <div className="space-y-4">
       <div className="flex items-center justify-between">
-        <h1 className="text-2xl font-bold">Edit Project</h1>
+        <h1 className="text-2xl font-bold dark:text-white">Edit Project</h1>
       </div>
 
-      <form onSubmit={submit} className="bg-white border rounded p-6 space-y-4">
+      <form onSubmit={submit} className="bg-white dark:bg-boxdark border dark:border-strokedark rounded p-6 space-y-4">
         <div>
-          <label className="block text-sm font-medium mb-1">Project Name *</label>
+          <label className="block text-sm font-medium mb-1 dark:text-gray-200">Project Name *</label>
           <input
             type="text"
-            className="border w-full p-2 rounded"
+            className="border dark:border-strokedark w-full p-2 rounded dark:bg-meta-4 dark:text-white"
             placeholder="Project name"
             value={name}
             onChange={e => setName(e.target.value)}
@@ -111,15 +111,15 @@ export default function EditProjectPage() {
         </div>
 
         <div>
-          <label className="block text-sm font-medium mb-1">Description</label>
+          <label className="block text-sm font-medium mb-1 dark:text-gray-200">Description</label>
           <Editor value={description} onChange={setDescription} />
         </div>
 
         <div className="grid grid-cols-2 gap-4">
           <div>
-            <label className="block text-sm font-medium mb-1">Status</label>
+            <label className="block text-sm font-medium mb-1 dark:text-gray-200">Status</label>
             <select
-              className="border w-full p-2 rounded"
+              className="border dark:border-strokedark w-full p-2 rounded dark:bg-meta-4 dark:text-white"
               value={status}
               onChange={e => setStatus(parseInt(e.target.value, 10))}
             >
@@ -131,9 +131,9 @@ export default function EditProjectPage() {
           </div>
 
           <div>
-            <label className="block text-sm font-medium mb-1">View State</label>
+            <label className="block text-sm font-medium mb-1 dark:text-gray-200">View State</label>
             <select
-              className="border w-full p-2 rounded"
+              className="border dark:border-strokedark w-full p-2 rounded dark:bg-meta-4 dark:text-white"
               value={viewState}
               onChange={e => setViewState(parseInt(e.target.value, 10))}
             >
@@ -150,11 +150,11 @@ export default function EditProjectPage() {
               checked={enabled}
               onChange={e => setEnabled(e.target.checked)}
             />
-            <span className="text-sm font-medium">Enabled</span>
+            <span className="text-sm font-medium dark:text-gray-200">Enabled</span>
           </label>
         </div>
 
-        <div className="border-t pt-4">
+        <div className="border-t dark:border-strokedark pt-4">
           <UserAssignment selectedUserIds={userIds} onChange={setUserIds} />
         </div>
 
@@ -191,9 +191,9 @@ export default function EditProjectPage() {
 
       {showDeleteConfirm && (
         <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
-          <div className="bg-white rounded p-6 max-w-md space-y-4">
-            <h2 className="text-xl font-bold">Confirm Deletion</h2>
-            <p className="text-sm">
+          <div className="bg-white dark:bg-boxdark rounded p-6 max-w-md space-y-4">
+            <h2 className="text-xl font-bold dark:text-white">Confirm Deletion</h2>
+            <p className="text-sm dark:text-gray-200">
               Are you sure you want to delete this project? This action cannot be undone.
               All issues and data associated with this project will remain but may become orphaned.
             </p>

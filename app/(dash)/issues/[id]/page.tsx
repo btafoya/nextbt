@@ -58,7 +58,7 @@ export default async function IssueShow({ params }: { params: { id: string } }) 
   return (
     <div className="space-y-4">
       <div className="flex items-center justify-between">
-        <h1 className="text-2xl font-bold">#{issue.id} - {issue.summary}</h1>
+        <h1 className="text-2xl font-bold dark:text-white">#{issue.id} - {issue.summary}</h1>
         <div className="flex gap-2">
           <StatusBadge status={issue.status} />
           <PriorityBadge priority={issue.priority} />
@@ -76,38 +76,38 @@ export default async function IssueShow({ params }: { params: { id: string } }) 
       {/* Status change buttons */}
       <StatusActions issueId={issue.id} currentStatus={issue.status} canEdit={userCanEdit} />
 
-      <div className="bg-white border rounded p-6 space-y-4">
-        <div className="grid grid-cols-2 gap-4 text-sm">
+      <div className="bg-white dark:bg-boxdark border dark:border-strokedark rounded p-6 space-y-4">
+        <div className="grid grid-cols-2 gap-4 text-sm dark:text-gray-300">
           <div>
-            <span className="font-semibold">Project:</span>{" "}
-            <Link href={`/projects/${issue.project_id}`} className="text-blue-600 hover:underline">
+            <span className="font-semibold dark:text-white">Project:</span>{" "}
+            <Link href={`/projects/${issue.project_id}`} className="text-blue-600 dark:text-blue-400 hover:underline">
               {issue.project.name}
             </Link>
           </div>
           <div>
-            <span className="font-semibold">Reporter:</span>{" "}
-            <Link href={`/issues?reporter=${issue.reporter_id}`} className="text-blue-600 hover:underline">
+            <span className="font-semibold dark:text-white">Reporter:</span>{" "}
+            <Link href={`/issues?reporter=${issue.reporter_id}`} className="text-blue-600 dark:text-blue-400 hover:underline">
               {issue.reporter.realname || issue.reporter.username}
             </Link>
           </div>
           <div>
-            <span className="font-semibold">Status:</span> {getStatusLabel(issue.status)}
+            <span className="font-semibold dark:text-white">Status:</span> {getStatusLabel(issue.status)}
           </div>
           <div>
-            <span className="font-semibold">Priority:</span> {getPriorityLabel(issue.priority)}
+            <span className="font-semibold dark:text-white">Priority:</span> {getPriorityLabel(issue.priority)}
           </div>
           <div>
-            <span className="font-semibold">Severity:</span> {getSeverityLabel(issue.severity)}
+            <span className="font-semibold dark:text-white">Severity:</span> {getSeverityLabel(issue.severity)}
           </div>
           <div>
-            <span className="font-semibold">Reproducibility:</span> {getReproducibilityLabel(issue.reproducibility)}
+            <span className="font-semibold dark:text-white">Reproducibility:</span> {getReproducibilityLabel(issue.reproducibility)}
           </div>
           <div>
-            <span className="font-semibold">Assignee:</span>{" "}
+            <span className="font-semibold dark:text-white">Assignee:</span>{" "}
             {issue.handler_id === 0 ? (
-              <span className="text-gray-500">Unassigned</span>
+              <span className="text-gray-500 dark:text-gray-400">Unassigned</span>
             ) : issue.handler ? (
-              <Link href={`/issues?handler=${issue.handler_id}`} className="text-blue-600 hover:underline">
+              <Link href={`/issues?handler=${issue.handler_id}`} className="text-blue-600 dark:text-blue-400 hover:underline">
                 {issue.handler.realname || issue.handler.username}
               </Link>
             ) : (
@@ -115,27 +115,27 @@ export default async function IssueShow({ params }: { params: { id: string } }) 
             )}
           </div>
           <div>
-            <span className="font-semibold">Date Submitted:</span> {new Date(issue.date_submitted * 1000).toLocaleDateString()}
+            <span className="font-semibold dark:text-white">Date Submitted:</span> {new Date(issue.date_submitted * 1000).toLocaleDateString()}
           </div>
         </div>
 
-        <hr />
+        <hr className="dark:border-strokedark" />
 
         <div>
-          <h2 className="font-semibold mb-2">Description</h2>
+          <h2 className="font-semibold mb-2 dark:text-white">Description</h2>
           <HtmlContent html={description} />
         </div>
 
         {issue.text?.steps_to_reproduce && (
           <div>
-            <h2 className="font-semibold mb-2">Steps to Reproduce</h2>
+            <h2 className="font-semibold mb-2 dark:text-white">Steps to Reproduce</h2>
             <HtmlContent html={issue.text.steps_to_reproduce} />
           </div>
         )}
 
         {issue.text?.additional_information && (
           <div>
-            <h2 className="font-semibold mb-2">Additional Information</h2>
+            <h2 className="font-semibold mb-2 dark:text-white">Additional Information</h2>
             <HtmlContent html={issue.text.additional_information} />
           </div>
         )}

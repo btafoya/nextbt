@@ -8,12 +8,9 @@ interface ClientThemeWrapperProps {
 }
 
 export function ClientThemeWrapper({ children }: ClientThemeWrapperProps) {
-  const [mounted, setMounted] = useState(false);
   const [initialTheme, setInitialTheme] = useState<"light" | "dark" | "system">("system");
 
   useEffect(() => {
-    setMounted(true);
-
     // Fetch user's theme preference from server
     fetch("/api/profile/theme")
       .then(res => res.json())
@@ -27,11 +24,6 @@ export function ClientThemeWrapper({ children }: ClientThemeWrapperProps) {
         setInitialTheme("system");
       });
   }, []);
-
-  // Prevent flash of unstyled content during hydration
-  if (!mounted) {
-    return <>{children}</>;
-  }
 
   return (
     <ThemeProvider defaultTheme={initialTheme}>

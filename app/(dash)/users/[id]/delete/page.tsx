@@ -37,17 +37,17 @@ export default function DeleteUserPage({ params }: { params: { id: string } }) {
 
   return (
     <div className="space-y-4">
-      <h1 className="text-2xl font-bold">Delete User</h1>
+      <h1 className="text-2xl font-bold dark:text-white">Delete User</h1>
 
-      <div className="bg-white rounded-lg border p-6 space-y-6">
+      <div className="bg-white dark:bg-boxdark rounded-lg border dark:border-strokedark p-6 space-y-6">
         {error && (
-          <div className="bg-red-50 border border-red-200 text-red-700 px-4 py-3 rounded">
+          <div className="bg-red-50 dark:bg-red-900 border border-red-200 dark:border-red-800 text-red-700 dark:text-red-200 px-4 py-3 rounded">
             {error}
           </div>
         )}
 
-        <div className="bg-yellow-50 border border-yellow-200 px-4 py-3 rounded">
-          <p className="text-yellow-800">
+        <div className="bg-yellow-50 dark:bg-yellow-900 border border-yellow-200 dark:border-yellow-800 px-4 py-3 rounded">
+          <p className="text-yellow-800 dark:text-yellow-200">
             <strong>Warning:</strong> Are you sure you want to delete this user? This action cannot be undone.
           </p>
         </div>
@@ -62,7 +62,7 @@ export default function DeleteUserPage({ params }: { params: { id: string } }) {
           </button>
           <Link
             href="/users"
-            className="border border-gray-300 px-6 py-2 rounded-lg hover:bg-gray-50 inline-block"
+            className="border border-gray-300 dark:border-strokedark px-6 py-2 rounded-lg hover:bg-gray-50 dark:hover:bg-meta-4 dark:text-white inline-block"
           >
             Cancel
           </Link>

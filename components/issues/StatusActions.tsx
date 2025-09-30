@@ -89,11 +89,11 @@ export default function StatusActions({ issueId, currentStatus, canEdit }: Statu
   }
 
   return (
-    <div className="bg-white border rounded p-4 space-y-3">
-      <h3 className="font-semibold">Change Status</h3>
+    <div className="bg-white dark:bg-boxdark border dark:border-strokedark rounded p-4 space-y-3">
+      <h3 className="font-semibold dark:text-white">Change Status</h3>
 
       {error && (
-        <div className="bg-red-50 border border-red-200 text-red-700 px-3 py-2 rounded text-sm">
+        <div className="bg-red-50 dark:bg-red-900 border border-red-200 dark:border-red-800 text-red-700 dark:text-red-200 px-3 py-2 rounded text-sm">
           {error}
         </div>
       )}

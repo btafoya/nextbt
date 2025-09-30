@@ -114,7 +114,7 @@ export default async function HomePage() {
   return (
     <div className="space-y-6">
       <div className="flex items-center justify-between">
-        <h1 className="text-2xl font-bold">Dashboard</h1>
+        <h1 className="text-2xl font-bold dark:text-white">Dashboard</h1>
         <Link href="/issues/new">
           <Button className="bg-blue-600 text-white hover:bg-blue-700">Create New Issue</Button>
         </Link>
@@ -123,14 +123,14 @@ export default async function HomePage() {
       {/* Issues Assigned to Me */}
       <div className="space-y-3">
         <div className="flex items-center justify-between">
-          <h2 className="text-xl font-bold">Assigned to Me</h2>
-          <Link href="/issues?filter=assigned" className="text-sm text-blue-600 hover:underline">
+          <h2 className="text-xl font-bold dark:text-white">Assigned to Me</h2>
+          <Link href="/issues?filter=assigned" className="text-sm text-blue-600 dark:text-blue-400 hover:underline">
             View all →
           </Link>
         </div>
 
         {assignedIssues.length === 0 ? (
-          <div className="card p-8 text-center text-gray-500">
+          <div className="card p-8 text-center text-gray-500 dark:text-gray-400">
             No issues assigned to you
           </div>
         ) : (
@@ -146,14 +146,14 @@ export default async function HomePage() {
       {/* Issues Reported by Me */}
       <div className="space-y-3">
         <div className="flex items-center justify-between">
-          <h2 className="text-xl font-bold">Reported by Me</h2>
-          <Link href="/issues?filter=reported" className="text-sm text-blue-600 hover:underline">
+          <h2 className="text-xl font-bold dark:text-white">Reported by Me</h2>
+          <Link href="/issues?filter=reported" className="text-sm text-blue-600 dark:text-blue-400 hover:underline">
             View all →
           </Link>
         </div>
 
         {reportedIssues.length === 0 ? (
-          <div className="card p-8 text-center text-gray-500">
+          <div className="card p-8 text-center text-gray-500 dark:text-gray-400">
             No issues reported by you
           </div>
         ) : (

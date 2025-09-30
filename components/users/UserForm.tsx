@@ -86,15 +86,15 @@ export function UserForm({ user, mode }: UserFormProps) {
   }
 
   return (
-    <form onSubmit={handleSubmit} className="bg-white rounded-lg border p-6 space-y-6">
+    <form onSubmit={handleSubmit} className="bg-white dark:bg-boxdark rounded-lg border dark:border-strokedark p-6 space-y-6">
       {error && (
-        <div className="bg-red-50 border border-red-200 text-red-700 px-4 py-3 rounded">
+        <div className="bg-red-50 dark:bg-red-900 border border-red-200 dark:border-red-800 text-red-700 dark:text-red-200 px-4 py-3 rounded">
           {error}
         </div>
       )}
 
       <div>
-        <label className="block text-sm font-medium text-gray-700 mb-2">
+        <label className="block text-sm font-medium text-gray-700 dark:text-gray-200 mb-2">
           Username *
         </label>
         <input
@@ -102,24 +102,24 @@ export function UserForm({ user, mode }: UserFormProps) {
           required
           value={formData.username}
           onChange={(e) => setFormData({ ...formData, username: e.target.value })}
-          className="w-full border rounded-lg px-4 py-2"
+          className="w-full border dark:border-strokedark rounded-lg px-4 py-2 dark:bg-meta-4 dark:text-white"
         />
       </div>
 
       <div>
-        <label className="block text-sm font-medium text-gray-700 mb-2">
+        <label className="block text-sm font-medium text-gray-700 dark:text-gray-200 mb-2">
           Real Name
         </label>
         <input
           type="text"
           value={formData.realname}
           onChange={(e) => setFormData({ ...formData, realname: e.target.value })}
-          className="w-full border rounded-lg px-4 py-2"
+          className="w-full border dark:border-strokedark rounded-lg px-4 py-2 dark:bg-meta-4 dark:text-white"
         />
       </div>
 
       <div>
-        <label className="block text-sm font-medium text-gray-700 mb-2">
+        <label className="block text-sm font-medium text-gray-700 dark:text-gray-200 mb-2">
           Email *
         </label>
         <input
@@ -127,12 +127,12 @@ export function UserForm({ user, mode }: UserFormProps) {
           required
           value={formData.email}
           onChange={(e) => setFormData({ ...formData, email: e.target.value })}
-          className="w-full border rounded-lg px-4 py-2"
+          className="w-full border dark:border-strokedark rounded-lg px-4 py-2 dark:bg-meta-4 dark:text-white"
         />
       </div>
 
       <div>
-        <label className="block text-sm font-medium text-gray-700 mb-2">
+        <label className="block text-sm font-medium text-gray-700 dark:text-gray-200 mb-2">
           Password {mode === "create" ? "*" : "(leave blank to keep current)"}
         </label>
         <input
@@ -140,20 +140,20 @@ export function UserForm({ user, mode }: UserFormProps) {
           required={mode === "create"}
           value={formData.password}
           onChange={(e) => setFormData({ ...formData, password: e.target.value })}
-          className="w-full border rounded-lg px-4 py-2"
+          className="w-full border dark:border-strokedark rounded-lg px-4 py-2 dark:bg-meta-4 dark:text-white"
           placeholder={mode === "edit" ? "Leave blank to keep current password" : ""}
         />
       </div>
 
       <div>
-        <label className="block text-sm font-medium text-gray-700 mb-2">
+        <label className="block text-sm font-medium text-gray-700 dark:text-gray-200 mb-2">
           Access Level *
         </label>
         <select
           required
           value={formData.access_level}
           onChange={(e) => setFormData({ ...formData, access_level: parseInt(e.target.value) })}
-          className="w-full border rounded-lg px-4 py-2"
+          className="w-full border dark:border-strokedark rounded-lg px-4 py-2 dark:bg-meta-4 dark:text-white"
         >
           {ACCESS_LEVELS.map((level) => (
             <option key={level.value} value={level.value}>
@@ -171,7 +171,7 @@ export function UserForm({ user, mode }: UserFormProps) {
             onChange={(e) => setFormData({ ...formData, enabled: e.target.checked ? 1 : 0 })}
             className="rounded"
           />
-          <span className="text-sm font-medium text-gray-700">Enabled</span>
+          <span className="text-sm font-medium text-gray-700 dark:text-gray-200">Enabled</span>
         </label>
       </div>
 
@@ -186,7 +186,7 @@ export function UserForm({ user, mode }: UserFormProps) {
         <button
           type="button"
           onClick={() => router.push("/users")}
-          className="border border-gray-300 px-6 py-2 rounded-lg hover:bg-gray-50"
+          className="border border-gray-300 dark:border-strokedark px-6 py-2 rounded-lg hover:bg-gray-50 dark:hover:bg-meta-4 dark:text-white"
         >
           Cancel
         </button>
