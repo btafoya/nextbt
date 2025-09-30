@@ -1,6 +1,7 @@
 "use client";
 
 import { useState, useEffect } from "react";
+import { sanitizeHtml } from "@/lib/sanitize";
 import Editor from "@/components/wysiwyg/Editor";
 import { logger } from "@/lib/logger";
 
@@ -205,7 +206,7 @@ export default function NotesSection({ issueId, currentUserId }: { issueId: numb
             ) : (
               <div
                 className="prose max-w-none"
-                dangerouslySetInnerHTML={{ __html: note.text }}
+                dangerouslySetInnerHTML={{ __html: sanitizeHtml(note.text) }}
               />
             )}
           </div>

@@ -3,6 +3,7 @@ import { notFound } from "next/navigation";
 import Link from "next/link";
 import { prisma } from "@/db/client";
 import { requireSession } from "@/lib/auth";
+import { sanitizeHtml } from "@/lib/sanitize";
 import { DataTable } from "@/components/ui/data-table";
 import { columns } from "../../issues/columns";
 
@@ -146,7 +147,7 @@ export default async function ProjectDetailPage({ params }: { params: { id: stri
             <hr />
             <div>
               <h2 className="font-semibold mb-2">Description</h2>
-              <div className="prose max-w-none" dangerouslySetInnerHTML={{ __html: project.description }} />
+              <div className="prose max-w-none" dangerouslySetInnerHTML={{ __html: sanitizeHtml(project.description) }} />
             </div>
           </>
         )}

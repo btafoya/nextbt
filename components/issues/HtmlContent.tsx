@@ -1,6 +1,7 @@
 "use client";
 
-import { useEffect, useRef } from "react";
+import { useEffect, useRef, useMemo } from "react";
+import { sanitizeBugDescription } from "@/lib/sanitize";
 import Lightbox from "@/components/ui/Lightbox";
 
 interface HtmlContentProps {
@@ -9,6 +10,9 @@ interface HtmlContentProps {
 
 export default function HtmlContent({ html }: HtmlContentProps) {
   const containerRef = useRef<HTMLDivElement>(null);
+
+  // Sanitize HTML once on mount/update to prevent XSS attacks
+  const sanitizedHtml = useMemo(() => sanitizeBugDescription(html), [html]);
 
   useEffect(() => {
     if (!containerRef.current) return;
@@ -96,7 +100,7 @@ export default function HtmlContent({ html }: HtmlContentProps) {
     <div
       ref={containerRef}
       className="prose max-w-none"
-      dangerouslySetInnerHTML={{ __html: html }}
+      dangerouslySetInnerHTML={{ __html: sanitizedHtml }}
     />
   );
 }

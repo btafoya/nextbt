@@ -105,30 +105,58 @@ export default function Editor({
 
     const content = document.createElement('div');
     content.style.cssText = 'background: white; padding: 24px; border-radius: 8px; max-width: 500px; width: 90%;';
-    content.innerHTML = `
-      <h3 style="margin: 0 0 16px 0; font-size: 18px; font-weight: 600;">Insert Image</h3>
-      <div style="margin-bottom: 16px;">
-        <label style="display: block; margin-bottom: 8px; font-weight: 500;">From URL:</label>
-        <input type="text" id="image-url" placeholder="https://example.com/image.jpg"
-          style="width: 100%; padding: 8px; border: 1px solid #ccc; border-radius: 4px;" />
-      </div>
-      <div style="margin-bottom: 16px;">
-        <label style="display: block; margin-bottom: 8px; font-weight: 500;">Or upload file:</label>
-        <input type="file" id="image-file" accept="image/*"
-          style="width: 100%; padding: 8px; border: 1px solid #ccc; border-radius: 4px;" />
-      </div>
-      <div style="display: flex; gap: 8px; justify-content: flex-end;">
-        <button id="cancel-btn" style="padding: 8px 16px; border: 1px solid #ccc; border-radius: 4px; background: white; cursor: pointer;">Cancel</button>
-        <button id="insert-btn" style="padding: 8px 16px; border: none; border-radius: 4px; background: #2563eb; color: white; cursor: pointer;">Insert</button>
-      </div>
-    `;
+
+    // Create dialog elements safely without innerHTML
+    const title = document.createElement('h3');
+    title.style.cssText = 'margin: 0 0 16px 0; font-size: 18px; font-weight: 600;';
+    title.textContent = 'Insert Image';
+
+    const urlContainer = document.createElement('div');
+    urlContainer.style.marginBottom = '16px';
+    const urlLabel = document.createElement('label');
+    urlLabel.style.cssText = 'display: block; margin-bottom: 8px; font-weight: 500;';
+    urlLabel.textContent = 'From URL:';
+    const urlInput = document.createElement('input');
+    urlInput.type = 'text';
+    urlInput.id = 'image-url';
+    urlInput.placeholder = 'https://example.com/image.jpg';
+    urlInput.style.cssText = 'width: 100%; padding: 8px; border: 1px solid #ccc; border-radius: 4px;';
+    urlContainer.appendChild(urlLabel);
+    urlContainer.appendChild(urlInput);
+
+    const fileContainer = document.createElement('div');
+    fileContainer.style.marginBottom = '16px';
+    const fileLabel = document.createElement('label');
+    fileLabel.style.cssText = 'display: block; margin-bottom: 8px; font-weight: 500;';
+    fileLabel.textContent = 'Or upload file:';
+    const fileInput = document.createElement('input');
+    fileInput.type = 'file';
+    fileInput.id = 'image-file';
+    fileInput.accept = 'image/*';
+    fileInput.style.cssText = 'width: 100%; padding: 8px; border: 1px solid #ccc; border-radius: 4px;';
+    fileContainer.appendChild(fileLabel);
+    fileContainer.appendChild(fileInput);
+
+    const buttonContainer = document.createElement('div');
+    buttonContainer.style.cssText = 'display: flex; gap: 8px; justify-content: flex-end;';
+    const cancelBtn = document.createElement('button');
+    cancelBtn.id = 'cancel-btn';
+    cancelBtn.textContent = 'Cancel';
+    cancelBtn.style.cssText = 'padding: 8px 16px; border: 1px solid #ccc; border-radius: 4px; background: white; cursor: pointer;';
+    const insertBtn = document.createElement('button');
+    insertBtn.id = 'insert-btn';
+    insertBtn.textContent = 'Insert';
+    insertBtn.style.cssText = 'padding: 8px 16px; border: none; border-radius: 4px; background: #2563eb; color: white; cursor: pointer;';
+    buttonContainer.appendChild(cancelBtn);
+    buttonContainer.appendChild(insertBtn);
+
+    // Assemble dialog
+    content.appendChild(title);
+    content.appendChild(urlContainer);
+    content.appendChild(fileContainer);
+    content.appendChild(buttonContainer);
     dialog.appendChild(content);
     document.body.appendChild(dialog);
-
-    const urlInput = content.querySelector('#image-url') as HTMLInputElement;
-    const fileInput = content.querySelector('#image-file') as HTMLInputElement;
-    const cancelBtn = content.querySelector('#cancel-btn') as HTMLButtonElement;
-    const insertBtn = content.querySelector('#insert-btn') as HTMLButtonElement;
 
     const cleanup = () => document.body.removeChild(dialog);
 
