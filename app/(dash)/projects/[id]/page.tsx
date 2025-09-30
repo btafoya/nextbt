@@ -4,6 +4,10 @@ import Link from "next/link";
 import { prisma } from "@/db/client";
 import { requireSession } from "@/lib/auth";
 
+// Disable caching to ensure real-time data updates
+export const dynamic = 'force-dynamic'
+export const revalidate = 0
+
 async function getProject(id: number) {
   const session = requireSession();
 

@@ -70,9 +70,11 @@ export const columns: ColumnDef<Project>[] = [
     header: () => <span className="text-white font-semibold">Description</span>,
     cell: ({ row }) => {
       const description = row.getValue("description") as string
+      // Strip HTML tags for display in table
+      const plainText = description ? description.replace(/<[^>]*>/g, '').trim() : ''
       return (
-        <div className="max-w-md truncate" title={description}>
-          {description || <span className="text-gray-400 italic">No description</span>}
+        <div className="max-w-md truncate" title={plainText}>
+          {plainText || <span className="text-gray-400 italic">No description</span>}
         </div>
       )
     },
