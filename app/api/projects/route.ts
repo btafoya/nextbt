@@ -64,7 +64,7 @@ export async function POST(req: Request) {
       );
     }
 
-    // Create project
+    // Create project with category_id: 0 (will update after creating default category)
     const project = await prisma.mantis_project_table.create({
       data: {
         name,
@@ -74,9 +74,26 @@ export async function POST(req: Request) {
         view_state: view_state || 10,
         access_min: access_min || 10,
         file_path: "",
-        category_id: 1,
+        category_id: 0, // Temporary: no category
         inherit_global: 0,
       }
+    });
+
+    // Create default "General" category for the new project
+    const session = requireAdmin();
+    const defaultCategory = await prisma.mantis_category_table.create({
+      data: {
+        project_id: project.id,
+        user_id: session.uid,
+        name: "General",
+        status: 1,
+      }
+    });
+
+    // Update project to reference the new default category
+    await prisma.mantis_project_table.update({
+      where: { id: project.id },
+      data: { category_id: defaultCategory.id }
     });
 
     // Add user assignments if provided

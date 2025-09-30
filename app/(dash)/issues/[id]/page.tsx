@@ -11,6 +11,10 @@ import { notFound } from "next/navigation";
 import Link from "next/link";
 import { getSeverityLabel, getStatusLabel, getPriorityLabel, getReproducibilityLabel } from "@/lib/mantis-enums";
 
+// Disable caching to ensure real-time data updates
+export const dynamic = 'force-dynamic'
+export const revalidate = 0
+
 async function getIssue(id: number) {
   const session = requireSession();
 

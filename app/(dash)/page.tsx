@@ -5,6 +5,10 @@ import { requireSession } from "@/lib/auth";
 import { DataTable } from "@/components/ui/data-table";
 import { columns } from "./issues/columns";
 
+// Disable caching to ensure real-time data updates
+export const dynamic = 'force-dynamic'
+export const revalidate = 0
+
 async function getAssignedIssues() {
   const session = requireSession();
 

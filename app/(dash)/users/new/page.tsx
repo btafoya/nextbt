@@ -3,6 +3,10 @@ import { requireAdmin } from "@/lib/auth";
 import { notFound } from "next/navigation";
 import { UserForm } from "@/components/users/UserForm";
 
+// Disable caching to ensure real-time data updates
+export const dynamic = 'force-dynamic'
+export const revalidate = 0
+
 export default async function NewUserPage() {
   try {
     requireAdmin();

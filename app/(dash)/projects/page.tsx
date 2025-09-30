@@ -6,6 +6,10 @@ import { DataTable } from "@/components/ui/data-table";
 import { columns } from "./columns";
 import { Button } from "@/components/ui/button";
 
+// Disable caching to ensure real-time data updates
+export const dynamic = 'force-dynamic'
+export const revalidate = 0
+
 async function getProjects() {
   const session = requireSession();
 
