@@ -69,7 +69,7 @@ export async function POST(req: Request) {
       data: {
         name,
         description: description || "",
-        enabled: enabled !== undefined ? enabled : 1,
+        enabled: enabled !== undefined ? (enabled ? 1 : 0) : 1,
         status: status || 10,
         view_state: view_state || 10,
         access_min: access_min || 10,

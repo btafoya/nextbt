@@ -73,7 +73,7 @@ export async function POST(req: Request) {
         email,
         password: hashedPassword,
         access_level: access_level || 10, // Default to Reporter (10)
-        enabled: enabled !== undefined ? enabled : 1,
+        enabled: enabled !== undefined ? (enabled ? 1 : 0) : 1,
         protected: 0,
         date_created: Math.floor(Date.now() / 1000),
         last_visit: Math.floor(Date.now() / 1000),

@@ -95,7 +95,7 @@ export async function PUT(
     if (realname !== undefined) updateData.realname = realname;
     if (email) updateData.email = email;
     if (access_level !== undefined) updateData.access_level = access_level;
-    if (enabled !== undefined) updateData.enabled = enabled;
+    if (enabled !== undefined) updateData.enabled = enabled ? 1 : 0;
 
     // Hash password if provided
     if (password) {
