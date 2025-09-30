@@ -11,12 +11,20 @@
     --color-gray-2: #f9fafb;
   }
 
+  .dark {
+    --color-primary: #60a5fa;
+    --color-secondary: #34d399;
+    --color-meta-7: #f87171;
+    --color-stroke: #374151;
+    --color-gray-2: #1f2937;
+  }
+
   body {
     @apply bg-white text-gray-900 antialiased;
   }
 
   .dark body {
-    @apply bg-gray-900 text-gray-100;
+    @apply bg-boxdark-2 text-gray-100;
   }
 }
 
@@ -54,28 +62,28 @@
   }
 
   .badge-success {
-    @apply bg-green-100 text-green-800;
+    @apply bg-green-100 text-green-800 dark:bg-green-900 dark:text-green-200;
   }
 
   .badge-warning {
-    @apply bg-yellow-100 text-yellow-800;
+    @apply bg-yellow-100 text-yellow-800 dark:bg-yellow-900 dark:text-yellow-200;
   }
 
   .badge-danger {
-    @apply bg-red-100 text-red-800;
+    @apply bg-red-100 text-red-800 dark:bg-red-900 dark:text-red-200;
   }
 
   .badge-info {
-    @apply bg-blue-100 text-blue-800;
+    @apply bg-blue-100 text-blue-800 dark:bg-blue-900 dark:text-blue-200;
   }
 }
 
 .ProseMirror {
-  @apply min-h-[200px] rounded-lg border border-stroke p-4 focus:border-primary focus:outline-none;
+  @apply min-h-[200px] rounded-lg border border-stroke bg-white p-4 text-gray-900 focus:border-primary focus:outline-none dark:border-strokedark dark:bg-boxdark dark:text-white;
 }
 
 .ProseMirror p.is-editor-empty:first-child::before {
-  @apply text-gray-400;
+  @apply text-gray-400 dark:text-gray-500;
   content: attr(data-placeholder);
   float: left;
   height: 0;
@@ -83,13 +91,13 @@
 }
 
 .sidebar {
-  @apply fixed left-0 top-0 z-50 flex h-screen w-72 flex-col overflow-y-auto bg-white shadow-xl dark:bg-gray-900;
+  @apply fixed left-0 top-0 z-50 flex h-screen w-72 flex-col overflow-y-auto bg-white shadow-xl dark:bg-boxdark;
 }
 
 .sidebar-nav-item {
-  @apply flex items-center gap-3 rounded-lg px-4 py-2.5 text-gray-700 transition-colors hover:bg-gray-100;
+  @apply flex items-center gap-3 rounded-lg px-4 py-2.5 text-gray-700 transition-colors hover:bg-gray-100 dark:text-gray-300 dark:hover:bg-meta-4;
 }
 
 .sidebar-nav-item.active {
-  @apply bg-primary text-white hover:bg-primary/90;
+  @apply bg-primary text-white hover:bg-primary/90 dark:bg-primary dark:hover:bg-primary/90;
 }
