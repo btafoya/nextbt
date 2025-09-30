@@ -7,6 +7,8 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 - **Project Name**: NextBT (Next.js Bug Tracker for MantisBT)
 - **Tech Stack**: Next.js 14 (App Router), TypeScript, Tailwind CSS, Prisma ORM, MySQL
 - **UI Framework**: [TailAdmin Free Next.js Admin Dashboard](https://github.com/TailAdmin/free-nextjs-admin-dashboard)
+- **Theming**: Full dark mode support with TailAdmin color system across all components
+- **Markdown**: GitHub Flavored Markdown rendering with react-markdown, remark-gfm, remark-breaks, @tailwindcss/typography
 - **Core Purpose**: Simplified UI for existing MantisBT 2.x bug tracking system
 - **Database Approach**: Read/write to existing MantisBT schema via Prisma (non-destructive, uses `@@map`/`@map`)
 - **Key Integration**: TipTap WYSIWYG editor with AI assist (OpenRouter), MCP (Model Context Protocol) for Claude Code, multi-channel notifications (Postmark, Pushover, Rocket.Chat, Teams, Web Push)
@@ -95,7 +97,9 @@ pnpm dlx prisma studio     # Open Prisma Studio GUI
 ### Key Components
 - **`/components/wysiwyg/Editor.tsx`**: TipTap rich text editor integration
 - **`/components/wysiwyg/InlineAI.tsx`**: AI assistant integration with OpenRouter
-- TailAdmin components (layout, sidebar, header, cards) for dashboard UI
+- **`/components/issues/HtmlContent.tsx`**: Markdown renderer with react-markdown, remark-gfm support, and dark mode styling
+- **`/components/ClientThemeWrapper.tsx`**: Dark mode theme management with localStorage persistence
+- TailAdmin components (layout, sidebar, header, cards) for dashboard UI with comprehensive dark mode support
 
 ### Notification System (`/lib/notify/`)
 - **Multi-channel**: Postmark (email), Pushover, Rocket.Chat, Microsoft Teams, Web Push
@@ -192,8 +196,28 @@ await dispatchNotification({
 - **Notifications**: Test channels independently via `/lib/notify/*` modules
 - See **20_TESTING_GUIDE.md** for comprehensive testing documentation
 
+## Recent Improvements (September 2025)
+
+### Dark Mode Implementation
+- Comprehensive dark mode styling across all pages and components
+- Theme toggle in user profile with localStorage persistence
+- Dark mode classes: `dark:bg-boxdark`, `dark:bg-meta-4`, `dark:text-bodydark`, `dark:border-strokedark`
+- Consistent theming in forms, inputs, cards, tables, and navigation
+- Proper contrast and readability in both light and dark themes
+
+### Markdown Rendering
+- Replaced `marked` library with `react-markdown` per Next.js best practices
+- Added `remark-gfm` for GitHub Flavored Markdown (tables, strikethrough, task lists, autolinks)
+- Added `remark-breaks` for automatic line break conversion (newlines → `<br>`)
+- Integrated `@tailwindcss/typography` plugin for beautiful prose styling
+- Dark mode support with `dark:prose-invert` for optimal readability
+- Maintains image lightbox functionality and HTML sanitization
+- Proper rendering in issue descriptions and bug notes
+
 ## Code Style
 - TypeScript strict mode enabled
 - Server-only utilities use `import "server-only"` directive
-- Tailwind CSS for all styling (using TailAdmin design system)
+- Tailwind CSS for all styling (using TailAdmin design system with dark mode)
 - API routes follow Next.js 14 App Router conventions (`route.ts` files)
+- Markdown content rendered with react-markdown + remark plugins
+- Dark mode classes applied consistently across all components

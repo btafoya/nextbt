@@ -8,7 +8,9 @@ A modern, user-friendly web interface for MantisBT 2.x bug tracking systems. Nex
 ## Features
 
 - 🎨 **Modern UI** - Clean, responsive interface built with Next.js 14 App Router and Tailwind CSS
+- 🌓 **Dark Mode** - Full dark mode support with comprehensive theming across all pages and components
 - 📝 **Rich Text Editor** - TipTap WYSIWYG editor with AI-powered writing assistance via OpenRouter
+- 📄 **Markdown Rendering** - GitHub Flavored Markdown support with react-markdown, remark-gfm, and @tailwindcss/typography
 - 🔔 **Multi-Channel Notifications** - Email (Postmark), Push (Pushover), Chat (Rocket.Chat, Microsoft Teams), and Web Push
 - 🔌 **MCP Integration** - Model Context Protocol support for Claude Code remote server integration
 - 📚 **API Documentation** - Interactive OpenAPI 3.0 documentation with Swagger UI at `/api-docs`
@@ -21,9 +23,11 @@ A modern, user-friendly web interface for MantisBT 2.x bug tracking systems. Nex
 ## Tech Stack
 
 - **Framework**: Next.js 14 with App Router
-- **Styling**: Tailwind CSS + TailAdmin Dashboard Theme
+- **Styling**: Tailwind CSS + TailAdmin Dashboard Theme + @tailwindcss/typography
+- **Theming**: Dark mode support with TailAdmin color system
 - **Database**: Prisma ORM with MySQL (connects to existing MantisBT schema)
 - **Editor**: TipTap with OpenRouter AI integration
+- **Markdown**: react-markdown with remark-gfm (GitHub Flavored Markdown) and remark-breaks
 - **Testing**: Vitest + React Testing Library + Playwright (E2E & Accessibility)
 - **Accessibility**: axe-core + @axe-core/playwright for WCAG 2.1 AA compliance
 - **Notifications**: Postmark, Pushover, Rocket.Chat, Microsoft Teams, Web Push
@@ -268,6 +272,8 @@ NextBT provides comprehensive issue management with all MantisBT fields:
 - **Severity**: feature, trivial, text, tweak, minor, major, crash, block
 - **Reproducibility**: always, sometimes, random, have not tried, unable to reproduce, n/a
 - **Assignee**: User assignment with project-based permissions
+- **Markdown Support**: Full GitHub Flavored Markdown rendering in notes and descriptions (tables, task lists, code blocks)
+- **Dark Mode**: Complete dark theme support for enhanced readability and reduced eye strain
 
 ## Testing
 
