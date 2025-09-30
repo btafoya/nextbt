@@ -6,6 +6,14 @@
         "shadcn@latest",
         "mcp"
       ]
+    },
+    "mantislite-remote": {
+      "type": "sse",
+      "url": "${MCP_REMOTE_URL:-https://api.example.com/mcp}",
+      "headers": {
+        "Authorization": "Bearer ${MCP_REMOTE_AUTH_KEY}"
+      },
+      "disabled": true
     }
   }
 }
