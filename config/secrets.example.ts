@@ -14,6 +14,7 @@ export const secrets = {
   postmarkServerToken: "POSTMARK_SERVER_TOKEN",
   fromEmail: "support@example.com",
   fromName: "Issue Tracker",
+  messsageSubjectPrepend: "Issue Tracker",
   webmasterEmail: "support@example.com",
   // Pushover
   pushoverEnabled: false,
