@@ -3,6 +3,8 @@ import { notFound } from "next/navigation";
 import Link from "next/link";
 import { prisma } from "@/db/client";
 import { requireSession } from "@/lib/auth";
+import { DataTable } from "@/components/ui/data-table";
+import { columns } from "../../issues/columns";
 
 // Disable caching to ensure real-time data updates
 export const dynamic = 'force-dynamic'
@@ -31,6 +33,33 @@ async function getProject(id: number) {
   return project;
 }
 
+async function getProjectIssues(projectId: number) {
+  const issues = await prisma.mantis_bug_table.findMany({
+    where: { project_id: projectId },
+    include: {
+      project: {
+        select: {
+          name: true
+        }
+      }
+    },
+    orderBy: { last_updated: "desc" },
+    take: 50
+  });
+
+  // Serialize for client component
+  return issues.map(issue => ({
+    id: issue.id,
+    summary: issue.summary,
+    status: issue.status,
+    priority: issue.priority,
+    last_updated: issue.last_updated,
+    project: {
+      name: issue.project.name
+    }
+  }));
+}
+
 async function canEditProject(projectId: number, userId: number) {
   const user = await prisma.mantis_user_table.findUnique({
     where: { id: userId }
@@ -56,7 +85,11 @@ export default async function ProjectDetailPage({ params }: { params: { id: stri
   if (isNaN(projectId)) notFound();
 
   const session = requireSession();
-  const project = await getProject(projectId);
+  const [project, issues] = await Promise.all([
+    getProject(projectId),
+    getProjectIssues(projectId)
+  ]);
+
   if (!project) notFound();
 
   const canEdit = await canEditProject(projectId, session.uid);
@@ -119,11 +152,25 @@ export default async function ProjectDetailPage({ params }: { params: { id: stri
         )}
       </div>
 
-      <div className="bg-white border rounded p-4">
-        <h2 className="font-semibold mb-3">Project Issues</h2>
-        <Link href={`/issues?project=${project.id}`} className="text-blue-600 hover:underline text-sm">
-          View all issues in this project →
-        </Link>
+      <div className="bg-white border rounded p-4 space-y-4">
+        <div className="flex items-center justify-between">
+          <h2 className="text-xl font-semibold">Project Issues</h2>
+          <Link href={`/issues/new`} className="bg-blue-600 text-white px-3 py-1.5 rounded text-sm hover:bg-blue-700">
+            New Issue
+          </Link>
+        </div>
+        {issues.length === 0 ? (
+          <div className="text-center py-8 text-gray-500">
+            No issues found for this project
+          </div>
+        ) : (
+          <DataTable
+            columns={columns}
+            data={issues}
+            searchColumn="summary"
+            searchPlaceholder="Filter project issues..."
+          />
+        )}
       </div>
     </div>
   );

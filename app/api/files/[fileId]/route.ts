@@ -4,6 +4,7 @@ import { getSession } from "@/lib/auth";
 import { prisma } from "@/db/client";
 import fs from "fs/promises";
 import path from "path";
+import { logger } from "@/lib/logger";
 
 /**
  * File download API handler - replaces MantisBT file_download.php
@@ -129,7 +130,7 @@ export async function GET(
         );
         fileContent = await fs.readFile(diskPath);
       } catch (fsError) {
-        console.error("Failed to read file from disk:", fsError);
+        logger.error("Failed to read file from disk:", fsError);
         return NextResponse.json(
           { error: "File content not accessible" },
           { status: 500 }
@@ -170,7 +171,7 @@ export async function GET(
       headers,
     });
   } catch (err) {
-    console.error("File download error:", err);
+    logger.error("File download error:", err);
     return NextResponse.json(
       { error: "Internal server error" },
       { status: 500 }

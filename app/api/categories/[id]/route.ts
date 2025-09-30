@@ -2,6 +2,7 @@
 import { NextResponse } from "next/server";
 import { requireSession } from "@/lib/auth";
 import { prisma } from "@/db/client";
+import { logger } from "@/lib/logger";
 
 // DELETE /api/categories/[id] - Delete category
 export async function DELETE(
@@ -63,7 +64,7 @@ export async function DELETE(
 
     return NextResponse.json({ success: true });
   } catch (err) {
-    console.error("Delete category error:", err);
+    logger.error("Delete category error:", err);
     return NextResponse.json(
       { error: err instanceof Error ? err.message : "Internal server error" },
       { status: 500 }
@@ -133,7 +134,7 @@ export async function PATCH(
 
     return NextResponse.json(updated);
   } catch (err) {
-    console.error("Update category error:", err);
+    logger.error("Update category error:", err);
     return NextResponse.json(
       { error: err instanceof Error ? err.message : "Internal server error" },
       { status: 500 }

@@ -6,6 +6,7 @@ import { faDownload, faTrash, faFile, faUpload, faComment } from "@fortawesome/f
 import Editor from "@/components/wysiwyg/Editor";
 import Lightbox from "@/components/ui/Lightbox";
 import HtmlContent from "@/components/issues/HtmlContent";
+import { logger } from "@/lib/logger";
 
 interface Note {
   id: number;
@@ -75,7 +76,7 @@ export default function ActivityTimeline({ issueId, currentUserId }: { issueId: 
         setActivities(combined);
       }
     } catch (err) {
-      console.error("Failed to load activities:", err);
+      logger.error("Failed to load activities:", err);
     }
   }
 

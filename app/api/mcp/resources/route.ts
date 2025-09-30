@@ -2,6 +2,7 @@
 import { NextResponse } from "next/server";
 import { getSession } from "@/lib/auth";
 import { getMCPClient } from "@/lib/mcp/client";
+import { logger } from "@/lib/logger";
 
 /**
  * List available MCP resources
@@ -25,7 +26,7 @@ export async function GET() {
     const resources = await client.listResources();
     return NextResponse.json({ resources });
   } catch (error) {
-    console.error("Error listing MCP resources:", error);
+    logger.error("Error listing MCP resources:", error);
     return NextResponse.json({
       error: "Failed to list MCP resources",
       resources: []
@@ -63,7 +64,7 @@ export async function POST(req: Request) {
     const content = await client.readResource(uri);
     return NextResponse.json({ content });
   } catch (error) {
-    console.error("Error reading MCP resource:", error);
+    logger.error("Error reading MCP resource:", error);
     return NextResponse.json({
       error: "Failed to read MCP resource"
     }, { status: 500 });

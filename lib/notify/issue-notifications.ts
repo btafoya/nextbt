@@ -6,6 +6,7 @@ import { sendEmail } from "@/lib/notify/postmark";
 import { sendPushover } from "@/lib/notify/pushover";
 import { sendRocketChat } from "@/lib/notify/rocketchat";
 import { sendTeams } from "@/lib/notify/teams";
+import { logger } from "@/lib/logger";
 
 export type IssueAction = "created" | "updated" | "deleted" | "commented" | "status_changed" | "assigned";
 
@@ -131,7 +132,7 @@ export async function notifyIssueAction(ctx: NotificationContext, baseUrl: strin
     const users = await getProjectUsers(ctx.projectId, ctx.actorId);
 
     if (users.length === 0) {
-      console.log(`No users to notify for issue #${ctx.issueId}`);
+      logger.log(`No users to notify for issue #${ctx.issueId}`);
       return;
     }
 
@@ -145,7 +146,7 @@ export async function notifyIssueAction(ctx: NotificationContext, baseUrl: strin
         .map(user => {
           const html = generateEmailTemplate(ctx, issueUrl);
           return sendEmail(user.email, subject, html).catch(err => {
-            console.error(`Failed to send email to ${user.email}:`, err);
+            logger.error(`Failed to send email to ${user.email}:`, err);
           });
         });
 
@@ -160,7 +161,7 @@ export async function notifyIssueAction(ctx: NotificationContext, baseUrl: strin
     if (secrets.pushoverEnabled) {
       otherTasks.push(
         sendPushover(textNotification, subject).catch(err => {
-          console.error('Failed to send Pushover notification:', err);
+          logger.error('Failed to send Pushover notification:', err);
         })
       );
     }
@@ -168,7 +169,7 @@ export async function notifyIssueAction(ctx: NotificationContext, baseUrl: strin
     if (secrets.rocketchatEnabled) {
       otherTasks.push(
         sendRocketChat(`**${subject}**\n${textNotification}`).catch(err => {
-          console.error('Failed to send Rocket.Chat notification:', err);
+          logger.error('Failed to send Rocket.Chat notification:', err);
         })
       );
     }
@@ -176,15 +177,15 @@ export async function notifyIssueAction(ctx: NotificationContext, baseUrl: strin
     if (secrets.teamsEnabled) {
       otherTasks.push(
         sendTeams(`**${subject}**\n${textNotification}`).catch(err => {
-          console.error('Failed to send Teams notification:', err);
+          logger.error('Failed to send Teams notification:', err);
         })
       );
     }
 
     await Promise.allSettled(otherTasks);
 
-    console.log(`Sent notifications for issue #${ctx.issueId} to ${users.length} users`);
+    logger.log(`Sent notifications for issue #${ctx.issueId} to ${users.length} users`);
   } catch (error) {
-    console.error('Error sending issue notifications:', error);
+    logger.error('Error sending issue notifications:', error);
   }
 }

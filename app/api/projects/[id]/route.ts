@@ -3,6 +3,7 @@ import { NextRequest, NextResponse } from "next/server";
 import { revalidatePath } from "next/cache";
 import { requireAdmin } from "@/lib/auth";
 import { prisma } from "@/db/client";
+import { logger } from "@/lib/logger";
 
 // Disable caching for all API responses
 export const dynamic = 'force-dynamic'
@@ -45,7 +46,7 @@ export async function GET(
 
     return NextResponse.json(project);
   } catch (err) {
-    console.error("Get project error:", err);
+    logger.error("Get project error:", err);
     return NextResponse.json(
       { error: err instanceof Error ? err.message : "Unauthorized" },
       { status: err instanceof Error && err.message === "Not authenticated" ? 401 : 403 }
@@ -154,7 +155,7 @@ export async function PUT(
 
     return NextResponse.json(updatedProject);
   } catch (err) {
-    console.error("Update project error:", err);
+    logger.error("Update project error:", err);
     return NextResponse.json(
       { error: err instanceof Error ? err.message : "Internal server error" },
       { status: 500 }
@@ -201,7 +202,7 @@ export async function DELETE(
 
     return NextResponse.json({ ok: true });
   } catch (err) {
-    console.error("Delete project error:", err);
+    logger.error("Delete project error:", err);
     return NextResponse.json(
       { error: err instanceof Error ? err.message : "Internal server error" },
       { status: 500 }

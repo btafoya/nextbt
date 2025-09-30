@@ -2,6 +2,7 @@
 "use client";
 
 import { useState, useEffect } from "react";
+import { logger } from "@/lib/logger";
 
 type User = {
   id: number;
@@ -29,7 +30,7 @@ export function UserAssignment({ selectedUserIds, onChange }: UserAssignmentProp
           setUsers(data);
         }
       } catch (err) {
-        console.error("Failed to fetch users:", err);
+        logger.error("Failed to fetch users:", err);
       } finally {
         setLoading(false);
       }

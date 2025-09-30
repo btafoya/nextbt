@@ -3,6 +3,7 @@ import { NextResponse } from "next/server";
 import { requireAdmin } from "@/lib/auth";
 import { prisma } from "@/db/client";
 import { createHash } from "crypto";
+import { logger } from "@/lib/logger";
 
 // GET /api/users - List all users (admin only)
 export async function GET() {
@@ -26,7 +27,7 @@ export async function GET() {
 
     return NextResponse.json(users);
   } catch (err) {
-    console.error("List users error:", err);
+    logger.error("List users error:", err);
     return NextResponse.json(
       { error: err instanceof Error ? err.message : "Unauthorized" },
       { status: err instanceof Error && err.message === "Not authenticated" ? 401 : 403 }
@@ -95,7 +96,7 @@ export async function POST(req: Request) {
 
     return NextResponse.json(user, { status: 201 });
   } catch (err) {
-    console.error("Create user error:", err);
+    logger.error("Create user error:", err);
     return NextResponse.json(
       { error: err instanceof Error ? err.message : "Internal server error" },
       { status: 500 }

@@ -1,6 +1,7 @@
 // /lib/mcp/client.ts
 import "server-only";
 import { secrets } from "@/config/secrets";
+import { logger } from "@/lib/logger";
 
 /**
  * MCP Remote Server Client
@@ -88,7 +89,7 @@ export class MCPRemoteClient {
       const data = await response.json();
       return data.tools || [];
     } catch (error) {
-      console.error("Error listing MCP tools:", error);
+      logger.error("Error listing MCP tools:", error);
       throw error;
     }
   }
@@ -115,7 +116,7 @@ export class MCPRemoteClient {
       const data = await response.json();
       return data.resources || [];
     } catch (error) {
-      console.error("Error listing MCP resources:", error);
+      logger.error("Error listing MCP resources:", error);
       throw error;
     }
   }
@@ -145,7 +146,7 @@ export class MCPRemoteClient {
       const data = await response.json();
       return data;
     } catch (error) {
-      console.error(`Error calling MCP tool ${request.name}:`, error);
+      logger.error(`Error calling MCP tool ${request.name}:`, error);
       throw error;
     }
   }
@@ -172,7 +173,7 @@ export class MCPRemoteClient {
       const data = await response.json();
       return data.contents?.[0]?.text || "";
     } catch (error) {
-      console.error(`Error reading MCP resource ${uri}:`, error);
+      logger.error(`Error reading MCP resource ${uri}:`, error);
       throw error;
     }
   }
@@ -194,7 +195,7 @@ export class MCPRemoteClient {
 
       return response.ok;
     } catch (error) {
-      console.error("Error testing MCP connection:", error);
+      logger.error("Error testing MCP connection:", error);
       return false;
     }
   }
