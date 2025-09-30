@@ -17,6 +17,7 @@ export default function DeleteUserPage({ params }: { params: { id: string } }) {
     try {
       const res = await fetch(`/api/users/${params.id}`, {
         method: "DELETE",
+        cache: 'no-store'
       });
 
       if (!res.ok) {
@@ -26,8 +27,8 @@ export default function DeleteUserPage({ params }: { params: { id: string } }) {
         return;
       }
 
-      router.push("/users");
       router.refresh();
+      router.push("/users");
     } catch (err) {
       setError("An error occurred");
       setLoading(false);

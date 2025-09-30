@@ -1,7 +1,12 @@
 // /app/api/projects/[id]/route.ts
 import { NextRequest, NextResponse } from "next/server";
+import { revalidatePath } from "next/cache";
 import { requireAdmin } from "@/lib/auth";
 import { prisma } from "@/db/client";
+
+// Disable caching for all API responses
+export const dynamic = 'force-dynamic'
+export const revalidate = 0
 
 // GET /api/projects/[id] - Get single project (admin only)
 export async function GET(
@@ -142,6 +147,11 @@ export async function PUT(
       }
     });
 
+    // Revalidate affected pages
+    revalidatePath('/projects');
+    revalidatePath(`/projects/${projectId}`);
+    revalidatePath('/');
+
     return NextResponse.json(updatedProject);
   } catch (err) {
     console.error("Update project error:", err);
@@ -184,6 +194,10 @@ export async function DELETE(
     await prisma.mantis_project_table.delete({
       where: { id: projectId }
     });
+
+    // Revalidate projects list page
+    revalidatePath('/projects');
+    revalidatePath('/');
 
     return NextResponse.json({ ok: true });
   } catch (err) {

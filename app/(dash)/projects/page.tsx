@@ -13,11 +13,19 @@ export const revalidate = 0
 async function getProjects() {
   const session = requireSession();
 
+  // Check if user is admin
+  const user = await prisma.mantis_user_table.findUnique({
+    where: { id: session.uid },
+    select: { access_level: true }
+  });
+
+  const isAdmin = user && user.access_level >= 90;
+
   const projects = await prisma.mantis_project_table.findMany({
-    where: {
+    where: isAdmin ? {} : {
       id: { in: session.projects }
     },
-    orderBy: { name: "asc" }
+    orderBy: { id: "desc" }
   });
 
   return projects;

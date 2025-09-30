@@ -56,9 +56,9 @@ export default function EditIssuePage({ params }: { params: { id: string } }) {
 
   useEffect(() => {
     Promise.all([
-      fetch(`/api/issues/${issueId}`).then(res => res.json()),
-      fetch("/api/projects").then(res => res.json()),
-      fetch("/api/users/assignable").then(res => res.json()),
+      fetch(`/api/issues/${issueId}`, { cache: 'no-store' }).then(res => res.json()),
+      fetch("/api/projects", { cache: 'no-store' }).then(res => res.json()),
+      fetch("/api/users/assignable", { cache: 'no-store' }).then(res => res.json()),
     ]).then(([issueData, projectsData, usersData]) => {
       if (issueData.error) {
         setError(issueData.error);
@@ -102,7 +102,8 @@ export default function EditIssuePage({ params }: { params: { id: string } }) {
           severity,
           reproducibility,
           handler_id: handlerId || null,
-        })
+        }),
+        cache: 'no-store'
       });
 
       if (!response.ok) {
@@ -110,6 +111,7 @@ export default function EditIssuePage({ params }: { params: { id: string } }) {
         throw new Error(data.error || "Failed to update issue");
       }
 
+      router.refresh();
       router.push(`/issues/${issueId}`);
     } catch (err) {
       setError(err instanceof Error ? err.message : "Failed to update issue");
