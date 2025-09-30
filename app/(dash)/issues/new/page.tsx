@@ -3,7 +3,6 @@
 
 import { useState, useEffect } from "react";
 import Editor from "@/components/wysiwyg/Editor";
-import InlineAI from "@/components/wysiwyg/InlineAI";
 import {
   getAllStatuses,
   getAllPriorities,
@@ -37,11 +36,10 @@ export default function NewIssuePage() {
 
   useEffect(() => {
     Promise.all([
-      fetch("/api/projects", { cache: 'no-store' }).then(res => res.json()),
+      fetch("/api/projects?active=true", { cache: 'no-store' }).then(res => res.json()),
       fetch("/api/users/assignable", { cache: 'no-store' }).then(res => res.json()),
     ]).then(([projectsData, usersData]) => {
       setProjects(projectsData);
-      if (projectsData.length > 0) setProjectId(projectsData[0].id);
       setUsers(usersData);
       setLoading(false);
     });
@@ -75,8 +73,8 @@ export default function NewIssuePage() {
   const reproducibilities = getAllReproducibilities();
 
   return (
-    <div className="grid md:grid-cols-3 gap-4">
-      <form onSubmit={submit} className="md:col-span-2 bg-white border rounded p-4 space-y-3">
+    <div className="max-w-4xl">
+      <form onSubmit={submit} className="bg-white border rounded p-4 space-y-3">
         <h1 className="text-lg font-semibold">New Issue</h1>
 
         <div>
@@ -184,9 +182,6 @@ export default function NewIssuePage() {
           Create Issue
         </button>
       </form>
-      <div className="space-y-3">
-        <InlineAI onInsert={(text) => setDescription((d) => d + `\n\n<blockquote>${text}</blockquote>`)} />
-      </div>
     </div>
   );
 }

@@ -20,11 +20,28 @@ async function getAssignedIssues() {
       handler_id: session.uid,
       status: { lt: 80 }
     },
+    include: {
+      project: {
+        select: {
+          name: true
+        }
+      }
+    },
     orderBy: { last_updated: "desc" },
     take: 20
   });
 
-  return issues;
+  // Serialize for client component
+  return issues.map(issue => ({
+    id: issue.id,
+    summary: issue.summary,
+    status: issue.status,
+    priority: issue.priority,
+    last_updated: issue.last_updated,
+    project: {
+      name: issue.project.name
+    }
+  }));
 }
 
 async function getReportedIssues() {
@@ -37,11 +54,28 @@ async function getReportedIssues() {
       reporter_id: session.uid,
       status: { lt: 80 }
     },
+    include: {
+      project: {
+        select: {
+          name: true
+        }
+      }
+    },
     orderBy: { last_updated: "desc" },
     take: 10
   });
 
-  return issues;
+  // Serialize for client component
+  return issues.map(issue => ({
+    id: issue.id,
+    summary: issue.summary,
+    status: issue.status,
+    priority: issue.priority,
+    last_updated: issue.last_updated,
+    project: {
+      name: issue.project.name
+    }
+  }));
 }
 
 export default async function HomePage() {
