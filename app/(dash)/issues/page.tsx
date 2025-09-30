@@ -55,7 +55,7 @@ export default async function IssuesPage() {
       <div className="flex items-center justify-between">
         <h1 className="text-2xl font-bold">Issues</h1>
         <Link href="/issues/new">
-          <Button className="bg-blue-600 text-white hover:bg-blue-700">New Issue</Button>
+          <Button className="bg-blue-600 text-white hover:bg-blue-700">Create New Issue</Button>
         </Link>
       </div>
 

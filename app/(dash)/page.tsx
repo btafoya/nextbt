@@ -4,6 +4,7 @@ import { prisma } from "@/db/client";
 import { requireSession } from "@/lib/auth";
 import { DataTable } from "@/components/ui/data-table";
 import { columns } from "./issues/columns";
+import { Button } from "@/components/ui/button";
 
 // Disable caching to ensure real-time data updates
 export const dynamic = 'force-dynamic'
@@ -12,11 +13,23 @@ export const revalidate = 0
 async function getAssignedIssues() {
   const session = requireSession();
 
+  // Get active projects for current user
+  const activeProjects = await prisma.mantis_project_table.findMany({
+    where: {
+      id: { in: session.projects },
+      enabled: 1,
+      status: { in: [10, 30, 50] } // development, release, stable (exclude obsolete)
+    },
+    select: { id: true }
+  });
+
+  const activeProjectIds = activeProjects.map(p => p.id);
+
   // Get issues assigned to current user that are not resolved/closed
   // Status < 80 means not resolved (80=Resolved, 90=Closed)
   const issues = await prisma.mantis_bug_table.findMany({
     where: {
-      project_id: { in: session.projects },
+      project_id: { in: activeProjectIds },
       handler_id: session.uid,
       status: { lt: 80 }
     },
@@ -47,10 +60,22 @@ async function getAssignedIssues() {
 async function getReportedIssues() {
   const session = requireSession();
 
+  // Get active projects for current user
+  const activeProjects = await prisma.mantis_project_table.findMany({
+    where: {
+      id: { in: session.projects },
+      enabled: 1,
+      status: { in: [10, 30, 50] } // development, release, stable (exclude obsolete)
+    },
+    select: { id: true }
+  });
+
+  const activeProjectIds = activeProjects.map(p => p.id);
+
   // Get issues reported by current user that are not resolved/closed
   const issues = await prisma.mantis_bug_table.findMany({
     where: {
-      project_id: { in: session.projects },
+      project_id: { in: activeProjectIds },
       reporter_id: session.uid,
       status: { lt: 80 }
     },
@@ -87,18 +112,10 @@ export default async function HomePage() {
 
   return (
     <div className="space-y-6">
-      <div className="grid gap-4 md:grid-cols-3">
-        <Link href="/issues" className="border rounded p-4 bg-white hover:shadow">
-          <div className="font-semibold">Issues</div>
-          <div className="text-sm text-gray-600">Browse and search</div>
-        </Link>
-        <Link href="/issues/new" className="border rounded p-4 bg-white hover:shadow">
-          <div className="font-semibold">New Issue</div>
-          <div className="text-sm text-gray-600">Create a simplified ticket</div>
-        </Link>
-        <Link href="/projects" className="border rounded p-4 bg-white hover:shadow">
-          <div className="font-semibold">Projects</div>
-          <div className="text-sm text-gray-600">Your accessible projects</div>
+      <div className="flex items-center justify-between">
+        <h1 className="text-2xl font-bold">Dashboard</h1>
+        <Link href="/issues/new">
+          <Button className="bg-blue-600 text-white hover:bg-blue-700">Create New Issue</Button>
         </Link>
       </div>
 
