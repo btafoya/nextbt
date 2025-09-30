@@ -201,11 +201,11 @@ function generateRecommendations(
   }
 
   // Analyze category compliance
-  for (const [category, report] of categories) {
+  Array.from(categories.entries()).forEach(([category, report]) => {
     if (report.compliance < 80) {
       recommendations.push(`Improve accessibility in ${category} category (current: ${report.compliance.toFixed(1)}%)`);
     }
-  }
+  });
 
   // General recommendations
   if (recommendations.length === 0) {
