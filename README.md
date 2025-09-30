@@ -5,6 +5,8 @@ A simplified, non‑technical user–friendly interface for an existing **Mantis
 - **TailAdmin Free Next.js Admin Dashboard** theme
 - **Prisma** (read/write using existing MantisBT tables via `@@map`/`@map`)
 - **TipTap WYSIWYG** with inline **AI chat** powered by **OpenRouter**
+- **MCP (Model Context Protocol)** integration with Claude Code remote server support
+- **Comprehensive test suite** with Vitest (40+ tests covering MCP client and API endpoints)
 - **Notifications** by project access (not user type): **Postmark**, **Pushover**, **Rocket.Chat**, **Microsoft Teams**, and **Web Push**
 - No `.env` files by default — uses `/config/*.ts` per the user's preference (you *can* still set env vars if you want).
 
@@ -57,8 +59,11 @@ pnpm dev
 - `/app/(dash)/issues/*`: Create, view, edit (maps to `mantis_bug_table` + text/note tables)
 - `/app/(dash)/search`: Power search (title, reporter, assignee, status)
 - `/app/(dash)/admin`: Permissions, config, notification routing
+- `/app/api/mcp/*`: MCP integration endpoints (tools, resources, status)
 - `/components/wysiwyg/*`: TipTap + Inline AI Assist (OpenRouter) + Tool menu
+- `/lib/mcp/*`: MCP client library for Claude Code remote server integration
 - `/lib/notify/*`: Postmark, Pushover, Rocket.Chat, Teams, Web Push
 - `/db/*`: Prisma client, SQL compat views, helpers
+- `/__tests__/*`: Comprehensive test suite with Vitest (unit + integration tests)
 
 See the other markdown files in this pack to scaffold the project.
