@@ -8,7 +8,7 @@ export async function sendEmail(to: string, subject: string, html: string) {
   await client.sendEmail({
     From: `${secrets.fromName} <${secrets.fromEmail}>`,
     To: to,
-    Subject: subject,
+    Subject: `${secrets.messsageSubjectPrepend} ${subject}`,
     HtmlBody: html,
   });
 }
