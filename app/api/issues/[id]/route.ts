@@ -26,7 +26,7 @@ export async function PATCH(req: Request, { params }: Ctx) {
   if (!session) return NextResponse.json({ ok: false }, { status: 401 });
 
   const id = parseInt(params.id, 10);
-  const payload = await req.json();
+  const body = await req.json();
 
   const row = await prisma.mantis_bug_table.findUnique({ where: { id } });
   if (!row) return NextResponse.json({ ok: false }, { status: 404 });
@@ -38,30 +38,39 @@ export async function PATCH(req: Request, { params }: Ctx) {
   }
 
   // Update text if description is provided
-  if (payload.description !== undefined) {
+  if (body.description !== undefined) {
     await prisma.mantis_bug_text_table.update({
       where: { id: row.bug_text_id },
-      data: { description: payload.description }
+      data: { description: body.description }
     });
-    delete payload.description;
   }
+
+  // Build update data with proper field mapping
+  const updateData: any = {
+    last_updated: Math.floor(Date.now() / 1000)
+  };
+
+  if (body.projectId !== undefined) updateData.project_id = body.projectId;
+  if (body.summary !== undefined) updateData.summary = body.summary;
+  if (body.status !== undefined) updateData.status = body.status;
+  if (body.priority !== undefined) updateData.priority = body.priority;
+  if (body.severity !== undefined) updateData.severity = body.severity;
+  if (body.reproducibility !== undefined) updateData.reproducibility = body.reproducibility;
+  if (body.handler_id !== undefined) updateData.handler_id = body.handler_id || 0;
 
   const updated = await prisma.mantis_bug_table.update({
     where: { id },
-    data: {
-      ...payload,
-      last_updated: Math.floor(Date.now() / 1000)
-    }
+    data: updateData
   });
 
   // Detect what changed for notification
   let changes: string | undefined;
   let action: "updated" | "status_changed" | "assigned" = "updated";
 
-  if (payload.status !== undefined && payload.status !== row.status) {
+  if (body.status !== undefined && body.status !== row.status) {
     action = "status_changed";
-    changes = `Status changed from ${row.status} to ${payload.status}`;
-  } else if (payload.handler_id !== undefined && payload.handler_id !== row.handler_id) {
+    changes = `Status changed from ${row.status} to ${body.status}`;
+  } else if (body.handler_id !== undefined && body.handler_id !== row.handler_id) {
     action = "assigned";
     changes = `Issue assigned`;
   }
