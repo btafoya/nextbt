@@ -15,7 +15,7 @@ export async function GET(req: Request) {
 
   const where: any = {};
   if (projectId) {
-    if (!canViewProject(session, projectId)) return NextResponse.json([], { status: 200 });
+    if (!(await canViewProject(session, projectId))) return NextResponse.json([], { status: 200 });
     where.project_id = projectId;
   } else {
     // Limit to user's projects
@@ -44,7 +44,7 @@ export async function POST(req: Request) {
   } = body;
 
   if (!projectId || !summary) return NextResponse.json({ ok: false, error: "Missing fields" }, { status: 400 });
-  if (!canViewProject(session, projectId)) return NextResponse.json({ ok: false }, { status: 403 });
+  if (!(await canViewProject(session, projectId))) return NextResponse.json({ ok: false }, { status: 403 });
 
   // Create text row first (mantis_bug_text_table), then issue row
   const text = await prisma.mantis_bug_text_table.create({

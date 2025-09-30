@@ -18,6 +18,14 @@ export const revalidate = 0
 async function getIssue(id: number) {
   const session = requireSession();
 
+  // Check if user is admin
+  const user = await prisma.mantis_user_table.findUnique({
+    where: { id: session.uid },
+    select: { access_level: true }
+  });
+
+  const isAdmin = user && user.access_level >= 90;
+
   const issue = await prisma.mantis_bug_table.findUnique({
     where: { id },
     include: {
@@ -28,7 +36,8 @@ async function getIssue(id: number) {
     }
   });
 
-  if (!issue || !session.projects.includes(issue.project_id)) {
+  // Admins can access all issues, regular users only their project issues
+  if (!issue || (!isAdmin && !session.projects.includes(issue.project_id))) {
     return null;
   }
 
