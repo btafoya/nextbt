@@ -54,6 +54,9 @@
     "pushover-notifications": "^1.2.2",
     "react": "^18.3.1",
     "react-dom": "^18.3.1",
+    "react-markdown": "^10.1.0",
+    "remark-breaks": "^4.0.0",
+    "remark-gfm": "^4.0.1",
     "swagger-jsdoc": "^6.2.8",
     "swagger-ui-react": "^5.29.1",
     "tailwind-merge": "^3.3.1",
@@ -64,6 +67,7 @@
   "devDependencies": {
     "@axe-core/playwright": "^4.10.2",
     "@playwright/test": "^1.55.1",
+    "@tailwindcss/typography": "^0.5.19",
     "@testing-library/jest-dom": "^6.8.0",
     "@testing-library/react": "^16.3.0",
     "@types/node": "^20.14.9",

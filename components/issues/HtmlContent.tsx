@@ -1,6 +1,9 @@
 "use client";
 
 import { useEffect, useRef, useMemo } from "react";
+import ReactMarkdown from "react-markdown";
+import remarkGfm from "remark-gfm";
+import remarkBreaks from "remark-breaks";
 import { sanitizeBugDescription } from "@/lib/sanitize";
 import Lightbox from "@/components/ui/Lightbox";
 
@@ -8,11 +11,24 @@ interface HtmlContentProps {
   html: string;
 }
 
+/**
+ * Detect if content is plain text (no HTML tags) or HTML
+ */
+function isPlainText(content: string): boolean {
+  // Check if content contains HTML tags
+  const htmlTagPattern = /<\/?[a-z][\s\S]*>/i;
+  return !htmlTagPattern.test(content);
+}
+
 export default function HtmlContent({ html }: HtmlContentProps) {
   const containerRef = useRef<HTMLDivElement>(null);
+  const isMarkdown = useMemo(() => isPlainText(html), [html]);
 
   // Sanitize HTML once on mount/update to prevent XSS attacks
-  const sanitizedHtml = useMemo(() => sanitizeBugDescription(html), [html]);
+  const sanitizedHtml = useMemo(() => {
+    if (!html || isMarkdown) return '';
+    return sanitizeBugDescription(html);
+  }, [html, isMarkdown]);
 
   useEffect(() => {
     if (!containerRef.current) return;
@@ -96,10 +112,70 @@ export default function HtmlContent({ html }: HtmlContentProps) {
     });
   }, [html]);
 
+  if (isMarkdown) {
+    // Render as Markdown with proper line break handling
+    return (
+      <div ref={containerRef} className="prose max-w-none dark:prose-invert">
+        <ReactMarkdown
+          remarkPlugins={[remarkGfm, remarkBreaks]}
+          components={{
+            img: ({ node, ...props }) => {
+              // Handle images with lightbox
+              const handleClick = (e: React.MouseEvent) => {
+                e.preventDefault();
+                const lightboxContainer = document.createElement("div");
+                lightboxContainer.id = "temp-lightbox";
+                document.body.appendChild(lightboxContainer);
+
+                const lightbox = document.createElement("div");
+                lightbox.className = "fixed inset-0 z-50 flex items-center justify-center bg-black bg-opacity-90";
+                lightbox.onclick = () => {
+                  document.body.removeChild(lightboxContainer);
+                  document.body.style.overflow = "unset";
+                };
+
+                const lightboxImg = document.createElement("img");
+                lightboxImg.src = props.src || "";
+                lightboxImg.alt = props.alt || "Image";
+                lightboxImg.className = "max-w-full max-h-full";
+                lightboxImg.onclick = (e) => e.stopPropagation();
+
+                const closeBtn = document.createElement("button");
+                closeBtn.innerHTML = "✕";
+                closeBtn.className = "absolute top-4 right-4 text-white bg-black bg-opacity-50 hover:bg-opacity-75 rounded-full w-12 h-12 flex items-center justify-center text-2xl";
+                closeBtn.onclick = () => {
+                  document.body.removeChild(lightboxContainer);
+                  document.body.style.overflow = "unset";
+                };
+
+                lightbox.appendChild(closeBtn);
+                lightbox.appendChild(lightboxImg);
+                lightboxContainer.appendChild(lightbox);
+                document.body.style.overflow = "hidden";
+              };
+
+              return (
+                <img
+                  {...props}
+                  onClick={handleClick}
+                  style={{ cursor: 'pointer' }}
+                  title="Click to expand"
+                />
+              );
+            }
+          }}
+        >
+          {html}
+        </ReactMarkdown>
+      </div>
+    );
+  }
+
+  // Render as HTML
   return (
     <div
       ref={containerRef}
-      className="prose max-w-none"
+      className="prose max-w-none dark:prose-invert"
       dangerouslySetInnerHTML={{ __html: sanitizedHtml }}
     />
   );
