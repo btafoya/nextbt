@@ -31,18 +31,42 @@ export async function GET(req: Request) {
               username: true,
               realname: true,
               enabled: true,
+              access_level: true,
             }
           }
         }
       });
 
-      users = members
+      // Get administrators (access_level >= 90)
+      const admins = await prisma.mantis_user_table.findMany({
+        where: {
+          enabled: 1,
+          access_level: { gte: 90 }
+        },
+        select: {
+          id: true,
+          username: true,
+          realname: true,
+          enabled: true,
+        }
+      });
+
+      // Combine project members and admins
+      const projectUsers = members
         .filter(m => m.user.enabled === 1)
         .map(m => ({
           id: m.user.id,
           username: m.user.username,
           realname: m.user.realname || m.user.username,
         }));
+
+      const adminUsers = admins.map(a => ({
+        id: a.id,
+        username: a.username,
+        realname: a.realname || a.username,
+      }));
+
+      users = [...projectUsers, ...adminUsers];
     } else {
       // Get all enabled users across projects the current user has access to
       const userProjects = await prisma.mantis_project_user_list_table.findMany({

@@ -35,15 +35,28 @@ export default function NewIssuePage() {
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
-    Promise.all([
-      fetch("/api/projects?active=true", { cache: 'no-store' }).then(res => res.json()),
-      fetch("/api/users/assignable", { cache: 'no-store' }).then(res => res.json()),
-    ]).then(([projectsData, usersData]) => {
-      setProjects(projectsData);
-      setUsers(usersData);
-      setLoading(false);
-    });
+    fetch("/api/projects?active=true", { cache: 'no-store' })
+      .then(res => res.json())
+      .then(projectsData => {
+        setProjects(projectsData);
+        setLoading(false);
+      });
   }, []);
+
+  // Fetch users when project is selected
+  useEffect(() => {
+    if (projectId > 0) {
+      setHandlerId(0); // Reset assignee when project changes
+      fetch(`/api/users/assignable?projectId=${projectId}`, { cache: 'no-store' })
+        .then(res => res.json())
+        .then(usersData => {
+          setUsers(usersData);
+        });
+    } else {
+      setUsers([]);
+      setHandlerId(0);
+    }
+  }, [projectId]);
 
   async function submit(e: React.FormEvent) {
     e.preventDefault();
