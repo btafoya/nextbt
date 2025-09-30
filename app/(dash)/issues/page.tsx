@@ -33,7 +33,18 @@ async function getIssues() {
     orderBy: { last_updated: "desc" },
     take: 50
   });
-  return issues;
+
+  // Serialize for client component
+  return issues.map(issue => ({
+    id: issue.id,
+    summary: issue.summary,
+    status: issue.status,
+    priority: issue.priority,
+    last_updated: issue.last_updated,
+    project: {
+      name: issue.project.name
+    }
+  }));
 }
 
 export default async function IssuesPage() {

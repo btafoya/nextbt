@@ -10,9 +10,11 @@ export const dynamic = 'force-dynamic'
 export const revalidate = 0
 
 // GET /api/projects - List projects (all for admins, filtered for regular users)
-export async function GET() {
+export async function GET(req: Request) {
   try {
     const session = requireSession();
+    const { searchParams } = new URL(req.url);
+    const activeOnly = searchParams.get('active') === 'true';
 
     // Check if user is admin
     const user = await prisma.mantis_user_table.findUnique({
@@ -22,10 +24,38 @@ export async function GET() {
 
     const isAdmin = user && user.access_level >= 90;
 
+    // Build where clause
+    const where: any = {};
+
+    // For activeOnly (new issue form), get current project assignments from database
+    if (activeOnly) {
+      // Query actual project assignments from database (not cached session)
+      const userProjects = await prisma.mantis_project_user_list_table.findMany({
+        where: { user_id: session.uid },
+        select: { project_id: true }
+      });
+      const projectIds = userProjects.map(p => p.project_id);
+
+      if (!isAdmin) {
+        // Regular users see only their assigned projects
+        where.id = { in: projectIds };
+      } else {
+        // Admins see all projects (no filter by assignment)
+        // where remains empty to show all
+      }
+
+      // Filter for active projects
+      where.enabled = 1;
+      where.status = { in: [10, 30, 50] }; // development, release, stable (exclude obsolete)
+    } else {
+      // For project list page (non-active), use session cache
+      if (!isAdmin) {
+        where.id = { in: session.projects };
+      }
+    }
+
     const projects = await prisma.mantis_project_table.findMany({
-      where: isAdmin ? {} : {
-        id: { in: session.projects }
-      },
+      where,
       select: {
         id: true,
         name: true,

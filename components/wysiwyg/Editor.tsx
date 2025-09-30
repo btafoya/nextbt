@@ -61,10 +61,66 @@ export default function Editor({ value, onChange }: { value?: string; onChange?:
   });
 
   const addImage = useCallback(() => {
-    const url = window.prompt("Enter image URL:");
-    if (url) {
-      editor?.chain().focus().setImage({ src: url }).run();
-    }
+    // Create a modal dialog for image insertion
+    const dialog = document.createElement('div');
+    dialog.style.cssText = 'position: fixed; inset: 0; background: rgba(0,0,0,0.5); display: flex; align-items: center; justify-content: center; z-index: 9999;';
+
+    const content = document.createElement('div');
+    content.style.cssText = 'background: white; padding: 24px; border-radius: 8px; max-width: 500px; width: 90%;';
+    content.innerHTML = `
+      <h3 style="margin: 0 0 16px 0; font-size: 18px; font-weight: 600;">Insert Image</h3>
+      <div style="margin-bottom: 16px;">
+        <label style="display: block; margin-bottom: 8px; font-weight: 500;">From URL:</label>
+        <input type="text" id="image-url" placeholder="https://example.com/image.jpg"
+          style="width: 100%; padding: 8px; border: 1px solid #ccc; border-radius: 4px;" />
+      </div>
+      <div style="margin-bottom: 16px;">
+        <label style="display: block; margin-bottom: 8px; font-weight: 500;">Or upload file:</label>
+        <input type="file" id="image-file" accept="image/*"
+          style="width: 100%; padding: 8px; border: 1px solid #ccc; border-radius: 4px;" />
+      </div>
+      <div style="display: flex; gap: 8px; justify-content: flex-end;">
+        <button id="cancel-btn" style="padding: 8px 16px; border: 1px solid #ccc; border-radius: 4px; background: white; cursor: pointer;">Cancel</button>
+        <button id="insert-btn" style="padding: 8px 16px; border: none; border-radius: 4px; background: #2563eb; color: white; cursor: pointer;">Insert</button>
+      </div>
+    `;
+    dialog.appendChild(content);
+    document.body.appendChild(dialog);
+
+    const urlInput = content.querySelector('#image-url') as HTMLInputElement;
+    const fileInput = content.querySelector('#image-file') as HTMLInputElement;
+    const cancelBtn = content.querySelector('#cancel-btn') as HTMLButtonElement;
+    const insertBtn = content.querySelector('#insert-btn') as HTMLButtonElement;
+
+    const cleanup = () => document.body.removeChild(dialog);
+
+    cancelBtn.onclick = cleanup;
+    dialog.onclick = (e) => { if (e.target === dialog) cleanup(); };
+
+    insertBtn.onclick = async () => {
+      const url = urlInput.value.trim();
+      const file = fileInput.files?.[0];
+
+      if (url) {
+        editor?.chain().focus().setImage({ src: url }).run();
+        cleanup();
+      } else if (file) {
+        // Convert file to base64 data URL
+        const reader = new FileReader();
+        reader.onload = (e) => {
+          const dataUrl = e.target?.result as string;
+          editor?.chain().focus().setImage({ src: dataUrl }).run();
+          cleanup();
+        };
+        reader.readAsDataURL(file);
+      } else {
+        alert('Please enter a URL or select a file');
+      }
+    };
+
+    // Allow Enter key to insert from URL field
+    urlInput.onkeydown = (e) => { if (e.key === 'Enter') insertBtn.click(); };
+    urlInput.focus();
   }, [editor]);
 
   const addLink = useCallback(() => {
