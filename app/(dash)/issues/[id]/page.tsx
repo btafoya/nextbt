@@ -9,7 +9,7 @@ import StatusActions from "@/components/issues/StatusActions";
 import HtmlContent from "@/components/issues/HtmlContent";
 import { notFound } from "next/navigation";
 import Link from "next/link";
-import { getSeverityLabel } from "@/lib/mantis-enums";
+import { getSeverityLabel, getStatusLabel, getPriorityLabel, getReproducibilityLabel } from "@/lib/mantis-enums";
 
 async function getIssue(id: number) {
   const session = requireSession();
@@ -19,6 +19,7 @@ async function getIssue(id: number) {
     include: {
       project: true,
       reporter: true,
+      handler: true,
       text: true
     }
   });
@@ -48,6 +49,14 @@ export default async function IssueShow({ params }: { params: { id: string } }) 
         <div className="flex gap-2">
           <StatusBadge status={issue.status} />
           <PriorityBadge priority={issue.priority} />
+          {userCanEdit && (
+            <Link
+              href={`/issues/${issue.id}/edit`}
+              className="px-3 py-1 bg-blue-600 text-white rounded hover:bg-blue-700 text-sm"
+            >
+              Edit
+            </Link>
+          )}
         </div>
       </div>
 
@@ -69,7 +78,28 @@ export default async function IssueShow({ params }: { params: { id: string } }) 
             </Link>
           </div>
           <div>
+            <span className="font-semibold">Status:</span> {getStatusLabel(issue.status)}
+          </div>
+          <div>
+            <span className="font-semibold">Priority:</span> {getPriorityLabel(issue.priority)}
+          </div>
+          <div>
             <span className="font-semibold">Severity:</span> {getSeverityLabel(issue.severity)}
+          </div>
+          <div>
+            <span className="font-semibold">Reproducibility:</span> {getReproducibilityLabel(issue.reproducibility)}
+          </div>
+          <div>
+            <span className="font-semibold">Assignee:</span>{" "}
+            {issue.handler_id === 0 ? (
+              <span className="text-gray-500">Unassigned</span>
+            ) : issue.handler ? (
+              <Link href={`/issues?handler=${issue.handler_id}`} className="text-blue-600 hover:underline">
+                {issue.handler.realname || issue.handler.username}
+              </Link>
+            ) : (
+              <span>User #{issue.handler_id}</span>
+            )}
           </div>
           <div>
             <span className="font-semibold">Date Submitted:</span> {new Date(issue.date_submitted * 1000).toLocaleDateString()}

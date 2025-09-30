@@ -32,7 +32,17 @@ export async function POST(req: Request) {
   if (!session) return NextResponse.json({ ok: false }, { status: 401 });
 
   const body = await req.json();
-  const { projectId, summary, description } = body;
+  const {
+    projectId,
+    summary,
+    description,
+    status,
+    priority,
+    severity,
+    reproducibility,
+    handler_id
+  } = body;
+
   if (!projectId || !summary) return NextResponse.json({ ok: false, error: "Missing fields" }, { status: 400 });
   if (!canViewProject(session, projectId)) return NextResponse.json({ ok: false }, { status: 403 });
 
@@ -49,10 +59,11 @@ export async function POST(req: Request) {
     data: {
       project_id: projectId,
       reporter_id: session.uid,
-      handler_id: 0,
-      priority: 30,
-      severity: 50,
-      status: 10,
+      handler_id: handler_id || 0,
+      priority: priority !== undefined ? priority : 30,
+      severity: severity !== undefined ? severity : 50,
+      reproducibility: reproducibility !== undefined ? reproducibility : 10,
+      status: status !== undefined ? status : 10,
       resolution: 10,
       category_id: 1,
       date_submitted: Math.floor(Date.now() / 1000),
