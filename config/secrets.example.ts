@@ -5,10 +5,19 @@ export const secrets = {
   databaseUrl: "mysql://user:pass@host:3306/mantis",
   // MantisBT crypto
   cryptoMasterSalt: "YOUR_CRYPTO_MASTER_SALT_HERE",
-  // OpenRouter
+  // OpenRouter (AI Writer)
   openrouterApiKey: "sk-or-...",
   openrouterBaseUrl: "https://openrouter.ai/api/v1",
   openrouterModel: "openai/gpt-4o-mini",
+  openrouterSiteUrl: "https://yourdomain.com",
+  openrouterSiteName: "Your Bug Tracker",
+  // AI Writer Settings
+  aiWriterEnabled: true,
+  aiWriterDefaultProvider: "openrouter", // 'openai' or 'openrouter'
+  aiWriterDefaultModelOpenAI: "gpt-4-turbo-preview",
+  aiWriterDefaultModelOpenRouter: "openai/gpt-4-turbo-preview",
+  aiRateLimitRequests: 60, // requests per window
+  aiRateLimitWindow: 600, // window in seconds (10 minutes)
   // Email (Postmark)
   postmarkEnabled: false,
   postmarkServerToken: "POSTMARK_SERVER_TOKEN",
