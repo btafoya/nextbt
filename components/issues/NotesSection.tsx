@@ -157,7 +157,7 @@ export default function NotesSection({ issueId, currentUserId }: { issueId: numb
           <div key={note.id} className="border rounded p-4 space-y-2">
             <div className="flex items-center justify-between">
               <div className="text-sm text-gray-600">
-                <strong>{note.reporter}</strong> "{" "}
+                <strong>{note.reporter}</strong> &quot;{" "}
                 {new Date(note.date_submitted * 1000).toLocaleString()}
                 {note.last_modified !== note.date_submitted && " (edited)"}
               </div>
