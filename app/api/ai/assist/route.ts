@@ -33,7 +33,7 @@ export async function POST(request: NextRequest) {
 
     // Parse request body
     const body = await request.json();
-    const { provider = "openrouter", messages, context, stream = true } = body;
+    const { messages, context, stream = true } = body;
 
     // Validate messages
     if (!Array.isArray(messages) || messages.length === 0) {
@@ -68,7 +68,6 @@ export async function POST(request: NextRequest) {
 
     // Generate AI response
     const response = await AIClient.generate({
-      provider,
       messages: fullMessages,
       stream,
     });
