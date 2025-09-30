@@ -12,8 +12,24 @@ export const revalidate = 0
 
 async function getIssues() {
   const session = requireSession();
+
+  // Check if user is admin
+  const user = await prisma.mantis_user_table.findUnique({
+    where: { id: session.uid },
+    select: { access_level: true }
+  });
+
+  const isAdmin = user && user.access_level >= 90;
+
   const issues = await prisma.mantis_bug_table.findMany({
-    where: { project_id: { in: session.projects } },
+    where: isAdmin ? {} : { project_id: { in: session.projects } },
+    include: {
+      project: {
+        select: {
+          name: true
+        }
+      }
+    },
     orderBy: { last_updated: "desc" },
     take: 50
   });

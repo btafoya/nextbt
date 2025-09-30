@@ -13,6 +13,9 @@ export type Issue = {
   status: number
   priority: number
   last_updated: number
+  project: {
+    name: string
+  }
 }
 
 export const columns: ColumnDef<Issue>[] = [
@@ -56,6 +59,23 @@ export const columns: ColumnDef<Issue>[] = [
           {row.getValue("summary")}
         </Link>
       )
+    },
+  },
+  {
+    accessorKey: "project.name",
+    header: ({ column }) => {
+      return (
+        <Button
+          variant="ghost"
+          onClick={() => column.toggleSorting(column.getIsSorted() === "asc")}
+        >
+          Project
+          <ArrowUpDown className="ml-2 h-4 w-4" />
+        </Button>
+      )
+    },
+    cell: ({ row }) => {
+      return <span className="text-sm">{row.original.project.name}</span>
     },
   },
   {

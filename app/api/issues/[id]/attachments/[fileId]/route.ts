@@ -19,7 +19,7 @@ export async function GET(req: Request, { params }: Ctx) {
   // Verify user has access to the issue
   const issue = await prisma.mantis_bug_table.findUnique({ where: { id: file.bug_id } });
   if (!issue) return NextResponse.json({ error: "Issue not found" }, { status: 404 });
-  if (!canViewProject(session, issue.project_id)) {
+  if (!(await canViewProject(session, issue.project_id))) {
     return NextResponse.json({ error: "Access denied" }, { status: 403 });
   }
 
@@ -50,7 +50,7 @@ export async function DELETE(req: Request, { params }: Ctx) {
   // Verify user has access to the issue
   const issue = await prisma.mantis_bug_table.findUnique({ where: { id: file.bug_id } });
   if (!issue) return NextResponse.json({ error: "Issue not found" }, { status: 404 });
-  if (!canViewProject(session, issue.project_id)) {
+  if (!(await canViewProject(session, issue.project_id))) {
     return NextResponse.json({ error: "Access denied" }, { status: 403 });
   }
 

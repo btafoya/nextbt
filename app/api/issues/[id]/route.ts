@@ -14,7 +14,7 @@ export async function GET(req: Request, { params }: Ctx) {
   const id = parseInt(params.id, 10);
   const row = await prisma.mantis_bug_table.findUnique({ where: { id } });
   if (!row) return NextResponse.json({ ok: false }, { status: 404 });
-  if (!canViewProject(session, row.project_id)) return NextResponse.json({ ok: false }, { status: 403 });
+  if (!(await canViewProject(session, row.project_id))) return NextResponse.json({ ok: false }, { status: 403 });
 
   const text = await prisma.mantis_bug_text_table.findUnique({ where: { id: row.bug_text_id } });
 
@@ -30,10 +30,10 @@ export async function PATCH(req: Request, { params }: Ctx) {
 
   const row = await prisma.mantis_bug_table.findUnique({ where: { id } });
   if (!row) return NextResponse.json({ ok: false }, { status: 404 });
-  if (!canViewProject(session, row.project_id)) return NextResponse.json({ ok: false }, { status: 403 });
+  if (!(await canViewProject(session, row.project_id))) return NextResponse.json({ ok: false }, { status: 403 });
 
   // Check if user can edit this issue
-  if (!canEditIssue(session, row)) {
+  if (!(await canEditIssue(session, row))) {
     return NextResponse.json({ error: "You don't have permission to edit this issue" }, { status: 403 });
   }
 
@@ -98,7 +98,7 @@ export async function DELETE(req: Request, { params }: Ctx) {
 
   const row = await prisma.mantis_bug_table.findUnique({ where: { id } });
   if (!row) return NextResponse.json({ ok: false }, { status: 404 });
-  if (!canViewProject(session, row.project_id)) return NextResponse.json({ ok: false }, { status: 403 });
+  if (!(await canViewProject(session, row.project_id))) return NextResponse.json({ ok: false }, { status: 403 });
 
   // Check if user can delete this issue
   const canDelete = await canDeleteIssue(session, row);

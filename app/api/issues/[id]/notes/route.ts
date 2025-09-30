@@ -16,7 +16,7 @@ export async function GET(req: Request, { params }: Ctx) {
   // Verify issue exists and user has access
   const issue = await prisma.mantis_bug_table.findUnique({ where: { id: bugId } });
   if (!issue) return NextResponse.json({ error: "Issue not found" }, { status: 404 });
-  if (!canViewProject(session, issue.project_id)) return NextResponse.json({ error: "Access denied" }, { status: 403 });
+  if (!(await canViewProject(session, issue.project_id))) return NextResponse.json({ error: "Access denied" }, { status: 403 });
 
   // Get all notes for this issue
   const notes = await prisma.mantis_bugnote_table.findMany({
@@ -58,7 +58,7 @@ export async function POST(req: Request, { params }: Ctx) {
 
   const issue = await prisma.mantis_bug_table.findUnique({ where: { id: bugId } });
   if (!issue) return NextResponse.json({ ok: false }, { status: 404 });
-  if (!canComment(session, issue.project_id)) return NextResponse.json({ ok: false }, { status: 403 });
+  if (!(await canComment(session, issue.project_id))) return NextResponse.json({ ok: false }, { status: 403 });
 
   // Create note text first
   const noteText = await prisma.mantis_bugnote_text_table.create({
