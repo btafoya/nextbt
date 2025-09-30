@@ -143,6 +143,61 @@ pnpm test:ui      # Run tests with UI
 pnpm test:coverage # Generate coverage report
 ```
 
+## Production Deployment
+
+### Running with a Fixed Port
+
+By default, Next.js runs on port 3000. To run in production with a specific port:
+
+```bash
+# Build the application
+pnpm build
+
+# Start with a fixed port (e.g., port 8080)
+PORT=8080 pnpm start
+
+# Or set the port inline
+NODE_ENV=production PORT=8080 node .next/standalone/server.js
+```
+
+### Using a Custom Start Script
+
+You can also create a custom start script in `package.json`:
+
+```json
+{
+  "scripts": {
+    "start:prod": "PORT=8080 next start"
+  }
+}
+```
+
+Then run:
+
+```bash
+pnpm start:prod
+```
+
+### Environment Variables for Production
+
+For production deployments, ensure you set:
+
+```bash
+NODE_ENV=production
+PORT=8080                    # Your desired port
+DATABASE_URL="mysql://..."   # Production database connection
+```
+
+### Production Checklist
+
+- ✅ Run `pnpm build` to create optimized production build
+- ✅ Set `NODE_ENV=production` environment variable
+- ✅ Configure production database credentials in `config/secrets.ts`
+- ✅ Set up notification service credentials (Postmark, Pushover, etc.)
+- ✅ Configure HTTPS/SSL (recommended for production)
+- ✅ Set up process manager (PM2, systemd) for automatic restarts
+- ✅ Configure reverse proxy (nginx, Apache) if needed
+
 ## Database Schema
 
 NextBT connects to your existing MantisBT database without modifications. The Prisma schema uses `@@map` and `@map` directives to preserve original table and column names:
