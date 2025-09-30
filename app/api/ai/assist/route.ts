@@ -1,4 +1,6 @@
 import { NextRequest, NextResponse } from "next/server";
+
+export const dynamic = "force-dynamic";
 import { requireSession } from "@/lib/auth";
 import { AIClient, streamToResponse } from "@/lib/ai/clients";
 import { PromptBuilder } from "@/lib/ai/prompts";

@@ -1,3 +1,5 @@
+export const dynamic = "force-dynamic";
+
 // /app/api/users/assignable/route.ts
 import { NextResponse } from "next/server";
 import { requireSession } from "@/lib/auth";

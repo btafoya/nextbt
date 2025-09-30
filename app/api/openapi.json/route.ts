@@ -1,3 +1,5 @@
+export const dynamic = "force-dynamic";
+
 // /app/api/openapi.json/route.ts
 import { NextResponse } from 'next/server';
 import { swaggerSpec } from '@/lib/api-docs';

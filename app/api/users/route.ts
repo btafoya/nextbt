@@ -1,3 +1,5 @@
+export const dynamic = "force-dynamic";
+
 // /app/api/users/route.ts
 import { NextResponse } from "next/server";
 import { requireAdmin } from "@/lib/auth";

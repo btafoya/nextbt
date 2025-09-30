@@ -1,3 +1,5 @@
+export const dynamic = "force-dynamic";
+
 // /app/api/mcp/sse/route.ts - MCP Server-Sent Events endpoint
 import { NextRequest } from "next/server";
 import { NextBTMCPServer } from "@/lib/mcp/server";

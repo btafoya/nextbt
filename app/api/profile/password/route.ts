@@ -1,3 +1,5 @@
+export const dynamic = "force-dynamic";
+
 // /app/api/profile/password/route.ts
 import { NextResponse } from "next/server";
 import { requireSession } from "@/lib/auth";
