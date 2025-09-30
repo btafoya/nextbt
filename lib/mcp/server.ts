@@ -257,7 +257,7 @@ export class NextBTMCPServer {
         text: true,
         notes: {
           include: {
-            bugnote_text: true,
+            text: true,
             reporter: { select: { username: true, realname: true } }
           },
           orderBy: { date_submitted: 'asc' }
@@ -297,7 +297,7 @@ export class NextBTMCPServer {
       notes: issue.notes.map(note => ({
         id: note.id,
         reporter: note.reporter.username,
-        text: note.bugnote_text?.note,
+        text: note.text?.note,
         created: new Date(note.date_submitted * 1000).toISOString()
       }))
     };
