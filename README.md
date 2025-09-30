@@ -1,6 +1,6 @@
-# MantisLite
+# NextBT
 
-A modern, user-friendly web interface for MantisBT 2.x bug tracking systems. MantisLite provides a simplified, non-technical UI built with Next.js 14, connecting directly to your existing MantisBT MySQL database without requiring schema modifications.
+A modern, user-friendly web interface for MantisBT 2.x bug tracking systems. NextBT provides a simplified, non-technical UI built with Next.js 14, connecting directly to your existing MantisBT MySQL database without requiring schema modifications.
 
 [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
 
@@ -145,7 +145,7 @@ pnpm test:coverage # Generate coverage report
 
 ## Database Schema
 
-MantisLite connects to your existing MantisBT database without modifications. The Prisma schema uses `@@map` and `@map` directives to preserve original table and column names:
+NextBT connects to your existing MantisBT database without modifications. The Prisma schema uses `@@map` and `@map` directives to preserve original table and column names:
 
 - `mantis_bug_table` - Issues/bugs
 - `mantis_bug_text_table` - Issue descriptions and text content
@@ -156,7 +156,7 @@ MantisLite connects to your existing MantisBT database without modifications. Th
 
 ## Issue Management
 
-MantisLite provides comprehensive issue management with all MantisBT fields:
+NextBT provides comprehensive issue management with all MantisBT fields:
 
 - **Status**: new, feedback, acknowledged, confirmed, assigned, resolved, closed
 - **Priority**: none, low, normal, high, urgent, immediate
@@ -187,7 +187,7 @@ Tests cover:
 
 ## MCP Integration
 
-MantisLite includes Model Context Protocol (MCP) support for Claude Code integration:
+NextBT includes Model Context Protocol (MCP) support for Claude Code integration:
 
 - `GET /api/mcp/tools` - List available tools
 - `POST /api/mcp/tools` - Execute a tool
@@ -247,4 +247,4 @@ For issues, questions, or contributions, please visit the [GitHub repository](ht
 
 ---
 
-**Note**: MantisLite is a third-party interface and is not officially affiliated with or endorsed by the MantisBT project.
+**Note**: NextBT is a third-party interface and is not officially affiliated with or endorsed by the MantisBT project.

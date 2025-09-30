@@ -85,7 +85,7 @@ export default function LoginPage() {
       )}
       <main className="min-h-screen flex items-center justify-center bg-gray-50">
         <form onSubmit={submit} className="bg-white p-6 rounded shadow w-full max-w-sm space-y-3">
-          <h1 className="text-xl font-semibold">Sign in to MantisLite</h1>
+          <h1 className="text-xl font-semibold">Sign in to NextBT</h1>
           <input
             className="border w-full p-2 rounded"
             placeholder="Username"

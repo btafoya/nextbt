@@ -4,7 +4,7 @@
 
 ```
 ┌─────────────────────────────────────────────────────────────────┐
-│                        MantisLite System                         │
+│                        NextBT System                         │
 └─────────────────────────────────────────────────────────────────┘
 
 ┌─────────────────────┐         ┌──────────────────────────────┐
@@ -135,7 +135,7 @@ Legend:                                                          │
        │
        ▼
 ┌─────────────────────────────────────┐
-│ Create session cookie "mantislite"  │
+│ Create session cookie "nextbt"  │
 │ {                                   │
 │   uid: user.id,                     │
 │   username: user.username,          │
@@ -448,7 +448,7 @@ Event occurs:
 ```
 ┌─────────────────────────────────────┐
 │ Client Request                      │
-│ Cookie: mantislite={session_data}   │
+│ Cookie: nextbt={session_data}   │
 └──────┬──────────────────────────────┘
        │
        ▼

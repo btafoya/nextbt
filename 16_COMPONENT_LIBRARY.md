@@ -3,7 +3,7 @@
 ## Component Architecture
 
 **Base Components**: TailAdmin Free Next.js Admin Dashboard
-**Custom Components**: MantisLite-specific features
+**Custom Components**: NextBT-specific features
 **Component Location**: `/components/`
 
 ```

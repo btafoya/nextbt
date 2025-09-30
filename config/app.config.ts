@@ -1,6 +1,6 @@
 // /config/app.config.ts
 export const appConfig = {
-  appName: "MantisLite",
+  appName: "NextBT",
   requirePrivateNotesRole: false, // if true, restrict private note viewing
   defaultPageSize: 50,
 

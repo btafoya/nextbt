@@ -16,7 +16,7 @@ export async function POST(req: Request) {
 
   // gather projects
   const projects = await prisma.projectUser.findMany({ where: { userId: user.id } });
-  cookies().set("mantislite", JSON.stringify({ uid: user.id, username, projects: projects.map(p=>p.projectId) }), { httpOnly: true, secure: true, sameSite: "lax", path: "/" });
+  cookies().set("nextbt", JSON.stringify({ uid: user.id, username, projects: projects.map(p=>p.projectId) }), { httpOnly: true, secure: true, sameSite: "lax", path: "/" });
   return NextResponse.json({ ok:true });
 }
 ```
