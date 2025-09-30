@@ -88,7 +88,7 @@ function generateEmailTemplate(ctx: NotificationContext, issueUrl: string): stri
       <p style="font-size: 18px; color: #1f2937; margin: 16px 0;"><strong>${ctx.issueSummary}</strong></p>
       ${ctx.changes ? `<div class="changes"><strong>Changes:</strong> ${ctx.changes}</div>` : ''}
       <p>Click the button below to view the issue:</p>
-      <a href="${issueUrl}" class="button">View Issue #${ctx.issueId}</a>
+      <a href="${issueUrl}" class="button" style="color: #ffffff !important; text-decoration: none;">View Issue #${ctx.issueId}</a>
       <div class="footer">
         <p>This is an automated notification from ${secrets.fromName}.</p>
         <p>You received this email because you are assigned to this project.</p>
