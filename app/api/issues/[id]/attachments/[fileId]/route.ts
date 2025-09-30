@@ -28,7 +28,7 @@ export async function GET(req: Request, { params }: Ctx) {
     return NextResponse.json({ error: "File content not found" }, { status: 404 });
   }
 
-  return new NextResponse(file.content, {
+  return new Response(new Uint8Array(file.content), {
     headers: {
       "Content-Type": file.file_type || "application/octet-stream",
       "Content-Disposition": `attachment; filename="${file.filename}"`,

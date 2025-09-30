@@ -1,5 +1,5 @@
 // /lib/notify/postmark.ts
-import Postmark from "postmark";
+import * as Postmark from "postmark";
 import { secrets } from "@/config/secrets";
 
 const client = new Postmark.ServerClient(secrets.postmarkServerToken);

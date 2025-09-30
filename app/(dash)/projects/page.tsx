@@ -22,7 +22,8 @@ async function getProjects() {
 export default async function ProjectsPage() {
   const session = requireSession();
   const projects = await getProjects();
-  const isAdmin = session.uid && (await prisma.mantis_user_table.findUnique({ where: { id: session.uid } }))?.access_level >= 90;
+  const user = session.uid ? await prisma.mantis_user_table.findUnique({ where: { id: session.uid } }) : null;
+  const isAdmin = user ? user.access_level >= 90 : false;
 
   return (
     <div className="space-y-4">

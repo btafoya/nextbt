@@ -312,7 +312,9 @@ pnpm dlx prisma generate
 pnpm build
 ```
 
-#### 3. PM2 Configuration
+#### 3. Process Management Options
+
+##### Option A: PM2 Configuration
 
 Create `ecosystem.config.js`:
 
@@ -344,6 +346,116 @@ pm2 save
 # Setup PM2 to start on boot
 pm2 startup
 ```
+
+##### Option B: systemd Service (Recommended)
+
+For production environments, systemd provides better integration with system monitoring and logging.
+
+**Step 1**: Create systemd service file
+
+```bash
+sudo nano /etc/systemd/system/nextbt.service
+```
+
+**Step 2**: Add service configuration
+
+```ini
+[Unit]
+Description=NextBT Application
+After=network.target
+
+[Service]
+Type=simple
+User=appuser
+WorkingDirectory=/var/www/nextbt
+Environment="PORT=3000"
+ExecStart=/home/appuser/.nvm/versions/node/v20.0.0/bin/node /var/www/nextbt/node_modules/next/dist/bin/next start
+Restart=always
+
+[Install]
+WantedBy=multi-user.target
+```
+
+**Important Configuration Notes**:
+
+- **User**: Replace `appuser` with your application user (never use `root`)
+- **WorkingDirectory**: Replace `/var/www/nextbt` with your application directory
+- **ExecStart**: Must use full path to node binary from the service user's Node.js installation
+  - Find your node path: `which node` (when logged in as the service user)
+  - Common NVM path: `~/.nvm/versions/node/vX.X.X/bin/node`
+  - System install path: `/usr/bin/node`
+- **Port**: Change `PORT=3000` to match your desired port
+- **Node Version**: Ensure the node path matches an installed version (check with `ls ~/.nvm/versions/node/`)
+
+**Step 3**: Find the correct node path for your user
+
+```bash
+# Switch to your application user
+su - appuser
+
+# Find node binary location
+which node
+# Example output: /home/appuser/.nvm/versions/node/v20.0.0/bin/node
+
+# Verify node version
+node --version
+
+# Exit back to root/sudo user
+exit
+```
+
+**Step 4**: Enable and start the service
+
+```bash
+# Reload systemd to recognize new service
+sudo systemctl daemon-reload
+
+# Enable service to start on boot
+sudo systemctl enable nextbt
+
+# Start the service
+sudo systemctl start nextbt
+
+# Check service status
+sudo systemctl status nextbt
+```
+
+**Step 5**: Manage the service
+
+```bash
+# View real-time logs
+sudo journalctl -u nextbt.service -f
+
+# View last 50 log entries
+sudo journalctl -u nextbt.service -n 50
+
+# Restart service (after updates)
+sudo systemctl restart nextbt
+
+# Stop service
+sudo systemctl stop nextbt
+
+# Check if service is running
+sudo systemctl is-active nextbt
+```
+
+**Common Issues**:
+
+1. **Exit code 203/EXEC**: Node binary path is incorrect or not accessible by the service user
+   - Verify node path: `su - appuser -c 'which node'`
+   - Ensure full absolute path is used in `ExecStart`
+
+2. **Exit code 1/FAILURE**: Application error during startup
+   - Check logs: `sudo journalctl -u nextbt.service -n 100`
+   - Common causes: missing environment variables, database connection issues, missing dependencies
+
+3. **Permission denied**: Service user lacks access to application directory
+   - Fix ownership: `sudo chown -R appuser:appuser /var/www/nextbt`
+   - Verify permissions: `ls -la /var/www/nextbt`
+
+4. **Port already in use**: Another service is using the specified port
+   - Find process: `sudo lsof -i :3000`
+   - Change port in service file or stop conflicting service
 
 #### 4. Nginx Reverse Proxy
 
