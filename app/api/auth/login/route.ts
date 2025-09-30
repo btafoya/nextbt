@@ -1,10 +1,16 @@
 // /app/api/auth/login/route.ts
 import { NextResponse } from "next/server";
 import { cookies } from "next/headers";
+import { getIronSession } from "iron-session";
 import { prisma } from "@/db/client";
 import { verifyMantisPassword } from "@/lib/mantis-crypto";
 import { secrets } from "@/config/secrets";
 import { logger } from "@/lib/logger";
+import {
+  SessionData,
+  getSessionOptions,
+  createSessionData
+} from "@/lib/session-config";
 
 export async function POST(req: Request) {
   const { username, password, turnstileToken } = await req.json();
@@ -62,17 +68,28 @@ export async function POST(req: Request) {
     projects = memberships.map((m) => m.project_id);
   }
 
-  cookies().set("nextbt", JSON.stringify({
-    uid: user.id,
-    username,
-    projects,
-    access_level: user.access_level
-  }), {
-    httpOnly: true,
-    sameSite: "lax",
-    secure: true,
-    path: "/"
-  });
+  // Get request headers for security metadata
+  const userAgent = req.headers.get("user-agent") || undefined;
+  const ipAddress = req.headers.get("x-forwarded-for") || req.headers.get("x-real-ip") || undefined;
+
+  // Create secure encrypted session with iron-session
+  const session = await getIronSession<SessionData>(cookies(), getSessionOptions());
+  const sessionData = createSessionData(
+    {
+      uid: user.id,
+      username,
+      projects,
+      access_level: user.access_level
+    },
+    {
+      userAgent,
+      ipAddress
+    }
+  );
+
+  // Save session data (iron-session handles encryption and signing)
+  Object.assign(session, sessionData);
+  await session.save();
 
   return NextResponse.json({ ok: true });
 }
