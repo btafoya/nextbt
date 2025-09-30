@@ -29,7 +29,7 @@ export function Sidebar({ session }: SidebarProps) {
   return (
     <aside className="sidebar">
       <div className="px-6 py-4">
-        <h2 className="text-xl font-bold text-blue-600">MantisLite</h2>
+        <h2 className="text-xl font-bold text-blue-600">NextBT</h2>
       </div>
 
       <nav className="sidebar-nav flex-1 space-y-1 px-4 py-6">

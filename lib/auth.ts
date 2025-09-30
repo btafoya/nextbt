@@ -9,7 +9,7 @@ export type SessionData = {
   access_level: number;
 };
 
-const COOKIE_NAME = "mantislite";
+const COOKIE_NAME = "nextbt";
 const ADMIN_ACCESS_LEVEL = 90;
 
 export function getSession(): SessionData | null {

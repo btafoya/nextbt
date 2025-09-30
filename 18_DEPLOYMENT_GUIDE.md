@@ -225,7 +225,7 @@ CMD ["node", "server.js"]
 version: '3.8'
 
 services:
-  mantislite:
+  nextbt:
     build: .
     ports:
       - "3000:3000"
@@ -258,7 +258,7 @@ volumes:
 
 ```bash
 # Build image
-docker build -t mantislite:latest .
+docker build -t nextbt:latest .
 
 # Run with docker-compose
 docker-compose up -d
@@ -267,8 +267,8 @@ docker-compose up -d
 docker run -d \
   -p 3000:3000 \
   -e DATABASE_URL="mysql://user:pass@host:3306/mantis" \
-  --name mantislite \
-  mantislite:latest
+  --name nextbt \
+  nextbt:latest
 ```
 
 ### Option 3: Traditional VPS (Ubuntu/Debian)
@@ -319,7 +319,7 @@ Create `ecosystem.config.js`:
 ```javascript
 module.exports = {
   apps: [{
-    name: 'mantislite',
+    name: 'nextbt',
     script: 'node_modules/next/dist/bin/next',
     args: 'start',
     instances: 'max',
@@ -348,10 +348,10 @@ pm2 startup
 #### 4. Nginx Reverse Proxy
 
 ```nginx
-# /etc/nginx/sites-available/mantislite
+# /etc/nginx/sites-available/nextbt
 server {
     listen 80;
-    server_name mantislite.yourdomain.com;
+    server_name nextbt.yourdomain.com;
 
     location / {
         proxy_pass http://localhost:3000;
@@ -370,7 +370,7 @@ server {
 Enable and restart Nginx:
 
 ```bash
-sudo ln -s /etc/nginx/sites-available/mantislite /etc/nginx/sites-enabled/
+sudo ln -s /etc/nginx/sites-available/nextbt /etc/nginx/sites-enabled/
 sudo nginx -t
 sudo systemctl restart nginx
 ```
@@ -382,7 +382,7 @@ sudo systemctl restart nginx
 sudo apt install -y certbot python3-certbot-nginx
 
 # Obtain certificate
-sudo certbot --nginx -d mantislite.yourdomain.com
+sudo certbot --nginx -d nextbt.yourdomain.com
 
 # Auto-renewal is configured by default
 sudo certbot renew --dry-run
@@ -394,7 +394,7 @@ sudo certbot renew --dry-run
 ```typescript
 // config/app.config.ts
 export const appConfig = {
-  appName: "MantisLite Dev",
+  appName: "NextBT Dev",
   requirePrivateNotesRole: false,
   defaultPageSize: 20,
   enableDebugLogging: true
@@ -405,7 +405,7 @@ export const appConfig = {
 ```typescript
 // config/app.config.ts
 export const appConfig = {
-  appName: "MantisLite",
+  appName: "NextBT",
   requirePrivateNotesRole: true,
   defaultPageSize: 50,
   enableDebugLogging: false
@@ -505,7 +505,7 @@ export async function GET() {
 
 ```bash
 # View logs
-pm2 logs mantislite
+pm2 logs nextbt
 
 # Monitor metrics
 pm2 monit
@@ -595,7 +595,7 @@ tar --exclude=config/secrets.ts -czf config_backup_$(date +%Y%m%d).tar.gz config
 
 ```bash
 # Check logs
-pm2 logs mantislite --lines 100
+pm2 logs nextbt --lines 100
 
 # Common issues:
 # 1. Database connection
@@ -651,7 +651,7 @@ pnpm dlx prisma generate
 pnpm build
 
 # Restart
-pm2 restart mantislite
+pm2 restart nextbt
 ```
 
 ### Database Migrations
@@ -664,4 +664,4 @@ pnpm dlx prisma migrate dev --name add_new_field
 pnpm dlx prisma migrate deploy
 ```
 
-**Note**: Since MantisLite operates on existing MantisBT schema, avoid destructive migrations. Use SQL views for schema compatibility instead.
+**Note**: Since NextBT operates on existing MantisBT schema, avoid destructive migrations. Use SQL views for schema compatibility instead.

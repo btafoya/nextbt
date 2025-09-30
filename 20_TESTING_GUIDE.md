@@ -2,7 +2,7 @@
 
 ## Overview
 
-MantisLite uses Vitest as the testing framework with React Testing Library for component testing and comprehensive test coverage for the MCP integration.
+NextBT uses Vitest as the testing framework with React Testing Library for component testing and comprehensive test coverage for the MCP integration.
 
 ## Test Structure
 

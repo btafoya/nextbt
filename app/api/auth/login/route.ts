@@ -61,7 +61,7 @@ export async function POST(req: Request) {
     projects = memberships.map((m) => m.project_id);
   }
 
-  cookies().set("mantislite", JSON.stringify({
+  cookies().set("nextbt", JSON.stringify({
     uid: user.id,
     username,
     projects,

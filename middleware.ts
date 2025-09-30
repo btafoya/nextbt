@@ -3,7 +3,7 @@ import { NextResponse } from "next/server";
 import type { NextRequest } from "next/server";
 
 export function middleware(req: NextRequest) {
-  const cookie = req.cookies.get("mantislite")?.value;
+  const cookie = req.cookies.get("nextbt")?.value;
   const isAuthed = !!cookie;
   const url = req.nextUrl.pathname;
 

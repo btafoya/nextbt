@@ -1,8 +1,8 @@
-# MantisLite Project - Build Summary
+# NextBT Project - Build Summary
 
 ## ✅ Implementation Complete
 
-The MantisLite Next.js project has been successfully built with all core components implemented.
+The NextBT Next.js project has been successfully built with all core components implemented.
 
 ## 📦 What Was Implemented
 
@@ -27,7 +27,7 @@ The MantisLite Next.js project has been successfully built with all core compone
 - Singleton Prisma client with dev mode caching
 
 ### 4. Authentication System
-- Session-based auth with JSON cookie (mantislite)
+- Session-based auth with JSON cookie (nextbt)
 - MantisBT password verification (MD5 compatibility)
 - Project-based access control
 - Middleware protection for dashboard routes

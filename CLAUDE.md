@@ -4,6 +4,7 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 
 ## Critical Context (Read First)
 
+- **Project Name**: NextBT (Next.js Bug Tracker for MantisBT)
 - **Tech Stack**: Next.js 14 (App Router), TypeScript, Tailwind CSS, Prisma ORM, MySQL
 - **UI Framework**: [TailAdmin Free Next.js Admin Dashboard](https://github.com/TailAdmin/free-nextjs-admin-dashboard)
 - **Core Purpose**: Simplified UI for existing MantisBT 2.x bug tracking system
@@ -66,7 +67,7 @@ pnpm dlx prisma studio     # Open Prisma Studio GUI
 - **Non-Destructive**: Never run migrations that alter MantisBT schema; use SQL views/functions for compatibility layers
 
 ### Authentication & Sessions (`/lib/auth.ts`, `/middleware.ts`)
-- **Session mechanism**: JSON cookie named "mantislite" with `{uid, username, projects[]}`
+- **Session mechanism**: JSON cookie named "nextbt" with `{uid, username, projects[]}`
 - **Middleware**: Protects dashboard routes, redirects unauthenticated users to login
 - **Auth endpoints**: `/app/api/auth/login/route.ts` and `/app/api/auth/logout/route.ts`
 - **Validation**: Uses MantisBT password hashing (`lib/mantis-crypto.ts`)

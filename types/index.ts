@@ -1,4 +1,4 @@
-// Type definitions for MantisLite
+// Type definitions for NextBT
 
 export type SessionData = {
   uid: number;

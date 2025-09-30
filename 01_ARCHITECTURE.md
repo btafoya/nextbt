@@ -20,7 +20,7 @@
 3. **Issues**: Basic columns from `mantis_bug_table` + text in `mantis_bug_text_table` + notes in `mantis_bugnote_table`/`mantis_bugnote_text_table`. Attachments from `mantis_bug_file_table` if used.
 4. **Custom Fields**: Read from `mantis_custom_field_*` tables. We surface them as dynamic fields on an Issue Form section.
 5. **Notifications**: When issue created/updated or note added, we determine **recipients by project access** and route via chosen channels.
-6. **MCP Integration**: Claude Code can access MantisLite via MCP protocol for tools, resources, and system integration through authenticated API endpoints.
+6. **MCP Integration**: Claude Code can access NextBT via MCP protocol for tools, resources, and system integration through authenticated API endpoints.
 
 ## Non-Destructive Strategy
 - Use **Prisma introspect** to get types.

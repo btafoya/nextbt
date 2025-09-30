@@ -2,7 +2,7 @@
 
 ## Overview
 
-MantisLite supports integration with Claude Code MCP (Model Context Protocol) remote servers, enabling enhanced AI-powered features and tool integration.
+NextBT supports integration with Claude Code MCP (Model Context Protocol) remote servers, enabling enhanced AI-powered features and tool integration.
 
 ## Configuration
 
@@ -28,7 +28,7 @@ The project includes a `.mcp.json` configuration file with MCP remote server set
 ```json
 {
   "mcpServers": {
-    "mantislite-remote": {
+    "nextbt-remote": {
       "type": "sse",
       "url": "${MCP_REMOTE_URL:-https://api.example.com/mcp}",
       "headers": {
@@ -199,7 +199,7 @@ POST /api/mcp/resources
 
 ## Connection Types
 
-MantisLite supports SSE (Server-Sent Events) MCP remote servers:
+NextBT supports SSE (Server-Sent Events) MCP remote servers:
 
 - **SSE**: Long-lived HTTP connection for real-time updates
 - Automatic reconnection on connection loss
