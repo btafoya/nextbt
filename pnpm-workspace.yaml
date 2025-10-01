@@ -1,8 +1,18 @@
 packages:
-  - '.'
+  - .
 
 ignoredBuiltDependencies:
   - '@prisma/client'
   - '@prisma/engines'
   - prisma
   - unrs-resolver
+
+onlyBuiltDependencies:
+  - '@scarf/scarf'
+  - '@tree-sitter-grammars/tree-sitter-yaml'
+  - core-js-pure
+  - esbuild
+  - msw
+  - sharp
+  - tree-sitter
+  - tree-sitter-json

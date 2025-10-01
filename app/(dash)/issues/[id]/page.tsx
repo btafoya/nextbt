@@ -7,6 +7,7 @@ import { PriorityBadge } from "@/components/issues/PriorityBadge";
 import ActivityTimeline from "@/components/issues/ActivityTimeline";
 import StatusActions from "@/components/issues/StatusActions";
 import HtmlContent from "@/components/issues/HtmlContent";
+import NotificationRecipients from "@/components/issues/NotificationRecipients";
 import { notFound } from "next/navigation";
 import Link from "next/link";
 import { getSeverityLabel, getStatusLabel, getPriorityLabel, getReproducibilityLabel } from "@/lib/mantis-enums";
@@ -143,6 +144,9 @@ export default async function IssueShow({ params }: { params: { id: string } }) 
 
       {/* Activity timeline - notes and attachments combined */}
       <ActivityTimeline issueId={issue.id} currentUserId={session.uid} />
+
+      {/* Notification recipients list */}
+      <NotificationRecipients issueId={issue.id} />
     </div>
   );
 }

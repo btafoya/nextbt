@@ -3,6 +3,7 @@
 
 import { useState, useEffect } from "react";
 import { useRouter } from "next/navigation";
+import NotificationPreferences from "@/components/profile/NotificationPreferences";
 
 interface UserProfile {
   id: number;
@@ -225,6 +226,9 @@ export default function ProfilePage() {
           </button>
         </form>
       </div>
+
+      {/* Notification Preferences */}
+      <NotificationPreferences />
     </div>
   );
 }

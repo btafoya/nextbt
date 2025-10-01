@@ -80,3 +80,4 @@ logs
 file_download.php
 .serena/.gitignore
 .serena/project.yml
+.aider*

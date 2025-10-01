@@ -3,6 +3,7 @@ import { requireAdmin } from "@/lib/auth";
 import { prisma } from "@/db/client";
 import { notFound } from "next/navigation";
 import { UserForm } from "@/components/users/UserForm";
+import UserNotificationPreferences from "@/components/users/UserNotificationPreferences";
 
 // Disable caching to ensure real-time data updates
 export const dynamic = 'force-dynamic'
@@ -43,8 +44,9 @@ export default async function EditUserPage({ params }: { params: { id: string } 
 
   return (
     <div className="space-y-4">
-      <h1 className="text-2xl font-bold">Edit User: {user.username}</h1>
+      <h1 className="text-2xl font-bold dark:text-white">Edit User: {user.username}</h1>
       <UserForm mode="edit" user={user} />
+      <UserNotificationPreferences userId={user.id} />
     </div>
   );
 }
