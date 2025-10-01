@@ -79,7 +79,21 @@ export async function GET(req: Request, { params }: Ctx) {
       });
     }
 
-    return NextResponse.json(prefs);
+    // Sanitize severity values: ensure they're never below 10 (MantisBT may store 0 as default)
+    const sanitized = {
+      ...prefs,
+      email_on_new_min_severity: Math.max(10, prefs.email_on_new_min_severity || 10),
+      email_on_assigned_min_severity: Math.max(10, prefs.email_on_assigned_min_severity || 10),
+      email_on_feedback_min_severity: Math.max(10, prefs.email_on_feedback_min_severity || 10),
+      email_on_resolved_min_severity: Math.max(10, prefs.email_on_resolved_min_severity || 10),
+      email_on_closed_min_severity: Math.max(10, prefs.email_on_closed_min_severity || 10),
+      email_on_reopened_min_severity: Math.max(10, prefs.email_on_reopened_min_severity || 10),
+      email_on_bugnote_min_severity: Math.max(10, prefs.email_on_bugnote_min_severity || 10),
+      email_on_status_min_severity: Math.max(10, prefs.email_on_status_min_severity || 10),
+      email_on_priority_min_severity: Math.max(10, prefs.email_on_priority_min_severity || 10),
+    };
+
+    return NextResponse.json(sanitized);
   } catch (error) {
     logger.error("Error fetching notification preferences:", error);
     return NextResponse.json(
@@ -151,14 +165,21 @@ export async function POST(req: Request, { params }: Ctx) {
       if (body[field] !== undefined) {
         const value = parseInt(body[field], 10);
         logger.log(`Validating ${field}: raw=${body[field]}, parsed=${value}, isNaN=${isNaN(value)}`);
-        if (isNaN(value) || value < 10 || value > 80) {
-          logger.error(`Validation failed for ${field}: value=${value}, body[field]=${body[field]}`);
+
+        // Auto-correct invalid severity values to minimum valid value (10)
+        // MantisBT may have 0 as default, so we coerce it to 10 instead of rejecting
+        if (isNaN(value) || value < 10) {
+          logger.warn(`Auto-correcting invalid severity value for ${field}: ${value} → 10`);
+          updateData[field] = 10;
+        } else if (value > 80) {
+          logger.error(`Validation failed for ${field}: value ${value} exceeds maximum (80)`);
           return NextResponse.json(
-            { error: `Invalid severity value for ${field}: received ${body[field]} (parsed as ${value})` },
+            { error: `Invalid severity value for ${field}: ${value} exceeds maximum (80)` },
             { status: 400 }
           );
+        } else {
+          updateData[field] = value;
         }
-        updateData[field] = value;
       }
     }
 
