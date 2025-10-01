@@ -8,7 +8,7 @@ import webpush from "web-push";
 // Configure web-push with VAPID keys from secrets
 if (secrets.webPushEnabled && secrets.vapidPublicKey && secrets.vapidPrivateKey) {
   webpush.setVapidDetails(
-    secrets.fromEmail || "mailto:noreply@example.com",
+    secrets.vapidSubject || "mailto:noreply@example.com",
     secrets.vapidPublicKey,
     secrets.vapidPrivateKey
   );

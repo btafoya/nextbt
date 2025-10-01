@@ -1,41 +1,65 @@
-// /app/api/cron/process-digests/route.ts
+// app/api/cron/process-digests/route.ts
 import { NextResponse } from "next/server";
-import { processPendingDigests } from "@/lib/notify/digest";
+import { processPendingDigests, cleanupOldDigests } from "@/lib/notify/digest";
 import { logger } from "@/lib/logger";
+
+const CRON_SECRET = process.env.NEXTBT_CRON_SECRET || "change-me-in-production";
 
 /**
  * POST /api/cron/process-digests - Process pending notification digests
  *
- * This endpoint should be called by a cron job hourly:
- * 0 * * * * curl -X POST https://yourdomain.com/api/cron/process-digests
+ * Security: Requires X-Cron-Secret header matching NEXTBT_CRON_SECRET env var
  *
- * Or use the Authorization header for security:
- * 0 * * * * curl -X POST -H "Authorization: Bearer YOUR_CRON_SECRET" https://yourdomain.com/api/cron/process-digests
+ * Called by cron job (e.g., every 15 minutes):
+ * Run: node /path/to/scripts/process-digests.js
  */
 export async function POST(request: Request) {
   try {
-    // Optional: Add cron job authentication
-    // const authHeader = request.headers.get("authorization");
-    // const cronSecret = process.env.CRON_SECRET;
-    // if (cronSecret && authHeader !== `Bearer ${cronSecret}`) {
-    //   return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
-    // }
+    // Verify cron secret for security
+    const cronSecret = request.headers.get("X-Cron-Secret");
 
-    logger.log("[Cron] Starting digest processing...");
+    if (cronSecret !== CRON_SECRET) {
+      logger.error("Unauthorized cron request - invalid secret");
+      return NextResponse.json(
+        { error: "Unauthorized" },
+        { status: 401 }
+      );
+    }
 
+    const startTime = Date.now();
+    logger.log("🔄 Processing digests via cron...");
+
+    // Process pending digests
     await processPendingDigests();
 
-    logger.log("[Cron] Digest processing completed successfully");
+    // Clean up old digests (older than 30 days) - run at 2 AM
+    const now = new Date();
+    let cleaned = 0;
+
+    if (now.getHours() === 2 && now.getMinutes() < 15) {
+      logger.log("🧹 Cleaning up old digests...");
+      cleaned = await cleanupOldDigests(30);
+      logger.log(`✅ Cleaned up ${cleaned} old digest notifications`);
+    }
+
+    const duration = Date.now() - startTime;
+
+    logger.log(`✅ Digest processing completed in ${duration}ms`);
 
     return NextResponse.json({
       success: true,
-      message: "Digest processing completed",
+      duration,
+      cleaned: cleaned > 0 ? cleaned : undefined,
       timestamp: new Date().toISOString(),
     });
   } catch (error) {
-    logger.error("[Cron] Digest processing failed:", error);
+    logger.error("❌ Digest processing failed:", error);
+
     return NextResponse.json(
-      { error: "Failed to process digests" },
+      {
+        error: "Digest processing failed",
+        message: error instanceof Error ? error.message : "Unknown error"
+      },
       { status: 500 }
     );
   }
