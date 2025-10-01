@@ -8,6 +8,6 @@ echo "🧹 Clearing Next.js build cache..."
 rm -rf .next
 
 echo "📦 Running fresh production build..."
-pnpm build
+next build
 
 echo "✅ Fresh build complete!"
