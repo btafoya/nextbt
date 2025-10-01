@@ -126,8 +126,8 @@ export async function GET(req: Request) {
     const total = Number(countResult[0]?.total || 0);
 
     // Fetch related user and bug data
-    const userIds = [...new Set(history.map((h) => h.user_id))];
-    const bugIds = [...new Set(history.map((h) => h.bug_id))];
+    const userIds = Array.from(new Set(history.map((h) => h.user_id)));
+    const bugIds = Array.from(new Set(history.map((h) => h.bug_id)));
 
     const [users, bugs] = await Promise.all([
       prisma.mantis_user_table.findMany({

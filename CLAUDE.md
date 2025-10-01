@@ -36,8 +36,11 @@ pnpm install
 # Development server (http://localhost:3000)
 pnpm dev
 
-# Production build
+# Production build (clears cache first)
 pnpm build
+
+# Cached build (uses existing .next cache)
+pnpm build:cached
 
 # Start production server
 pnpm start
