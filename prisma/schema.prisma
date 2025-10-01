@@ -563,7 +563,7 @@ model mantis_notification_queue_table {
   subject        String  @db.VarChar(255)
   body           String  @db.Text
   html_body      String? @db.LongText
-  metadata       String? @db.Json
+  metadata       Json?
   status         String  @default("pending") @db.VarChar(32)
   batch_id       String? @db.VarChar(64)
   date_created   Int     @default(1) @db.UnsignedInt
@@ -598,7 +598,7 @@ model mantis_notification_filter_table {
   filter_type   String @db.VarChar(32)
   filter_value  String @db.VarChar(128)
   action        String @default("notify") @db.VarChar(32)
-  channels      String? @db.Json
+  channels      Json?
   date_created  Int    @default(1) @db.UnsignedInt
   date_modified Int    @default(1) @db.UnsignedInt
 
@@ -613,7 +613,7 @@ model mantis_notification_history_table {
   event_type    String @db.VarChar(32)
   subject       String @db.VarChar(255)
   body          String @db.Text
-  channels_sent String? @db.Json
+  channels_sent Json?
   read_status   Int    @default(0) @db.TinyInt
   date_sent     Int    @default(1) @db.UnsignedInt
   date_read     Int?   @db.UnsignedInt
@@ -630,7 +630,7 @@ model mantis_digest_pref_table {
   time_of_day          Int    @default(9) @db.SmallInt
   day_of_week          Int    @default(1) @db.TinyInt
   min_notifications    Int    @default(1) @db.SmallInt
-  include_channels     String? @db.Json
+  include_channels     Json?
   last_digest_sent     Int?   @db.UnsignedInt
   next_digest_scheduled Int?  @db.UnsignedInt
 }

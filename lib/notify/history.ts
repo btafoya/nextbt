@@ -54,7 +54,7 @@ export async function logNotificationHistory(
         event_type: entry.eventType,
         subject: entry.subject,
         body: entry.body,
-        channels_sent: JSON.stringify(entry.channelsSent),
+        channels_sent: entry.channelsSent,
         read_status: 0,
         date_sent: timestamp,
       },
@@ -86,7 +86,7 @@ export async function logNotificationHistoryBatch(
         event_type: entry.eventType,
         subject: entry.subject,
         body: entry.body,
-        channels_sent: JSON.stringify(entry.channelsSent),
+        channels_sent: entry.channelsSent,
         read_status: 0,
         date_sent: timestamp,
       })),
@@ -142,7 +142,7 @@ export async function getUserNotificationHistory(
     eventType: h.event_type,
     subject: h.subject,
     body: h.body,
-    channelsSent: h.channels_sent ? JSON.parse(h.channels_sent) : [],
+    channelsSent: (h.channels_sent as string[]) || [],
     readStatus: h.read_status === 1,
     dateSent: h.date_sent,
     dateRead: h.date_read || undefined,
@@ -266,7 +266,7 @@ export async function getUserNotificationStats(
   const byChannel: Record<string, number> = {};
   for (const h of allHistory) {
     if (h.channels_sent) {
-      const channels = JSON.parse(h.channels_sent);
+      const channels = (h.channels_sent as string[]);
       for (const channel of channels) {
         byChannel[channel] = (byChannel[channel] || 0) + 1;
       }

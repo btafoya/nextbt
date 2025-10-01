@@ -46,7 +46,7 @@ export async function queueNotification(notification: QueuedNotification): Promi
         subject: notification.subject,
         body: notification.body,
         html_body: notification.htmlBody,
-        metadata: notification.metadata ? JSON.stringify(notification.metadata) : null,
+        metadata: notification.metadata || undefined,
         status: "pending",
         date_created: timestamp,
         date_scheduled: timestamp,
@@ -81,7 +81,7 @@ export async function queueNotificationsBatch(
         subject: n.subject,
         body: n.body,
         html_body: n.htmlBody,
-        metadata: n.metadata ? JSON.stringify(n.metadata) : null,
+        metadata: n.metadata || undefined,
         status: "pending",
         date_created: timestamp,
         date_scheduled: timestamp,
@@ -112,7 +112,7 @@ export async function getDigestPreferences(userId: number): Promise<DigestPrefer
     timeOfDay: prefs.time_of_day,
     dayOfWeek: prefs.day_of_week,
     minNotifications: prefs.min_notifications,
-    includeChannels: prefs.include_channels ? JSON.parse(prefs.include_channels) : ["email"],
+    includeChannels: (prefs.include_channels as string[]) || ["email"],
   };
 }
 
@@ -132,9 +132,7 @@ export async function updateDigestPreferences(
       time_of_day: prefs.timeOfDay || 9,
       day_of_week: prefs.dayOfWeek || 1,
       min_notifications: prefs.minNotifications || 1,
-      include_channels: prefs.includeChannels
-        ? JSON.stringify(prefs.includeChannels)
-        : JSON.stringify(["email"]),
+      include_channels: prefs.includeChannels || ["email"],
     },
     update: {
       enabled: prefs.enabled !== undefined ? (prefs.enabled ? 1 : 0) : undefined,
@@ -142,9 +140,7 @@ export async function updateDigestPreferences(
       time_of_day: prefs.timeOfDay,
       day_of_week: prefs.dayOfWeek,
       min_notifications: prefs.minNotifications,
-      include_channels: prefs.includeChannels
-        ? JSON.stringify(prefs.includeChannels)
-        : undefined,
+      include_channels: prefs.includeChannels,
     },
   });
 
@@ -235,7 +231,7 @@ async function processUserDigest(
 
     // Send digest via configured channels
     const channels = prefs.include_channels
-      ? JSON.parse(prefs.include_channels)
+      ? (prefs.include_channels as string[])
       : ["email"];
 
     const sendPromises: Promise<any>[] = [];

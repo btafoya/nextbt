@@ -41,7 +41,7 @@ export async function createNotificationFilter(
         filter_type: filter.filterType,
         filter_value: filter.filterValue,
         action: filter.action,
-        channels: JSON.stringify(filter.channels),
+        channels: filter.channels,
         date_created: timestamp,
         date_modified: timestamp,
       },
@@ -80,7 +80,7 @@ export async function updateNotificationFilter(
       data.action = updates.action;
     }
     if (updates.channels) {
-      data.channels = JSON.stringify(updates.channels);
+      data.channels = updates.channels;
     }
     if (updates.projectId !== undefined) {
       data.project_id = updates.projectId;
@@ -140,7 +140,7 @@ export async function getUserNotificationFilters(
     filterType: f.filter_type as FilterType,
     filterValue: f.filter_value,
     action: f.action as FilterAction,
-    channels: f.channels ? JSON.parse(f.channels) : [],
+    channels: (f.channels as string[]) || [],
   }));
 }
 
@@ -184,7 +184,7 @@ export async function checkNotificationFilters(
         result = {
           matched: true,
           action: filter.action as FilterAction,
-          channels: filter.channels ? JSON.parse(filter.channels) : [],
+          channels: (filter.channels as string[]) || [],
           reason: `Matched ${filter.filter_type} filter: ${filter.filter_value}`,
         };
 

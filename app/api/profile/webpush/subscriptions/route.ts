@@ -13,7 +13,7 @@ export async function GET() {
 
     return NextResponse.json({
       count: subscriptions.length,
-      subscriptions: subscriptions.map((s) => ({
+      subscriptions: subscriptions.map((s: any) => ({
         id: s.id,
         endpoint: s.endpoint.substring(0, 50) + "...", // Truncate for security
         userAgent: s.user_agent,

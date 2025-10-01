@@ -16,7 +16,7 @@ export async function GET(request: Request) {
 
     return NextResponse.json({
       count: queued.length,
-      notifications: queued.map((q) => ({
+      notifications: queued.map((q: any) => ({
         id: q.id,
         bugId: q.bug_id,
         eventType: q.event_type,
