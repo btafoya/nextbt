@@ -32,6 +32,7 @@ const severityOptions = [
   { value: 50, label: getSeverityLabel(50) },
   { value: 60, label: getSeverityLabel(60) },
   { value: 70, label: getSeverityLabel(70) },
+  { value: 80, label: getSeverityLabel(80) },
 ];
 
 interface UserNotificationPreferencesProps {

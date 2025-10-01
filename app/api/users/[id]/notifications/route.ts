@@ -146,7 +146,7 @@ export async function POST(req: Request, { params }: Ctx) {
     for (const field of severityFields) {
       if (body[field] !== undefined) {
         const value = parseInt(body[field], 10);
-        if (isNaN(value) || value < 10 || value > 70) {
+        if (isNaN(value) || value < 10 || value > 80) {
           return NextResponse.json(
             { error: `Invalid severity value for ${field}` },
             { status: 400 }
