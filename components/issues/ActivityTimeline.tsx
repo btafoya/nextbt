@@ -56,10 +56,10 @@ export default function ActivityTimeline({ issueId, currentUserId }: { issueId: 
         const notes = await notesRes.json();
         const attachments = await attachmentsRes.json();
 
-        // Combine into activity items
+        // Combine into activity items (use last_modified so edited notes appear at top)
         const noteActivities: ActivityItem[] = notes.map((note: Note) => ({
           type: "note" as const,
-          date: note.date_submitted,
+          date: note.last_modified,
           data: note
         }));
 
