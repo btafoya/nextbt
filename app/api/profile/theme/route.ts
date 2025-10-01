@@ -3,6 +3,7 @@ import { NextResponse } from "next/server";
 export const dynamic = "force-dynamic";
 import { getSession } from "@/lib/auth";
 import { prisma } from "@/db/client";
+import { logger } from "@/lib/logger";
 
 /**
  * GET /api/profile/theme - Get user's theme preference
@@ -34,7 +35,7 @@ export async function GET() {
 
     return NextResponse.json({ theme });
   } catch (error) {
-    console.error("Get theme error:", error);
+    logger.error("Get theme error:", error);
     return NextResponse.json(
       { error: "Failed to retrieve theme preference" },
       { status: 500 }
@@ -95,7 +96,7 @@ export async function POST(request: Request) {
 
     return NextResponse.json({ success: true, theme });
   } catch (error) {
-    console.error("Set theme error:", error);
+    logger.error("Set theme error:", error);
     return NextResponse.json(
       { error: "Failed to save theme preference" },
       { status: 500 }

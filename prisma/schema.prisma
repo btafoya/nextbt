@@ -533,3 +533,21 @@ model mantis_user_table {
   @@index([email], map: "idx_email")
   @@index([enabled], map: "idx_enable")
 }
+
+model mantis_email_audit_table {
+  id            Int    @id @default(autoincrement()) @db.UnsignedInt
+  bug_id        Int    @default(0) @db.UnsignedInt
+  user_id       Int    @default(0) @db.UnsignedInt
+  recipient     String @db.VarChar(255)
+  subject       String @db.VarChar(255)
+  channel       String @db.VarChar(32)
+  status        String @db.VarChar(32)
+  error_message String @default("") @db.Text
+  date_sent     Int    @default(1) @db.UnsignedInt
+
+  @@index([bug_id], map: "idx_email_audit_bug_id")
+  @@index([user_id], map: "idx_email_audit_user_id")
+  @@index([date_sent], map: "idx_email_audit_date_sent")
+  @@index([channel], map: "idx_email_audit_channel")
+  @@index([status], map: "idx_email_audit_status")
+}

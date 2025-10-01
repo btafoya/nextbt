@@ -148,9 +148,10 @@ export class AIRateLimiter {
 
 // Run cleanup periodically (every hour)
 if (typeof setInterval !== "undefined") {
+  const { logger } = require("@/lib/logger");
   setInterval(
     () => {
-      AIRateLimiter.cleanup(24).catch(console.error);
+      AIRateLimiter.cleanup(24).catch((error: any) => logger.error("AI rate limiter cleanup error:", error));
     },
     60 * 60 * 1000
   ); // 1 hour

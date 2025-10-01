@@ -1,6 +1,7 @@
 "use client";
 
 import { useState, useEffect } from "react";
+import { logger } from "@/lib/logger";
 import { getSeverityLabel } from "@/lib/mantis-enums";
 
 interface NotificationPrefs {
@@ -53,7 +54,7 @@ export default function NotificationPreferences() {
         setPrefs(data);
       }
     } catch (error) {
-      console.error("Error fetching preferences:", error);
+      logger.error("Error fetching preferences:", error);
     } finally {
       setLoading(false);
     }

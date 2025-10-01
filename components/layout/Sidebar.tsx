@@ -22,9 +22,10 @@ export function Sidebar({ session }: SidebarProps) {
     { href: "/projects", label: "Projects", icon: "📁" },
   ];
 
-  // Add Users link for admins
+  // Add admin-only links
   if (isAdmin) {
     navItems.push({ href: "/users", label: "Users", icon: "👥" });
+    navItems.push({ href: "/history", label: "History Log", icon: "📜" });
   }
 
   // Add Profile link for all users

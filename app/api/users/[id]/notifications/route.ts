@@ -4,6 +4,7 @@ export const dynamic = "force-dynamic";
 import { NextResponse } from "next/server";
 import { prisma } from "@/db/client";
 import { requireAdmin } from "@/lib/auth";
+import { logger } from "@/lib/logger";
 
 type Ctx = { params: { id: string } };
 
@@ -80,7 +81,7 @@ export async function GET(req: Request, { params }: Ctx) {
 
     return NextResponse.json(prefs);
   } catch (error) {
-    console.error("Error fetching notification preferences:", error);
+    logger.error("Error fetching notification preferences:", error);
     return NextResponse.json(
       { error: "Failed to fetch notification preferences" },
       { status: 500 }
@@ -108,6 +109,9 @@ export async function POST(req: Request, { params }: Ctx) {
     }
 
     const body = await req.json();
+
+    // Debug logging
+    logger.log("Received notification preferences:", JSON.stringify(body, null, 2));
 
     // Validate boolean fields (0 or 1)
     const booleanFields = [
@@ -146,9 +150,11 @@ export async function POST(req: Request, { params }: Ctx) {
     for (const field of severityFields) {
       if (body[field] !== undefined) {
         const value = parseInt(body[field], 10);
+        logger.log(`Validating ${field}: raw=${body[field]}, parsed=${value}, isNaN=${isNaN(value)}`);
         if (isNaN(value) || value < 10 || value > 80) {
+          logger.error(`Validation failed for ${field}: value=${value}, body[field]=${body[field]}`);
           return NextResponse.json(
-            { error: `Invalid severity value for ${field}` },
+            { error: `Invalid severity value for ${field}: received ${body[field]} (parsed as ${value})` },
             { status: 400 }
           );
         }
@@ -183,7 +189,7 @@ export async function POST(req: Request, { params }: Ctx) {
 
     return NextResponse.json({ success: true });
   } catch (error) {
-    console.error("Error updating notification preferences:", error);
+    logger.error("Error updating notification preferences:", error);
     return NextResponse.json(
       { error: "Failed to update notification preferences" },
       { status: 500 }

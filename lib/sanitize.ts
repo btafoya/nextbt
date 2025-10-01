@@ -1,5 +1,6 @@
 // /lib/sanitize.ts
 import DOMPurify from "isomorphic-dompurify";
+import { logger } from "@/lib/logger";
 
 /**
  * HTML Sanitization Configuration
@@ -82,7 +83,7 @@ export function sanitizeHtml(html: string, config?: any): string {
   try {
     return DOMPurify.sanitize(html, mergedConfig) as unknown as string;
   } catch (error) {
-    console.error('HTML sanitization error:', error);
+    logger.error('HTML sanitization error:', error);
     // Return empty string on error for safety
     return '';
   }

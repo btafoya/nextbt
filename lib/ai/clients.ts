@@ -1,5 +1,6 @@
 import "server-only";
 import { secrets } from "@/config/secrets";
+import { logger } from "@/lib/logger";
 
 export type AIRole = "system" | "user" | "assistant";
 
@@ -69,7 +70,7 @@ export class AIClient {
         return json.choices?.[0]?.message?.content || "";
       }
     } catch (error) {
-      console.error("AI generation error:", error);
+      logger.error("AI generation error:", error);
       throw new Error(
         `Failed to generate AI response: ${error instanceof Error ? error.message : "Unknown error"}`
       );

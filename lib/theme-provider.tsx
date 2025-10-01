@@ -1,6 +1,7 @@
 "use client";
 
 import React, { createContext, useContext, useEffect, useState } from "react";
+import { logger } from "@/lib/logger";
 
 type Theme = "light" | "dark" | "system";
 
@@ -84,7 +85,7 @@ export function ThemeProvider({
         body: JSON.stringify({ theme: newTheme }),
       });
     } catch (error) {
-      console.error("Failed to persist theme preference:", error);
+      logger.error("Failed to persist theme preference:", error);
     }
   };
 

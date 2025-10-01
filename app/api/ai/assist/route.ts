@@ -6,6 +6,7 @@ import { AIClient, streamToResponse } from "@/lib/ai/clients";
 import { PromptBuilder } from "@/lib/ai/prompts";
 import { AIRateLimiter } from "@/lib/ai/rate-limiter";
 import { secrets } from "@/config/secrets";
+import { logger } from "@/lib/logger";
 
 export async function POST(request: NextRequest) {
   try {
@@ -84,7 +85,7 @@ export async function POST(request: NextRequest) {
       content: response,
     });
   } catch (error) {
-    console.error("AI assist error:", error);
+    logger.error("AI assist error:", error);
     return NextResponse.json(
       {
         error:

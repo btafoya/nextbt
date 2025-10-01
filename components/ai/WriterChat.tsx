@@ -1,6 +1,7 @@
 "use client";
 
 import { useState, useRef, useEffect } from "react";
+import { logger } from "@/lib/logger";
 
 interface Message {
   id: string;
@@ -228,7 +229,7 @@ export default function WriterChat({
         }
       }
     } catch (error) {
-      console.error("AI chat error:", error);
+      logger.error("AI chat error:", error);
       alert("Failed to get AI response. Please try again.");
     } finally {
       setIsLoading(false);

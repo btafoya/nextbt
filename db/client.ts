@@ -1,5 +1,6 @@
 // /db/client.ts
 import { PrismaClient } from "@prisma/client";
+import { logger } from "@/lib/logger";
 
 declare global {
   var prisma: PrismaClient | undefined;
@@ -11,7 +12,7 @@ try {
   const { secrets } = require("@/config/secrets");
   databaseUrl = secrets.databaseUrl;
 } catch (err) {
-  console.warn("Warning: config/secrets.ts not found. Create it from config/secrets.example.ts");
+  logger.warn("Warning: config/secrets.ts not found. Create it from config/secrets.example.ts");
 }
 
 export const prisma =
