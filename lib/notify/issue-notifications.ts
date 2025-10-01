@@ -7,6 +7,10 @@ import { sendPushover } from "@/lib/notify/pushover";
 import { sendRocketChat } from "@/lib/notify/rocketchat";
 import { sendTeams } from "@/lib/notify/teams";
 import { logger } from "@/lib/logger";
+import {
+  filterNotificationRecipients,
+  type NotificationEventType,
+} from "@/lib/notify/preference-checker";
 
 export type IssueAction = "created" | "updated" | "deleted" | "commented" | "status_changed" | "assigned";
 
@@ -124,10 +128,39 @@ function generateTextNotification(ctx: NotificationContext, issueUrl: string): s
 }
 
 /**
+ * Map IssueAction to NotificationEventType
+ */
+function mapActionToEventType(action: IssueAction): NotificationEventType {
+  switch (action) {
+    case "created":
+      return "new";
+    case "assigned":
+      return "assigned";
+    case "commented":
+      return "bugnote";
+    case "status_changed":
+      return "status";
+    default:
+      return "new"; // Default fallback
+  }
+}
+
+/**
  * Send notifications for issue actions
  */
 export async function notifyIssueAction(ctx: NotificationContext, baseUrl: string) {
   try {
+    // Get the issue to determine severity
+    const issue = await prisma.mantis_bug_table.findUnique({
+      where: { id: ctx.issueId },
+      select: { severity: true },
+    });
+
+    if (!issue) {
+      logger.error(`Issue #${ctx.issueId} not found for notification`);
+      return;
+    }
+
     // Get project users (excluding the actor who made the change)
     const users = await getProjectUsers(ctx.projectId, ctx.actorId);
 
@@ -136,12 +169,36 @@ export async function notifyIssueAction(ctx: NotificationContext, baseUrl: strin
       return;
     }
 
+    // Determine notification event type based on action
+    const eventType = mapActionToEventType(ctx.action);
+
+    // Filter users based on their notification preferences
+    const { recipients: recipientIds, reasons } = await filterNotificationRecipients(
+      users.map((u) => u.id),
+      eventType,
+      issue.severity
+    );
+
+    // Get user details for recipients only
+    const recipientUsers = users.filter((u) => recipientIds.includes(u.id));
+
+    if (recipientUsers.length === 0) {
+      logger.log(
+        `No users match notification criteria for issue #${ctx.issueId} (${eventType}, severity ${issue.severity})`
+      );
+      return;
+    }
+
+    logger.log(
+      `Notifying ${recipientUsers.length}/${users.length} users for issue #${ctx.issueId} (${eventType}, severity ${issue.severity})`
+    );
+
     const issueUrl = `${baseUrl}/issues/${ctx.issueId}`;
     const subject = `Issue #${ctx.issueId}: ${ctx.issueSummary}`;
 
-    // Send email notifications (only to project users, not the actor)
+    // Send email notifications (only to users who passed preference filter)
     if (secrets.postmarkEnabled) {
-      const emailTasks = users
+      const emailTasks = recipientUsers
         .filter(user => user.email && user.email.includes('@'))
         .map(user => {
           const html = generateEmailTemplate(ctx, issueUrl);

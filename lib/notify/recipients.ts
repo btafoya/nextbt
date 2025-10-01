@@ -1,6 +1,11 @@
 // /lib/notify/recipients.ts
 import { prisma } from "@/db/client";
 import { secrets } from "@/config/secrets";
+import {
+  getUserPreferences,
+  shouldNotifyUser,
+  type NotificationEventType,
+} from "@/lib/notify/preference-checker";
 
 export interface NotificationRecipient {
   id: number;
@@ -14,9 +19,13 @@ export interface NotificationRecipient {
 /**
  * Get all users who should receive notifications for an issue
  * Based on project membership and MantisBT email preferences
+ *
+ * @param issueId - The issue ID
+ * @param eventType - The notification event type (defaults to "new" for backward compatibility)
  */
 export async function getNotificationRecipients(
-  issueId: number
+  issueId: number,
+  eventType: NotificationEventType = "new"
 ): Promise<NotificationRecipient[]> {
   // Get the issue with project info
   const issue = await prisma.mantis_bug_table.findUnique({
@@ -51,32 +60,14 @@ export async function getNotificationRecipients(
 
   // Get user preferences for email notifications
   const userIds = projectUsers.map((pu) => pu.user_id);
-  const preferences = await prisma.mantis_user_pref_table.findMany({
-    where: {
-      user_id: { in: userIds },
-    },
-    select: {
-      user_id: true,
-      email_on_new: true,
-      email_on_assigned: true,
-      email_on_feedback: true,
-      email_on_resolved: true,
-      email_on_closed: true,
-      email_on_reopened: true,
-      email_on_bugnote: true,
-      email_on_status: true,
-      email_on_new_min_severity: true,
-    },
-  });
-
-  const prefMap = new Map(preferences.map((p) => [p.user_id, p]));
+  const prefMap = await getUserPreferences(userIds);
 
   // Determine who will receive notifications
   const recipients: NotificationRecipient[] = projectUsers
     .filter((pu) => pu.user.enabled === 1 && pu.user.email) // Only enabled users with email
     .map((pu) => {
-      const pref = prefMap.get(pu.user_id);
       const user = pu.user;
+      const pref = prefMap.get(pu.user_id);
 
       // Determine if user will receive notification and why
       let willReceive = false;
@@ -88,26 +79,21 @@ export async function getNotificationRecipients(
       } else if (!user.email) {
         willReceive = false;
         reason = "No email address";
-      } else if (pref) {
-        // Check if user wants notifications for new issues
-        if (pref.email_on_new === 1) {
-          // Check severity threshold
-          if (issue.severity >= pref.email_on_new_min_severity) {
-            willReceive = true;
-            if (user.id === issue.reporter_id) {
-              reason = "Reporter (new issue notifications enabled)";
-            } else if (user.id === issue.handler_id) {
-              reason = "Assignee (new issue notifications enabled)";
-            } else {
-              reason = "Project member (new issue notifications enabled)";
-            }
+      } else {
+        // Use centralized preference checker
+        const result = shouldNotifyUser(eventType, issue.severity, pref || null);
+        willReceive = result.shouldNotify;
+        reason = result.reason;
+
+        // Add user role context if they will receive
+        if (willReceive) {
+          if (user.id === issue.reporter_id) {
+            reason = `Reporter (${reason})`;
+          } else if (user.id === issue.handler_id) {
+            reason = `Assignee (${reason})`;
           } else {
-            willReceive = false;
-            reason = `Severity below threshold (${issue.severity} < ${pref.email_on_new_min_severity})`;
+            reason = `Project member (${reason})`;
           }
-        } else {
-          willReceive = false;
-          reason = "New issue notifications disabled in preferences";
         }
       }
 
