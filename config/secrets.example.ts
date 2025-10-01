@@ -35,7 +35,7 @@ export const secrets = {
   teamsEnabled: false,
   teamsWebhookUrl: "https://outlook.office.com/webhook/xxxx",
   // Web Push (VAPID)
-  vapidEnabled: false,
+  webPushEnabled: false,
   vapidPublicKey: "B...",
   vapidPrivateKey: "x...",
   vapidSubject: "mailto:admin@example.com",

@@ -26,6 +26,8 @@ Complete design documentation available:
 - **20_TESTING_GUIDE.md** - Comprehensive testing guide with Vitest (40+ tests)
 - **ACCESSIBILITY-TESTING-GUIDE.md** - WCAG 2.1 AA accessibility testing with Playwright (47 tests)
 - **CODE-ANALYSIS-REPORT.md** - Comprehensive code quality, security, and architecture analysis
+- **NOTIFICATION-AUDIT-FIX.md** - Notification preference system audit and comprehensive fixes
+- **NOTIFICATION-FEATURES-IMPLEMENTATION.md** - Advanced notification features (digest, web push, history, filters)
 
 ## Development Commands
 
@@ -106,8 +108,20 @@ pnpm dlx prisma studio     # Open Prisma Studio GUI
 
 ### Notification System (`/lib/notify/`)
 - **Multi-channel**: Postmark (email), Pushover, Rocket.Chat, Microsoft Teams, Web Push
-- **Dispatch**: `notify/dispatch.ts` routes notifications to configured channels
+- **Preference System**: `preference-checker.ts` validates 9 event types + severity thresholds globally
+- **Digest System**: `digest.ts` batches notifications for scheduled delivery (hourly/daily/weekly)
+- **Web Push**: `webpush.ts` delivers browser push notifications via Web Push API with VAPID
+- **History**: `history.ts` logs all notifications for user visibility and management
+- **Advanced Filters**: `filters.ts` provides category/priority/severity-based filtering with actions (notify/ignore/digest_only)
+- **Dispatch**: `dispatch.ts` routes notifications to configured channels
 - **Project-based**: Notifications configured per project access, not user type
+- **Database Tables**:
+  - `mantis_notification_queue_table` - Digest queuing
+  - `mantis_webpush_subscription_table` - Web push subscriptions
+  - `mantis_notification_history_table` - User notification log
+  - `mantis_notification_filter_table` - Advanced filters
+  - `mantis_digest_pref_table` - Digest preferences
+  - `mantis_email_audit_table` - Delivery audit log
 
 ### MCP Integration (`/lib/mcp/`)
 - **MCP Client**: `mcp/client.ts` - Claude Code remote server client

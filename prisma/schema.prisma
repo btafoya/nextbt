@@ -551,3 +551,86 @@ model mantis_email_audit_table {
   @@index([channel], map: "idx_email_audit_channel")
   @@index([status], map: "idx_email_audit_status")
 }
+
+model mantis_notification_queue_table {
+  id             Int     @id @default(autoincrement()) @db.UnsignedInt
+  user_id        Int     @default(0) @db.UnsignedInt
+  bug_id         Int     @default(0) @db.UnsignedInt
+  event_type     String  @db.VarChar(32)
+  severity       Int     @default(10) @db.SmallInt
+  priority       Int     @default(30) @db.SmallInt
+  category_id    Int     @default(1) @db.UnsignedInt
+  subject        String  @db.VarChar(255)
+  body           String  @db.Text
+  html_body      String? @db.LongText
+  metadata       String? @db.Json
+  status         String  @default("pending") @db.VarChar(32)
+  batch_id       String? @db.VarChar(64)
+  date_created   Int     @default(1) @db.UnsignedInt
+  date_scheduled Int     @default(1) @db.UnsignedInt
+  date_sent      Int?    @db.UnsignedInt
+
+  @@index([user_id, status], map: "idx_queue_user_status")
+  @@index([batch_id], map: "idx_queue_batch")
+  @@index([date_scheduled, status], map: "idx_queue_scheduled")
+}
+
+model mantis_webpush_subscription_table {
+  id             Int    @id @default(autoincrement()) @db.UnsignedInt
+  user_id        Int    @default(0) @db.UnsignedInt
+  endpoint       String @unique(map: "idx_webpush_endpoint") @db.VarChar(512)
+  p256dh_key     String @db.VarChar(128)
+  auth_key       String @db.VarChar(64)
+  user_agent     String? @db.VarChar(255)
+  ip_address     String? @db.VarChar(45)
+  enabled        Int    @default(1) @db.TinyInt
+  date_created   Int    @default(1) @db.UnsignedInt
+  date_last_used Int    @default(1) @db.UnsignedInt
+
+  @@index([user_id, enabled], map: "idx_webpush_user")
+}
+
+model mantis_notification_filter_table {
+  id            Int    @id @default(autoincrement()) @db.UnsignedInt
+  user_id       Int    @default(0) @db.UnsignedInt
+  project_id    Int    @default(0) @db.UnsignedInt
+  enabled       Int    @default(1) @db.TinyInt
+  filter_type   String @db.VarChar(32)
+  filter_value  String @db.VarChar(128)
+  action        String @default("notify") @db.VarChar(32)
+  channels      String? @db.Json
+  date_created  Int    @default(1) @db.UnsignedInt
+  date_modified Int    @default(1) @db.UnsignedInt
+
+  @@index([user_id, project_id, enabled], map: "idx_filter_user_project")
+  @@index([filter_type], map: "idx_filter_type")
+}
+
+model mantis_notification_history_table {
+  id            Int    @id @default(autoincrement()) @db.UnsignedInt
+  user_id       Int    @default(0) @db.UnsignedInt
+  bug_id        Int    @default(0) @db.UnsignedInt
+  event_type    String @db.VarChar(32)
+  subject       String @db.VarChar(255)
+  body          String @db.Text
+  channels_sent String? @db.Json
+  read_status   Int    @default(0) @db.TinyInt
+  date_sent     Int    @default(1) @db.UnsignedInt
+  date_read     Int?   @db.UnsignedInt
+
+  @@index([user_id, read_status], map: "idx_history_user")
+  @@index([bug_id], map: "idx_history_bug")
+  @@index([date_sent], map: "idx_history_date")
+}
+
+model mantis_digest_pref_table {
+  user_id              Int    @id @db.UnsignedInt
+  enabled              Int    @default(0) @db.TinyInt
+  frequency            String @default("daily") @db.VarChar(32)
+  time_of_day          Int    @default(9) @db.SmallInt
+  day_of_week          Int    @default(1) @db.TinyInt
+  min_notifications    Int    @default(1) @db.SmallInt
+  include_channels     String? @db.Json
+  last_digest_sent     Int?   @db.UnsignedInt
+  next_digest_scheduled Int?  @db.UnsignedInt
+}
