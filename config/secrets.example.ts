@@ -5,6 +5,8 @@ export const secrets = {
   databaseUrl: "mysql://user:pass@host:3306/mantis",
   // iron-session encryption
   sessionSecret: "complex_password_at_least_32_characters_long_for_iron_session_encryption",
+  // Session lifetime in days (default: 7 days, set to higher value like 30 or 90 for long-life sessions)
+  sessionLifeDays: 7, // Recommended: 7-90 days depending on security requirements
   // MantisBT crypto
   cryptoMasterSalt: "YOUR_CRYPTO_MASTER_SALT_HERE",
   // OpenRouter (AI Writer)

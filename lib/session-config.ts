@@ -27,10 +27,14 @@ export interface SessionData {
 
 /**
  * Session Configuration Constants
+ *
+ * MAX_AGE is now configurable via secrets.sessionLifeDays
  */
 export const SESSION_CONFIG = {
-  // Session duration: 7 days
-  MAX_AGE: 60 * 60 * 24 * 7, // 7 days in seconds
+  // Session duration: configurable via secrets.sessionLifeDays (defaults to 30 days)
+  get MAX_AGE() {
+    return 60 * 60 * 24 * secrets.sessionLifeDays; // Convert days to seconds
+  },
 
   // Inactivity timeout: 2 hours
   INACTIVITY_TIMEOUT: 60 * 60 * 2, // 2 hours in seconds
