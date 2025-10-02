@@ -7,6 +7,10 @@ set -e  # Exit on error
 echo "🧹 Clearing Next.js build cache..."
 rm -rf .next
 
+echo "🏷️  Generating build version..."
+export BUILD_ID=$(date +%s)
+echo "Build ID: $BUILD_ID"
+
 echo "📦 Running fresh production build..."
 next build
 

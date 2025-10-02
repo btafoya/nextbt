@@ -3,6 +3,7 @@ import { Inter } from "next/font/google";
 import "./globals.css";
 import { ClientThemeWrapper } from "@/components/ClientThemeWrapper";
 import { publicConfig } from "@/config/public";
+import VersionChecker from "@/components/VersionChecker";
 
 const inter = Inter({ subsets: ["latin"] });
 
@@ -26,6 +27,7 @@ export default function RootLayout({
       <body className={inter.className}>
         <ClientThemeWrapper>
           {children}
+          <VersionChecker />
         </ClientThemeWrapper>
       </body>
     </html>

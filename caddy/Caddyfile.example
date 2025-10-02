@@ -1,0 +1,36 @@
+www.example.com {
+    import cloudflare
+
+    # Redirect old MantisBT URLs to new format
+    @viewphp {
+        path /view.php
+        query id=*
+        expression {http.request.uri.query.id}.matches("^[0-9]+$")
+    }
+    redir @viewphp /issues/{http.request.uri.query.id} permanent
+
+    # Cache control headers
+    header {
+        # Prevent caching of HTML pages to ensure fresh builds
+        @html {
+            path *.html /
+        }
+        Cache-Control "no-store, must-revalidate" @html
+        Pragma "no-cache" @html
+        Expires "0" @html
+
+        # Allow caching for static assets (JS/CSS have hash-based filenames)
+        @static {
+            path /_next/static/*
+        }
+        Cache-Control "public, max-age=31536000, immutable" @static
+    }
+
+    reverse_proxy localhost:3818
+
+    encode gzip
+
+    log {
+        output file /var/log/caddy/www.example.com.log
+    }
+}
