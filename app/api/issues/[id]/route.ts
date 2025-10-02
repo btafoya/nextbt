@@ -6,6 +6,7 @@ import { prisma } from "@/db/client";
 import { getSession } from "@/lib/auth";
 import { canViewProject, canEditIssue, canDeleteIssue } from "@/lib/permissions";
 import { notifyIssueAction } from "@/lib/notify/issue-notifications";
+import { secrets } from "@/config/secrets";
 
 type Ctx = { params: { id: string } };
 
@@ -78,7 +79,6 @@ export async function PATCH(req: Request, { params }: Ctx) {
   }
 
   // Send notifications for issue update
-  const baseUrl = new URL(req.url).origin;
   await notifyIssueAction({
     issueId: updated.id,
     issueSummary: updated.summary,
@@ -87,7 +87,7 @@ export async function PATCH(req: Request, { params }: Ctx) {
     actorId: session.uid,
     actorName: session.username,
     changes
-  }, baseUrl);
+  }, secrets.baseUrl);
 
   return NextResponse.json(updated);
 }
@@ -109,7 +109,6 @@ export async function DELETE(req: Request, { params }: Ctx) {
   }
 
   // Send notifications before deletion
-  const baseUrl = new URL(req.url).origin;
   await notifyIssueAction({
     issueId: row.id,
     issueSummary: row.summary,
@@ -117,7 +116,7 @@ export async function DELETE(req: Request, { params }: Ctx) {
     action: "deleted",
     actorId: session.uid,
     actorName: session.username
-  }, baseUrl);
+  }, secrets.baseUrl);
 
   // Delete associated records first
   await prisma.mantis_bugnote_table.deleteMany({ where: { bug_id: id } });

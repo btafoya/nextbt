@@ -47,6 +47,8 @@ export const secrets = {
   mcpRemoteEnabled: false,
   mcpRemoteUrl: "https://api.example.com/mcp",
   mcpRemoteAuthKey: "your-mcp-api-key-here",
+  // Application Base URL (for notification emails and links)
+  baseUrl: "https://yourdomain.com", // Production URL (e.g., https://bugs.example.com)
   // Logging
   enableLogging: true, // Set to false in production to disable console logging
 } as const;

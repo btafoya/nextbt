@@ -6,6 +6,7 @@ import { prisma } from "@/db/client";
 import { getSession } from "@/lib/auth";
 import { canViewProject, canComment } from "@/lib/permissions";
 import { notifyIssueAction } from "@/lib/notify/issue-notifications";
+import { secrets } from "@/config/secrets";
 
 type Ctx = { params: { id: string } };
 
@@ -88,7 +89,6 @@ export async function POST(req: Request, { params }: Ctx) {
   });
 
   // Send notifications for note creation
-  const baseUrl = new URL(req.url).origin;
   await notifyIssueAction({
     issueId: issue.id,
     issueSummary: issue.summary,
@@ -97,7 +97,7 @@ export async function POST(req: Request, { params }: Ctx) {
     actorId: session.uid,
     actorName: session.username,
     changes: "New comment added"
-  }, baseUrl);
+  }, secrets.baseUrl);
 
   return NextResponse.json({ ...bn, text: note.trim() }, { status: 201 });
 }

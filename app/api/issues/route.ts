@@ -6,6 +6,7 @@ import { prisma } from "@/db/client";
 import { getSession } from "@/lib/auth";
 import { canViewProject } from "@/lib/permissions";
 import { notifyIssueAction } from "@/lib/notify/issue-notifications";
+import { secrets } from "@/config/secrets";
 
 export async function GET(req: Request) {
   const session = await getSession();
@@ -76,7 +77,6 @@ export async function POST(req: Request) {
   });
 
   // Send notifications for issue creation
-  const baseUrl = new URL(req.url).origin;
   await notifyIssueAction({
     issueId: issue.id,
     issueSummary: issue.summary,
@@ -84,7 +84,7 @@ export async function POST(req: Request) {
     action: "created",
     actorId: session.uid,
     actorName: session.username
-  }, baseUrl);
+  }, secrets.baseUrl);
 
   return NextResponse.json(issue, { status: 201 });
 }
