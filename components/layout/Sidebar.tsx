@@ -2,6 +2,7 @@
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { ThemeToggle } from "@/components/ThemeToggle";
+import { publicConfig } from "@/config/public";
 
 type SidebarProps = {
   session: {
@@ -33,8 +34,17 @@ export function Sidebar({ session }: SidebarProps) {
 
   return (
     <aside className="sidebar">
-      <div className="px-6 py-4">
-        <h2 className="text-xl font-bold text-blue-600">NextBT</h2>
+      <div className="px-6 py-4 flex items-center gap-3">
+        {publicConfig.siteLogo && (
+          <img
+            src={publicConfig.siteLogo}
+            alt={publicConfig.siteName}
+            className="h-8 w-auto"
+          />
+        )}
+        <h2 className="text-xl font-bold text-blue-600 dark:text-blue-400">
+          {publicConfig.siteName}
+        </h2>
       </div>
 
       <nav className="sidebar-nav flex-1 space-y-1 px-4 py-6">

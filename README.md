@@ -71,22 +71,30 @@ cd nextbt
 pnpm install
 ```
 
-### 2. Configure Database Connection
+### 2. Configure Application
 
-Copy the example secrets file and configure your database:
+Copy the example configuration files:
 
 ```bash
 cp config/secrets.example.ts config/secrets.ts
+cp public/logo.example.svg public/logo.svg
 ```
 
-Edit `config/secrets.ts` with your MantisBT database credentials:
+Edit `config/secrets.ts` with your MantisBT database credentials and branding:
 
 ```typescript
 export const secrets = {
   databaseUrl: "mysql://user:password@localhost:3306/mantisbt",
+
+  // Branding (customize these values)
+  siteName: "Your Bug Tracker",  // Displayed on login page and sidebar
+  siteLogo: "/logo.svg",          // Path to your custom logo
+
   // ... other settings
 };
 ```
+
+**Customize your logo**: Replace `public/logo.svg` with your own logo. The placeholder logo will not be committed to git.
 
 ### 3. Generate Prisma Client
 

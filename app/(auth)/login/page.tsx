@@ -85,9 +85,20 @@ function LoginForm() {
           strategy="afterInteractive"
         />
       )}
-      <main className="min-h-screen flex items-center justify-center bg-gray-50">
-        <form onSubmit={submit} className="bg-white p-6 rounded shadow w-full max-w-sm space-y-3">
-          <h1 className="text-xl font-semibold">Sign in to NextBT</h1>
+      <main className="min-h-screen flex items-center justify-center bg-gray-50 dark:bg-boxdark-2">
+        <form onSubmit={submit} className="bg-white dark:bg-boxdark p-6 rounded shadow w-full max-w-sm space-y-3">
+          <div className="flex flex-col items-center mb-4">
+            {publicConfig.siteLogo && (
+              <img
+                src={publicConfig.siteLogo}
+                alt={publicConfig.siteName}
+                className="h-16 w-auto mb-3"
+              />
+            )}
+            <h1 className="text-xl font-semibold text-gray-900 dark:text-white text-center">
+              Sign in to {publicConfig.siteName}
+            </h1>
+          </div>
           <input
             className="border w-full p-2 rounded"
             placeholder="Username"
@@ -123,9 +134,9 @@ function LoginForm() {
 export default function LoginPage() {
   return (
     <Suspense fallback={
-      <main className="min-h-screen flex items-center justify-center bg-gray-50">
-        <div className="bg-white p-6 rounded shadow w-full max-w-sm">
-          <p className="text-center">Loading...</p>
+      <main className="min-h-screen flex items-center justify-center bg-gray-50 dark:bg-boxdark-2">
+        <div className="bg-white dark:bg-boxdark p-6 rounded shadow w-full max-w-sm">
+          <p className="text-center text-gray-900 dark:text-white">Loading...</p>
         </div>
       </main>
     }>

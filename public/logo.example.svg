@@ -1,0 +1,30 @@
+<svg width="120" height="120" viewBox="0 0 120 120" fill="none" xmlns="http://www.w3.org/2000/svg">
+  <!-- Background circle -->
+  <circle cx="60" cy="60" r="55" fill="#3B82F6" stroke="#1E40AF" stroke-width="2"/>
+
+  <!-- Bug icon representation -->
+  <g transform="translate(30, 30)">
+    <!-- Bug body -->
+    <ellipse cx="30" cy="35" rx="18" ry="22" fill="#FFFFFF"/>
+
+    <!-- Bug head -->
+    <circle cx="30" cy="18" r="12" fill="#FFFFFF"/>
+
+    <!-- Antennae -->
+    <line x1="24" y1="10" x2="18" y2="4" stroke="#FFFFFF" stroke-width="2" stroke-linecap="round"/>
+    <line x1="36" y1="10" x2="42" y2="4" stroke="#FFFFFF" stroke-width="2" stroke-linecap="round"/>
+
+    <!-- Eyes -->
+    <circle cx="26" cy="17" r="2" fill="#3B82F6"/>
+    <circle cx="34" cy="17" r="2" fill="#3B82F6"/>
+
+    <!-- Bug legs -->
+    <line x1="15" y1="30" x2="8" y2="28" stroke="#FFFFFF" stroke-width="2" stroke-linecap="round"/>
+    <line x1="15" y1="38" x2="8" y2="42" stroke="#FFFFFF" stroke-width="2" stroke-linecap="round"/>
+    <line x1="45" y1="30" x2="52" y2="28" stroke="#FFFFFF" stroke-width="2" stroke-linecap="round"/>
+    <line x1="45" y1="38" x2="52" y2="42" stroke="#FFFFFF" stroke-width="2" stroke-linecap="round"/>
+  </g>
+
+  <!-- Text -->
+  <text x="60" y="105" font-family="Arial, sans-serif" font-size="14" font-weight="bold" fill="#1E40AF" text-anchor="middle">NextBT</text>
+</svg>

@@ -50,6 +50,9 @@ export const secrets = {
   mcpRemoteAuthKey: "your-mcp-api-key-here",
   // Application Base URL (for notification emails and links)
   baseUrl: "https://yourdomain.com", // Production URL (e.g., https://bugs.example.com)
+  // Branding
+  siteName: "Issue Tracker", // Site name displayed on login page and header
+  siteLogo: "/logo.svg", // Path to logo image (relative to public folder, or full URL)
   // Logging
   enableLogging: true, // Set to false in production to disable console logging
 } as const;

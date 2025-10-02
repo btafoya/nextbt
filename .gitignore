@@ -68,6 +68,11 @@ Thumbs.db
 # Secrets (project-specific)
 config/secrets.ts
 
+# Custom branding assets
+public/logo.svg
+public/logo.png
+public/favicon.ico
+
 # Prisma
 prisma/*.db
 prisma/*.db-journal

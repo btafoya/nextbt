@@ -4,4 +4,6 @@ import { secrets } from "./secrets";
 export const publicConfig = {
   turnstileEnabled: secrets.turnstileEnabled,
   turnstileSiteKey: secrets.turnstileSiteKey,
+  siteName: secrets.siteName,
+  siteLogo: secrets.siteLogo,
 } as const;
