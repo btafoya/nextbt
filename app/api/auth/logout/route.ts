@@ -7,6 +7,7 @@ import { getIronSession } from "iron-session";
 import { SessionData, getSessionOptions } from "@/lib/session-config";
 import { logUserActivity, getClientIp, getUserAgent } from "@/lib/user-activity";
 import { secrets } from "@/config/secrets";
+import * as Sentry from "@sentry/nextjs";
 
 /**
  * Logout endpoint - destroys encrypted session and redirects to login
@@ -27,6 +28,9 @@ export async function POST(req: NextRequest) {
       userAgent: getUserAgent(req.headers),
     });
   }
+
+  // Clear Sentry user context
+  Sentry.setUser(null);
 
   // Destroy the encrypted session
   await session.destroy();
@@ -50,6 +54,9 @@ export async function GET(req: NextRequest) {
       userAgent: getUserAgent(req.headers),
     });
   }
+
+  // Clear Sentry user context
+  Sentry.setUser(null);
 
   // Destroy the encrypted session
   await session.destroy();

@@ -15,6 +15,7 @@ A modern, user-friendly web interface for MantisBT 2.x bug tracking systems. Nex
 - 🔔 **Advanced Notifications** - Multi-channel (Email, Push, Chat, Web Push), digest batching, history tracking, advanced filters, email audit logging
 - 🔌 **MCP Integration** - Model Context Protocol support for Claude Code remote server integration
 - 📚 **API Documentation** - Interactive OpenAPI 3.0 documentation with Swagger UI at `/api-docs`
+- 🐛 **Error Tracking** - Sentry/GlitchTip integration for error monitoring, performance tracking, and session replay
 - 🗃️ **Non-Destructive** - Reads/writes to existing MantisBT tables via Prisma ORM without schema changes
 - ✅ **Comprehensive Testing** - 40+ unit tests (Vitest) + 47 accessibility tests (Playwright)
 - ♿ **WCAG 2.1 AA Compliant** - Full accessibility testing with automated axe-core audits
@@ -33,6 +34,7 @@ A modern, user-friendly web interface for MantisBT 2.x bug tracking systems. Nex
 - **Testing**: Vitest + React Testing Library + Playwright (E2E & Accessibility)
 - **Accessibility**: axe-core + @axe-core/playwright for WCAG 2.1 AA compliance
 - **Notifications**: Postmark, Pushover, Rocket.Chat, Microsoft Teams, Web Push
+- **Error Tracking**: Sentry (@sentry/nextjs) with GlitchTip compatibility
 
 ## Prerequisites
 
@@ -91,6 +93,12 @@ export const secrets = {
   // Branding (customize these values)
   siteName: "Your Bug Tracker",  // Displayed on login page and sidebar
   siteLogo: "/logo.svg",          // Path to your custom logo
+
+  // Sentry Error Tracking (optional, GlitchTip compatible)
+  sentryDsn: "https://public_key@your-sentry-instance.com/project_id",
+  sentryOrg: "your-org-slug",
+  sentryProject: "your-project-slug",
+  sentryAuthToken: "", // Set in CI/CD for source map upload
 
   // ... other settings
 };
@@ -153,6 +161,30 @@ export const secrets = {
 };
 ```
 
+### Error Tracking
+
+Configure Sentry/GlitchTip for error monitoring and performance tracking:
+
+```typescript
+export const secrets = {
+  // ...
+  sentryDsn: "https://public_key@your-sentry-instance.com/project_id",
+  sentryOrg: "your-org-slug",
+  sentryProject: "your-project-slug",
+  sentryAuthToken: "" // Optional: Set in CI/CD for source map upload
+};
+```
+
+**Features**:
+- Automatic error tracking (client, server, edge runtimes)
+- User context tracking (set on login/logout)
+- Performance monitoring with traces
+- Session replay (10% sampling, 100% on errors)
+- Custom tags for projects/issues
+- Breadcrumb tracking for user actions
+
+See `claudedocs/SENTRY-INTEGRATION.md` for complete setup guide.
+
 ## Project Structure
 
 ```
@@ -180,6 +212,7 @@ export const secrets = {
 │   ├── session-config.ts    # iron-session configuration
 │   ├── api-docs.ts          # OpenAPI specification
 │   ├── mantis-enums.ts      # MantisBT enum helpers
+│   ├── sentry-context.ts    # Sentry tagging and context utilities
 │   ├── mcp/                 # MCP client library
 │   ├── ai/                  # AI integration (OpenRouter)
 │   └── notify/              # Notification system (14 modules)
@@ -200,8 +233,13 @@ export const secrets = {
 │   ├── lib/mcp/             # MCP client tests
 │   ├── app/api/mcp/         # MCP API integration tests
 │   └── [additional test suites]
+├── instrumentation.ts       # Server/Edge Sentry initialization
+├── instrumentation.client.ts # Client-side Sentry initialization
+├── sentry.server.config.ts  # Server Sentry configuration
+├── sentry.edge.config.ts    # Edge runtime Sentry configuration
 └── claudedocs/              # Comprehensive project documentation (20+ docs)
     ├── ACCESSIBILITY-TESTING-GUIDE.md
+    ├── SENTRY-INTEGRATION.md
     ├── CODE-ANALYSIS-REPORT.md
     ├── NOTIFICATION-IMPLEMENTATION-COMPLETE.md
     ├── NOTIFICATION-FEATURES-IMPLEMENTATION.md

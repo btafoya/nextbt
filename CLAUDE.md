@@ -11,7 +11,7 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 - **Markdown**: GitHub Flavored Markdown rendering with react-markdown, remark-gfm, remark-breaks, @tailwindcss/typography
 - **Core Purpose**: Simplified UI for existing MantisBT 2.x bug tracking system
 - **Database Approach**: Read/write to existing MantisBT schema via Prisma (non-destructive, uses `@@map`/`@map`)
-- **Key Integration**: TipTap WYSIWYG editor with AI assist (OpenRouter), MCP (Model Context Protocol) for Claude Code, multi-channel notifications (Postmark, Pushover, Rocket.Chat, Teams, Web Push)
+- **Key Integration**: TipTap WYSIWYG editor with AI assist (OpenRouter), MCP (Model Context Protocol) for Claude Code, multi-channel notifications (Postmark, Pushover, Rocket.Chat, Teams, Web Push), Sentry error tracking (GlitchTip)
 - **Platform**: Web application interfacing with existing MantisBT MySQL database
 - **DO NOT**: Modify MantisBT schema directly, rename existing database tables, create destructive migrations, use .env files (use `/config/*.ts` instead)
 
@@ -32,6 +32,7 @@ Complete design documentation available:
 - **claudedocs/API-DOCUMENTATION-IMPLEMENTATION.md** - OpenAPI 3.0 and Swagger UI implementation guide
 - **claudedocs/email-audit-implementation.md** - Email delivery audit system implementation
 - **claudedocs/bug-history-implementation.md** - Bug history tracking implementation
+- **claudedocs/SENTRY-INTEGRATION.md** - Sentry/GlitchTip error tracking integration guide
 
 ## Development Commands
 

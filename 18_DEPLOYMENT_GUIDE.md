@@ -9,6 +9,7 @@
 
 ### External Services (Optional but Recommended)
 - **OpenRouter**: AI assistant integration (API key required)
+- **Sentry/GlitchTip**: Error tracking and performance monitoring (DSN required)
 - **Postmark**: Email notifications (server token required)
 - **Pushover**: Mobile push notifications (API token + user key)
 - **Rocket.Chat**: Team chat integration (incoming webhook URL)
@@ -62,7 +63,13 @@ export const secrets = {
   // OPTIONAL: Web push notifications
   vapidPublicKey: "BM...",
   vapidPrivateKey: "x...",
-  vapidSubject: "mailto:admin@yourdomain.com"
+  vapidSubject: "mailto:admin@yourdomain.com",
+
+  // OPTIONAL: Error tracking (Sentry/GlitchTip)
+  sentryDsn: "https://public_key@your-sentry-instance.com/project_id",
+  sentryOrg: "your-org-slug",
+  sentryProject: "your-project-slug",
+  sentryAuthToken: "" // Set in CI/CD for source map upload
 } as const;
 ```
 
@@ -159,6 +166,7 @@ Application will be available at `http://localhost:3000`
 - Consider using connection pooling (PlanetScale, Supabase, or MySQL Proxy)
 - Secrets in `/config/secrets.ts` are baked into the build
 - For truly environment-specific secrets, use Vercel environment variables
+- **Sentry Source Maps**: Set `SENTRY_AUTH_TOKEN` in Vercel environment variables for automatic source map upload during builds
 
 ### Option 2: Docker (Self-Hosted)
 

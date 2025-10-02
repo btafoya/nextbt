@@ -53,6 +53,11 @@ export const secrets = {
   // Branding
   siteName: "Issue Tracker", // Site name displayed on login page and header
   siteLogo: "/logo.svg", // Path to logo image (relative to public folder, or full URL)
+  // Sentry Error Tracking (GlitchTip compatible)
+  sentryDsn: "https://public_key@your-glitchtip-instance.com/project_id",
+  sentryOrg: "your-org-slug",
+  sentryProject: "your-project-slug",
+  sentryAuthToken: "", // Optional: For source map upload (set in CI/CD only)
   // Logging
   enableLogging: true, // Set to false in production to disable console logging
 } as const;

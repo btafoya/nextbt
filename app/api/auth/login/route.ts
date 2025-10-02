@@ -14,6 +14,7 @@ import {
   createSessionData
 } from "@/lib/session-config";
 import { logUserActivity, getClientIp, getUserAgent } from "@/lib/user-activity";
+import * as Sentry from "@sentry/nextjs";
 
 export async function POST(req: Request) {
   const { username, password, turnstileToken } = await req.json();
@@ -123,6 +124,17 @@ export async function POST(req: Request) {
     ipAddress,
     userAgent,
   });
+
+  // Set Sentry user context for error tracking
+  Sentry.setUser({
+    id: user.id.toString(),
+    username: user.username,
+    email: user.email,
+  });
+
+  // Add custom tags for tracking
+  Sentry.setTag("access_level", user.access_level.toString());
+  Sentry.setTag("project_count", projects.length.toString());
 
   return NextResponse.json({ ok: true });
 }
