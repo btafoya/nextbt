@@ -66,7 +66,7 @@ export default function HistoryLog() {
 
   useEffect(() => {
     fetchHistory();
-  }, [page, bugIdFilter, userIdFilter, fieldNameFilter, sortBy, sortOrder]);
+  }, [page, sortBy, sortOrder]);
 
   async function fetchHistory() {
     try {
@@ -79,7 +79,7 @@ export default function HistoryLog() {
       });
 
       if (bugIdFilter) params.append("bug_id", bugIdFilter);
-      if (userIdFilter) params.append("user_id", userIdFilter);
+      if (userIdFilter) params.append("username", userIdFilter);
       if (fieldNameFilter) params.append("field_name", fieldNameFilter);
 
       const res = await fetch(`/api/history?${params}`);
@@ -255,11 +255,11 @@ export default function HistoryLog() {
           </div>
           <div>
             <label className="mb-2.5 block text-sm font-medium text-black dark:text-white">
-              User ID
+              Username
             </label>
             <input
               type="text"
-              placeholder="Filter by user ID"
+              placeholder="Filter by username"
               value={userIdFilter}
               onChange={(e) => setUserIdFilter(e.target.value)}
               className="w-full rounded border-[1.5px] border-stroke bg-transparent px-5 py-3 text-black outline-none transition focus:border-primary active:border-primary disabled:cursor-default disabled:bg-whiter dark:border-form-strokedark dark:bg-form-input dark:text-white dark:focus:border-primary"
@@ -353,7 +353,7 @@ export default function HistoryLog() {
               </tr>
             ) : (
               history.map((entry) => (
-                <tr key={entry.id} className="border-b border-stroke dark:border-strokedark">
+                <tr key={`${entry.source}-${entry.id}`} className="border-b border-stroke dark:border-strokedark">
                   <td className="px-4 py-5 dark:text-white">
                     <div className="text-sm">{formatDate(entry.date_modified)}</div>
                   </td>

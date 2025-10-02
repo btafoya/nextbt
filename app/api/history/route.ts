@@ -37,6 +37,7 @@ export async function GET(req: Request) {
     const limit = parseInt(searchParams.get("limit") || "50", 10);
     const bugId = searchParams.get("bug_id");
     const userId = searchParams.get("user_id");
+    const username = searchParams.get("username");
     const fieldName = searchParams.get("field_name");
     const source = searchParams.get("source"); // "bug_history" or "email_audit"
 
@@ -53,6 +54,31 @@ export async function GET(req: Request) {
     const conditions: string[] = [];
     const whereParams: any[] = [];
 
+    // First, get user IDs if searching by username
+    let userIdsFromUsername: number[] = [];
+    if (username) {
+      const users = await prisma.mantis_user_table.findMany({
+        where: {
+          username: username,
+        },
+        select: { id: true },
+      });
+      userIdsFromUsername = users.map((u) => u.id);
+
+      // If no users found, return empty result
+      if (userIdsFromUsername.length === 0) {
+        return NextResponse.json({
+          data: [],
+          pagination: {
+            page,
+            limit,
+            total: 0,
+            totalPages: 0,
+          },
+        });
+      }
+    }
+
     if (bugId) {
       conditions.push("bug_id = ?");
       whereParams.push(parseInt(bugId, 10));
@@ -60,6 +86,9 @@ export async function GET(req: Request) {
     if (userId) {
       conditions.push("user_id = ?");
       whereParams.push(parseInt(userId, 10));
+    }
+    if (username && userIdsFromUsername.length > 0) {
+      conditions.push(`user_id IN (${userIdsFromUsername.join(',')})`);
     }
 
     const whereClause = conditions.length > 0 ? `WHERE ${conditions.join(" AND ")}` : "";
