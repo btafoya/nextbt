@@ -38,15 +38,15 @@ export async function GET(req: Request) {
 
     // Build where conditions for SQL
     const conditions: string[] = [];
-    const params: any[] = [];
+    const whereParams: any[] = [];
 
     if (bugId) {
       conditions.push("bug_id = ?");
-      params.push(parseInt(bugId, 10));
+      whereParams.push(parseInt(bugId, 10));
     }
     if (userId) {
       conditions.push("user_id = ?");
-      params.push(parseInt(userId, 10));
+      whereParams.push(parseInt(userId, 10));
     }
 
     const whereClause = conditions.length > 0 ? `WHERE ${conditions.join(" AND ")}` : "";
@@ -98,10 +98,14 @@ export async function GET(req: Request) {
       LIMIT ? OFFSET ?
     `;
 
-    if (fieldName) {
-      params.push(fieldName);
-    }
-    params.push(limit, offset);
+    // Build params array: whereParams for first query + fieldName (if set) + whereParams for second query + limit + offset
+    const params: any[] = [
+      ...whereParams,
+      ...(fieldName ? [fieldName] : []),
+      ...whereParams,
+      limit,
+      offset
+    ];
 
     // Execute the UNION query
     const history = await prisma.$queryRawUnsafe<UnifiedHistoryEntry[]>(
@@ -118,7 +122,12 @@ export async function GET(req: Request) {
       ) as combined
     `;
 
-    const countParams = [...params.slice(0, -2)]; // Remove limit and offset
+    // Build count params: whereParams for first query + fieldName (if set) + whereParams for second query
+    const countParams = [
+      ...whereParams,
+      ...(fieldName ? [fieldName] : []),
+      ...whereParams
+    ];
     const countResult = await prisma.$queryRawUnsafe<[{ total: bigint }]>(
       countQuery,
       ...countParams
