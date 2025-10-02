@@ -142,7 +142,7 @@ describe("getNotificationRecipients", () => {
 
     expect(result).toHaveLength(1);
     expect(result[0].willReceive).toBe(false);
-    expect(result[0].reason).toContain("Severity below threshold");
+    expect(result[0].reason).toBe("Severity 30 below threshold 50");
   });
 
   it("should identify reporter correctly", async () => {
