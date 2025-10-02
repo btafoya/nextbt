@@ -20,6 +20,7 @@ export const secrets = {
   // Email (Postmark)
   postmarkEnabled: false,
   postmarkServerToken: "POSTMARK_SERVER_TOKEN",
+  postmarkChannel: "outbound", // Message Stream ID (e.g., "outbound", "issues", "broadcasts")
   fromEmail: "support@example.com",
   fromName: "Issue Tracker",
   messsageSubjectPrepend: "Issue Tracker",
