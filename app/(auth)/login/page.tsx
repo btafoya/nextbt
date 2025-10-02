@@ -4,6 +4,7 @@
 import React, { useState, useEffect, useRef, Suspense } from "react";
 import { useRouter, useSearchParams } from "next/navigation";
 import Script from "next/script";
+import Image from "next/image";
 import { publicConfig } from "@/config/public";
 
 declare global {
@@ -89,10 +90,13 @@ function LoginForm() {
         <form onSubmit={submit} className="bg-white dark:bg-boxdark p-6 rounded shadow w-full max-w-sm space-y-3">
           <div className="flex flex-col items-center mb-4">
             {publicConfig.siteLogo && (
-              <img
+              <Image
                 src={publicConfig.siteLogo}
                 alt={publicConfig.siteName}
-                className="h-16 w-auto mb-3"
+                width={64}
+                height={64}
+                className="mb-3"
+                priority
               />
             )}
             <h1 className="text-xl font-semibold text-gray-900 dark:text-white text-center">

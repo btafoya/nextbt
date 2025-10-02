@@ -157,6 +157,7 @@ export default function HtmlContent({ html }: HtmlContentProps) {
               return (
                 <img
                   {...props}
+                  alt={props.alt || "Image"}
                   onClick={handleClick}
                   style={{ cursor: 'pointer' }}
                   title="Click to expand"

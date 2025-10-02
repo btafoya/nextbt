@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useRef, useEffect } from "react";
+import { useState, useRef, useEffect, useCallback } from "react";
 import { logger } from "@/lib/logger";
 
 interface Message {
@@ -134,6 +134,7 @@ export default function WriterChat({
 
       processAction();
     }
+  // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [
     initialAction,
     isOpen,
@@ -145,7 +146,7 @@ export default function WriterChat({
   ]);
 
   // Helper function to send with a specific prompt
-  const handleSendWithPrompt = async (promptText: string) => {
+  const handleSendWithPrompt = useCallback(async (promptText: string) => {
     if (!promptText.trim() || isLoading) return;
 
     const userMessage: Message = {
@@ -234,7 +235,7 @@ export default function WriterChat({
     } finally {
       setIsLoading(false);
     }
-  };
+  }, [messages, docType, docId, fieldKey, projectName, issueCategory, selectedText, isLoading]);
 
   const handleSend = async () => {
     handleSendWithPrompt(input);

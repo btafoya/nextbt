@@ -1,5 +1,6 @@
 "use client";
 import Link from "next/link";
+import Image from "next/image";
 import { usePathname } from "next/navigation";
 import { ThemeToggle } from "@/components/ThemeToggle";
 import { publicConfig } from "@/config/public";
@@ -36,10 +37,12 @@ export function Sidebar({ session }: SidebarProps) {
     <aside className="sidebar">
       <div className="px-6 py-4 flex items-center gap-3">
         {publicConfig.siteLogo && (
-          <img
+          <Image
             src={publicConfig.siteLogo}
             alt={publicConfig.siteName}
-            className="h-8 w-auto"
+            width={32}
+            height={32}
+            priority
           />
         )}
         <h2 className="text-xl font-bold text-blue-600 dark:text-blue-400">
