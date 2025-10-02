@@ -8,7 +8,7 @@ import { logger } from "@/lib/logger";
 
 interface UnifiedHistoryEntry {
   id: number;
-  source: "bug_history" | "email_audit";
+  source: "bug_history" | "notification_history";
   user_id: number;
   bug_id: number;
   field_name: string;
@@ -16,7 +16,7 @@ interface UnifiedHistoryEntry {
   new_value: string;
   type: number;
   date_modified: number;
-  // Email audit specific fields
+  // Notification history specific fields
   recipient?: string;
   subject?: string;
   channel?: string;
@@ -78,20 +78,20 @@ export async function GET(req: Request) {
 
       SELECT
         id,
-        'email_audit' as source,
+        'notification_history' as source,
         user_id,
         bug_id,
-        'email_notification' as field_name,
+        event_type as field_name,
         '' as old_value,
-        recipient as new_value,
+        subject as new_value,
         0 as type,
         date_sent as date_modified,
-        recipient,
+        NULL as recipient,
         subject,
-        channel,
-        status,
-        error_message
-      FROM mantis_email_audit_table
+        JSON_UNQUOTE(JSON_EXTRACT(channels_sent, '$[0]')) as channel,
+        CASE WHEN read_status = 1 THEN 'read' ELSE 'unread' END as status,
+        NULL as error_message
+      FROM mantis_notification_history_table
       ${whereClause}
 
       ORDER BY date_modified DESC
@@ -118,7 +118,7 @@ export async function GET(req: Request) {
       SELECT COUNT(*) as total FROM (
         SELECT id FROM mantis_bug_history_table ${whereClause} ${fieldName ? (whereClause ? "AND" : "WHERE") + " field_name = ?" : ""}
         UNION ALL
-        SELECT id FROM mantis_email_audit_table ${whereClause}
+        SELECT id FROM mantis_notification_history_table ${whereClause}
       ) as combined
     `;
 

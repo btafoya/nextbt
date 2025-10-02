@@ -6,7 +6,7 @@ import Link from "next/link";
 
 interface HistoryEntry {
   id: number;
-  source: "bug_history" | "email_audit";
+  source: "bug_history" | "notification_history";
   user_id: number;
   bug_id: number;
   field_name: string;
@@ -14,7 +14,7 @@ interface HistoryEntry {
   new_value: string;
   type: number;
   date_modified: number;
-  // Email audit specific fields
+  // Notification history specific fields
   recipient?: string;
   subject?: string;
   channel?: string;
@@ -97,12 +97,16 @@ export default function HistoryLog() {
   }
 
   function getSourceBadgeColor(source: string): string {
-    return source === "email_audit" ? "bg-blue-500" : "bg-success";
+    return source === "notification_history" ? "bg-blue-500" : "bg-success";
   }
 
   function getStatusBadgeColor(status: string | undefined): string {
     if (!status) return "bg-gray-500";
     switch (status) {
+      case "read":
+        return "bg-green-500";
+      case "unread":
+        return "bg-yellow-500";
       case "success":
         return "bg-green-500";
       case "failed":
@@ -266,7 +270,7 @@ export default function HistoryLog() {
                       <span className={`inline-flex rounded-full bg-opacity-10 px-3 py-1 text-sm font-medium ${getSourceBadgeColor(entry.source)} text-white dark:bg-opacity-20`}>
                         {formatFieldName(entry.field_name)}
                       </span>
-                      {entry.source === "email_audit" && entry.channel && (
+                      {entry.source === "notification_history" && entry.channel && (
                         <span className="text-xs text-gray-500 dark:text-gray-400">
                           via {entry.channel}
                         </span>
@@ -275,7 +279,7 @@ export default function HistoryLog() {
                   </td>
                   <td className="px-4 py-5 dark:text-white">
                     <div className="max-w-[200px] truncate text-sm">
-                      {entry.source === "email_audit" ? (
+                      {entry.source === "notification_history" ? (
                         <span className="text-gray-400 dark:text-gray-500">—</span>
                       ) : (
                         entry.old_value || <span className="text-gray-400 dark:text-gray-500">—</span>
@@ -287,12 +291,12 @@ export default function HistoryLog() {
                       <div className="max-w-[200px] truncate text-sm">
                         {entry.new_value || <span className="text-gray-400 dark:text-gray-500">—</span>}
                       </div>
-                      {entry.source === "email_audit" && entry.status && (
+                      {entry.source === "notification_history" && entry.status && (
                         <span className={`inline-flex rounded-full px-2 py-0.5 text-xs font-medium text-white ${getStatusBadgeColor(entry.status)}`}>
                           {entry.status}
                         </span>
                       )}
-                      {entry.source === "email_audit" && entry.error_message && (
+                      {entry.source === "notification_history" && entry.error_message && (
                         <span className="text-xs text-red-500 dark:text-red-400 truncate max-w-[200px]" title={entry.error_message}>
                           Error: {entry.error_message}
                         </span>
@@ -302,7 +306,7 @@ export default function HistoryLog() {
                   <td className="px-4 py-5 dark:text-white">
                     {entry.source === "bug_history" ? entry.type : (
                       <span className="inline-flex rounded-full bg-blue-100 px-2 py-1 text-xs font-medium text-blue-800 dark:bg-blue-900 dark:text-blue-200">
-                        Email
+                        Notification
                       </span>
                     )}
                   </td>
