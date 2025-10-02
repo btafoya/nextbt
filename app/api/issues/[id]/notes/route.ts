@@ -88,6 +88,20 @@ export async function POST(req: Request, { params }: Ctx) {
     data: { last_updated: Math.floor(Date.now() / 1000) }
   });
 
+  // Log to history
+  const timestamp = Math.floor(Date.now() / 1000);
+  await prisma.mantis_bug_history_table.create({
+    data: {
+      user_id: session.uid,
+      bug_id: bugId,
+      field_name: "bugnote_added",
+      old_value: "",
+      new_value: String(bn.id),
+      type: 0,
+      date_modified: timestamp
+    }
+  });
+
   // Send notifications for note creation
   await notifyIssueAction({
     issueId: issue.id,

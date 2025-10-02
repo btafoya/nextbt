@@ -17,15 +17,15 @@ interface UnifiedHistoryEntry {
   type: number;
   date_modified: number;
   // Notification history specific fields
-  recipient?: string;
-  subject?: string;
-  channel?: string;
-  status?: string;
-  error_message?: string;
+  recipient?: string | null;
+  subject?: string | null;
+  channel?: string | null;
+  status?: string | null;
+  error_message?: string | null;
   // User activity specific fields
-  description?: string;
-  ip_address?: string;
-  user_agent?: string;
+  description?: string | null;
+  ip_address?: string | null;
+  user_agent?: string | null;
 }
 
 export async function GET(req: Request) {

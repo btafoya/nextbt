@@ -66,6 +66,89 @@ export async function PATCH(req: Request, { params }: Ctx) {
     data: updateData
   });
 
+  // Log history for each changed field
+  const timestamp = Math.floor(Date.now() / 1000);
+  const historyEntries: any[] = [];
+
+  if (body.status !== undefined && body.status !== row.status) {
+    historyEntries.push({
+      user_id: session.uid,
+      bug_id: id,
+      field_name: "status",
+      old_value: String(row.status),
+      new_value: String(body.status),
+      type: 0,
+      date_modified: timestamp
+    });
+  }
+
+  if (body.priority !== undefined && body.priority !== row.priority) {
+    historyEntries.push({
+      user_id: session.uid,
+      bug_id: id,
+      field_name: "priority",
+      old_value: String(row.priority),
+      new_value: String(body.priority),
+      type: 0,
+      date_modified: timestamp
+    });
+  }
+
+  if (body.severity !== undefined && body.severity !== row.severity) {
+    historyEntries.push({
+      user_id: session.uid,
+      bug_id: id,
+      field_name: "severity",
+      old_value: String(row.severity),
+      new_value: String(body.severity),
+      type: 0,
+      date_modified: timestamp
+    });
+  }
+
+  if (body.handler_id !== undefined && body.handler_id !== row.handler_id) {
+    historyEntries.push({
+      user_id: session.uid,
+      bug_id: id,
+      field_name: "handler_id",
+      old_value: String(row.handler_id),
+      new_value: String(body.handler_id || 0),
+      type: 0,
+      date_modified: timestamp
+    });
+  }
+
+  if (body.summary !== undefined && body.summary !== row.summary) {
+    historyEntries.push({
+      user_id: session.uid,
+      bug_id: id,
+      field_name: "summary",
+      old_value: row.summary,
+      new_value: body.summary,
+      type: 0,
+      date_modified: timestamp
+    });
+  }
+
+  if (body.reproducibility !== undefined && body.reproducibility !== row.reproducibility) {
+    historyEntries.push({
+      user_id: session.uid,
+      bug_id: id,
+      field_name: "reproducibility",
+      old_value: String(row.reproducibility),
+      new_value: String(body.reproducibility),
+      type: 0,
+      date_modified: timestamp
+    });
+  }
+
+  // Write history entries to database
+  if (historyEntries.length > 0) {
+    await prisma.mantis_bug_history_table.createMany({
+      data: historyEntries
+    });
+  }
+
   // Detect what changed for notification
   let changes: string | undefined;
   let action: "updated" | "status_changed" | "assigned" = "updated";

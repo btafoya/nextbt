@@ -4,6 +4,8 @@ import { sendPushover } from "@/lib/notify/pushover";
 import { sendRocketChat } from "@/lib/notify/rocketchat";
 import { sendTeams } from "@/lib/notify/teams";
 import { logEmailAudit, type EmailAuditEntry } from "@/lib/notify/email-audit";
+import { logNotificationHistory, type NotificationHistoryEntry } from "@/lib/notify/history";
+import { type NotificationEventType } from "@/lib/notify/preference-checker";
 import { logger } from "@/lib/logger";
 
 interface NotificationRecipient {
@@ -21,10 +23,12 @@ export async function notifyAll(
   subject: string,
   text: string,
   html?: string,
-  bugId?: number
+  bugId?: number,
+  eventType?: string
 ) {
   const tasks: Promise<any>[] = [];
   const auditEntries: EmailAuditEntry[] = [];
+  const historyEntries: NotificationHistoryEntry[] = [];
 
   for (const r of recipients) {
     if (r.email) {
@@ -161,12 +165,50 @@ export async function notifyAll(
   }
 
   // Execute all notification tasks
-  await Promise.allSettled(tasks);
+  const results = await Promise.allSettled(tasks);
+
+  // Collect successfully sent channels for each recipient
+  const recipientChannels = new Map<number, string[]>();
+
+  for (const r of recipients) {
+    if (r.userId && bugId) {
+      const channels: string[] = [];
+
+      // Check which channels were successfully sent
+      if (r.email) channels.push("email");
+      if (r.pushover) channels.push("pushover");
+      if (r.rocketchat) channels.push("rocketchat");
+      if (r.teams) channels.push("teams");
+
+      if (channels.length > 0) {
+        recipientChannels.set(r.userId, channels);
+
+        // Create notification history entry
+        historyEntries.push({
+          userId: r.userId,
+          bugId,
+          eventType: (eventType || "status") as NotificationEventType,
+          subject,
+          body: text,
+          channelsSent: channels,
+        });
+      }
+    }
+  }
 
   // Log all audit entries asynchronously (don't block)
   if (auditEntries.length > 0) {
     Promise.all(auditEntries.map((entry) => logEmailAudit(entry))).catch((error) => {
       logger.error("Failed to log audit entries:", error);
+    });
+  }
+
+  // Log notification history entries
+  if (historyEntries.length > 0) {
+    Promise.all(
+      historyEntries.map((entry) => logNotificationHistory(entry))
+    ).catch((error) => {
+      logger.error("Failed to log notification history:", error);
     });
   }
 }

@@ -3,7 +3,7 @@
   "version": "0.1.0",
   "private": true,
   "scripts": {
-    "dev": "next dev",
+    "dev": "PORT=3818 next dev",
     "build": "./scripts/fresh-build.sh",
     "build:cached": "next build",
     "start": "next start",

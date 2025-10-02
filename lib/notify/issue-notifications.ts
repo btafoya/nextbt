@@ -6,6 +6,7 @@ import { sendEmail } from "@/lib/notify/postmark";
 import { sendPushover } from "@/lib/notify/pushover";
 import { sendRocketChat } from "@/lib/notify/rocketchat";
 import { sendTeams } from "@/lib/notify/teams";
+import { logNotificationHistory } from "@/lib/notify/history";
 import { logger } from "@/lib/logger";
 import {
   filterNotificationRecipients,
@@ -241,7 +242,38 @@ export async function notifyIssueAction(ctx: NotificationContext, baseUrl: strin
 
     await Promise.allSettled(otherTasks);
 
-    logger.log(`Sent notifications for issue #${ctx.issueId} to ${users.length} users`);
+    // Log notification history for all recipients
+    if (recipientUsers.length > 0) {
+      logger.log(`Logging notification history for ${recipientUsers.length} recipients`);
+
+      const historyPromises = recipientUsers.map((user) => {
+        const channels: string[] = [];
+        if (secrets.postmarkEnabled && user.email) channels.push("email");
+        if (secrets.pushoverEnabled) channels.push("pushover");
+        if (secrets.rocketchatEnabled) channels.push("rocketchat");
+        if (secrets.teamsEnabled) channels.push("teams");
+
+        logger.log(`Logging history for user ${user.id}, bug #${ctx.issueId}, channels: ${channels.join(", ")}`);
+
+        return logNotificationHistory({
+          userId: user.id,
+          bugId: ctx.issueId,
+          eventType,
+          subject,
+          body: textNotification,
+          channelsSent: channels,
+        }).then((historyId) => {
+          logger.log(`Logged notification history ${historyId} for user ${user.id}`);
+        }).catch((err) => {
+          logger.error(`Failed to log notification history for user ${user.id}:`, err);
+        });
+      });
+
+      await Promise.allSettled(historyPromises);
+      logger.log(`Completed logging notification history for ${recipientUsers.length} recipients`);
+    }
+
+    logger.log(`Sent notifications for issue #${ctx.issueId} to ${recipientUsers.length} users`);
   } catch (error) {
     logger.error('Error sending issue notifications:', error);
   }

@@ -56,16 +56,14 @@ export async function POST(req: Request) {
   const userAgent = getUserAgent(req.headers);
 
   if (!user) {
-    // Log failed login attempt
-    if (user) {
-      await logUserActivity({
-        userId: user.id,
-        actionType: "login_failed",
-        description: `Failed login attempt for user: ${username}`,
-        ipAddress,
-        userAgent,
-      });
-    }
+    // Log failed login attempt for non-existent user
+    await logUserActivity({
+      userId: 0,
+      actionType: "login_failed",
+      description: `Failed login attempt for non-existent user: ${username}`,
+      ipAddress,
+      userAgent,
+    });
     return NextResponse.json({ ok: false }, { status: 401 });
   }
 

@@ -5,6 +5,7 @@ import { NextResponse } from "next/server";
 import { requireSession } from "@/lib/auth";
 import { prisma } from "@/db/client";
 import { logger } from "@/lib/logger";
+import { logUserActivity, getClientIp, getUserAgent } from "@/lib/user-activity";
 
 /**
  * GET /api/profile
@@ -59,6 +60,12 @@ export async function PUT(req: Request) {
       );
     }
 
+    // Get current user data for comparison
+    const currentUser = await prisma.mantis_user_table.findUnique({
+      where: { id: session.uid },
+      select: { realname: true, email: true },
+    });
+
     // Update user profile
     const updated = await prisma.mantis_user_table.update({
       where: { id: session.uid },
@@ -74,7 +81,41 @@ export async function PUT(req: Request) {
       }
     });
 
-    logger.info(`User ${session.username} updated profile`);
+    // Log profile changes
+    const changes: string[] = [];
+
+    if (currentUser) {
+      if (currentUser.realname !== (realname || "")) {
+        changes.push("realname");
+        await logUserActivity({
+          userId: session.uid,
+          actionType: "profile_update",
+          description: `Updated real name`,
+          oldValue: currentUser.realname,
+          newValue: realname || "",
+          ipAddress: getClientIp(req.headers),
+          userAgent: getUserAgent(req.headers),
+        });
+      }
+
+      if (currentUser.email !== (email || "")) {
+        changes.push("email");
+        await logUserActivity({
+          userId: session.uid,
+          actionType: "email_change",
+          description: `Updated email address`,
+          oldValue: currentUser.email,
+          newValue: email || "",
+          ipAddress: getClientIp(req.headers),
+          userAgent: getUserAgent(req.headers),
+        });
+      }
+    }
+
+    if (changes.length > 0) {
+      logger.info(`User ${session.username} updated profile: ${changes.join(", ")}`);
+    }
+
     return NextResponse.json(updated);
   } catch (err) {
     logger.error("Update profile error:", err);
