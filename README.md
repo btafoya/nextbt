@@ -2,6 +2,8 @@
 
 A modern, user-friendly web interface for MantisBT 2.x bug tracking systems. NextBT provides a simplified, non-technical UI built with Next.js 14, connecting directly to your existing MantisBT MySQL database without requiring schema modifications.
 
+![NextBT Screenshot](readme-assets/NextJS-Bug-Tracker.png)
+
 [![Build and Test](https://github.com/btafoya/nextbt/actions/workflows/build-test.yml/badge.svg)](https://github.com/btafoya/nextbt/actions/workflows/build-test.yml)
 [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
 
