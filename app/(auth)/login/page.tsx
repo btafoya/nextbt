@@ -1,8 +1,8 @@
 // /app/(auth)/login/page.tsx
 "use client";
 
-import React, { useState, useEffect, useRef } from "react";
-import { useRouter } from "next/navigation";
+import React, { useState, useEffect, useRef, Suspense } from "react";
+import { useRouter, useSearchParams } from "next/navigation";
 import Script from "next/script";
 import { publicConfig } from "@/config/public";
 
@@ -21,7 +21,7 @@ declare global {
   }
 }
 
-export default function LoginPage() {
+function LoginForm() {
   const [username, setUsername] = useState("");
   const [password, setPassword] = useState("");
   const [error, setError] = useState("");
@@ -30,6 +30,8 @@ export default function LoginPage() {
   const turnstileRef = useRef<HTMLDivElement>(null);
   const widgetIdRef = useRef<string>("");
   const router = useRouter();
+  const searchParams = useSearchParams();
+  const returnUrl = searchParams.get("returnUrl") || "/";
 
   useEffect(() => {
     if (publicConfig.turnstileEnabled && turnstileLoaded && turnstileRef.current && !widgetIdRef.current) {
@@ -62,7 +64,7 @@ export default function LoginPage() {
     });
 
     if (res.ok) {
-      router.push("/");
+      router.push(returnUrl);
     } else {
       const data = await res.json();
       setError(data.error || "Invalid credentials");
@@ -115,5 +117,19 @@ export default function LoginPage() {
         </form>
       </main>
     </>
+  );
+}
+
+export default function LoginPage() {
+  return (
+    <Suspense fallback={
+      <main className="min-h-screen flex items-center justify-center bg-gray-50">
+        <div className="bg-white p-6 rounded shadow w-full max-w-sm">
+          <p className="text-center">Loading...</p>
+        </div>
+      </main>
+    }>
+      <LoginForm />
+    </Suspense>
   );
 }

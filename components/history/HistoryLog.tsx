@@ -391,9 +391,13 @@ export default function HistoryLog() {
                   </td>
                   <td className="px-4 py-5 dark:text-white">
                     <div className="flex flex-col gap-1">
-                      <span className={`inline-flex rounded-full px-3 py-1 text-sm font-medium ${getFieldBadgeColor(entry.field_name, entry.source)} text-white`}>
-                        {formatFieldName(entry.field_name)}
-                      </span>
+                      {entry.field_name ? (
+                        <span className={`inline-flex rounded-full px-3 py-1 text-sm font-medium ${getFieldBadgeColor(entry.field_name, entry.source)} text-white`}>
+                          {formatFieldName(entry.field_name)}
+                        </span>
+                      ) : (
+                        <span className="text-gray-500 dark:text-gray-400">Empty</span>
+                      )}
                       {entry.source === "notification_history" && entry.channel && (
                         <span className="text-xs text-gray-600 dark:text-gray-300">
                           via {entry.channel}

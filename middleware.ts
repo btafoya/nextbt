@@ -32,6 +32,7 @@ export async function middleware(req: NextRequest) {
     // No session data
     if (!session.uid) {
       const loginUrl = new URL("/login", req.url);
+      loginUrl.searchParams.set("returnUrl", req.nextUrl.pathname + req.nextUrl.search);
       return NextResponse.redirect(loginUrl);
     }
 
@@ -39,6 +40,7 @@ export async function middleware(req: NextRequest) {
     if (isSessionExpired(session)) {
       await session.destroy();
       const loginUrl = new URL("/login", req.url);
+      loginUrl.searchParams.set("returnUrl", req.nextUrl.pathname + req.nextUrl.search);
       return NextResponse.redirect(loginUrl);
     }
 
