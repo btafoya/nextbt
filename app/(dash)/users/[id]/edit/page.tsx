@@ -11,7 +11,7 @@ export const revalidate = 0
 
 async function getUser(id: number) {
   try {
-    requireAdmin();
+    await requireAdmin();
 
     const user = await prisma.mantis_user_table.findUnique({
       where: { id },

@@ -12,7 +12,7 @@ export const revalidate = 0
 
 async function getUsers() {
   try {
-    requireAdmin();
+    await requireAdmin();
 
     const users = await prisma.mantis_user_table.findMany({
       select: {

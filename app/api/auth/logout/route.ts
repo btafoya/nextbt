@@ -6,6 +6,7 @@ import { cookies } from "next/headers";
 import { getIronSession } from "iron-session";
 import { SessionData, getSessionOptions } from "@/lib/session-config";
 import { logUserActivity, getClientIp, getUserAgent } from "@/lib/user-activity";
+import { secrets } from "@/config/secrets";
 
 /**
  * Logout endpoint - destroys encrypted session and redirects to login
@@ -30,8 +31,8 @@ export async function POST(req: NextRequest) {
   // Destroy the encrypted session
   await session.destroy();
 
-  // Use the request URL to ensure we redirect to the correct domain
-  const loginUrl = new URL("/login", req.url);
+  // Use the configured baseUrl to ensure we redirect to the correct domain
+  const loginUrl = new URL("/login", secrets.baseUrl);
   return NextResponse.redirect(loginUrl);
 }
 
@@ -53,7 +54,7 @@ export async function GET(req: NextRequest) {
   // Destroy the encrypted session
   await session.destroy();
 
-  // Use the request URL to ensure we redirect to the correct domain
-  const loginUrl = new URL("/login", req.url);
+  // Use the configured baseUrl to ensure we redirect to the correct domain
+  const loginUrl = new URL("/login", secrets.baseUrl);
   return NextResponse.redirect(loginUrl);
 }

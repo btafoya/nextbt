@@ -9,6 +9,7 @@ import {
   updateSessionActivity,
   SESSION_CONFIG
 } from "./lib/session-config";
+import { secrets } from "./config/secrets";
 
 /**
  * Middleware for protecting dashboard routes and validating sessions
@@ -31,7 +32,7 @@ export async function middleware(req: NextRequest) {
 
     // No session data
     if (!session.uid) {
-      const loginUrl = new URL("/login", req.url);
+      const loginUrl = new URL("/login", secrets.baseUrl);
       loginUrl.searchParams.set("returnUrl", req.nextUrl.pathname + req.nextUrl.search);
       return NextResponse.redirect(loginUrl);
     }
@@ -39,7 +40,7 @@ export async function middleware(req: NextRequest) {
     // Check session expiration
     if (isSessionExpired(session)) {
       await session.destroy();
-      const loginUrl = new URL("/login", req.url);
+      const loginUrl = new URL("/login", secrets.baseUrl);
       loginUrl.searchParams.set("returnUrl", req.nextUrl.pathname + req.nextUrl.search);
       return NextResponse.redirect(loginUrl);
     }
@@ -56,5 +57,16 @@ export async function middleware(req: NextRequest) {
 }
 
 export const config = {
-  matcher: ["/((?!_next|api/auth/login|api/auth/logout|public|favicon.ico).*)"],
+  matcher: [
+    /*
+     * Match all request paths except:
+     * - _next/static (static files)
+     * - _next/image (image optimization)
+     * - favicon.ico
+     * - public folder
+     * - login page and its assets
+     * - auth API routes
+     */
+    "/((?!_next/static|_next/image|favicon.ico|public|login|api/auth/).*)",
+  ],
 };

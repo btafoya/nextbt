@@ -9,7 +9,7 @@ export const revalidate = 0
 
 export default async function NewUserPage() {
   try {
-    requireAdmin();
+    await requireAdmin();
   } catch {
     notFound();
   }
