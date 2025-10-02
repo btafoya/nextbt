@@ -13,6 +13,7 @@ import {
   getSessionOptions,
   createSessionData
 } from "@/lib/session-config";
+import { logUserActivity, getClientIp, getUserAgent } from "@/lib/user-activity";
 
 export async function POST(req: Request) {
   const { username, password, turnstileToken } = await req.json();
@@ -49,10 +50,37 @@ export async function POST(req: Request) {
   }
 
   const user = await prisma.mantis_user_table.findFirst({ where: { username } });
-  if (!user) return NextResponse.json({ ok: false }, { status: 401 });
+
+  // Get request metadata for activity logging
+  const ipAddress = getClientIp(req.headers);
+  const userAgent = getUserAgent(req.headers);
+
+  if (!user) {
+    // Log failed login attempt
+    if (user) {
+      await logUserActivity({
+        userId: user.id,
+        actionType: "login_failed",
+        description: `Failed login attempt for user: ${username}`,
+        ipAddress,
+        userAgent,
+      });
+    }
+    return NextResponse.json({ ok: false }, { status: 401 });
+  }
 
   const ok = await verifyMantisPassword(password, user.password);
-  if (!ok) return NextResponse.json({ ok: false }, { status: 401 });
+  if (!ok) {
+    // Log failed login attempt
+    await logUserActivity({
+      userId: user.id,
+      actionType: "login_failed",
+      description: `Failed login attempt - invalid password`,
+      ipAddress,
+      userAgent,
+    });
+    return NextResponse.json({ ok: false }, { status: 401 });
+  }
 
   // project access
   let projects: number[];
@@ -69,10 +97,6 @@ export async function POST(req: Request) {
     });
     projects = memberships.map((m) => m.project_id);
   }
-
-  // Get request headers for security metadata
-  const userAgent = req.headers.get("user-agent") || undefined;
-  const ipAddress = req.headers.get("x-forwarded-for") || req.headers.get("x-real-ip") || undefined;
 
   // Create secure encrypted session with iron-session
   const session = await getIronSession<SessionData>(cookies(), getSessionOptions());
@@ -92,6 +116,15 @@ export async function POST(req: Request) {
   // Save session data (iron-session handles encryption and signing)
   Object.assign(session, sessionData);
   await session.save();
+
+  // Log successful login
+  await logUserActivity({
+    userId: user.id,
+    actionType: "login",
+    description: `Successful login`,
+    ipAddress,
+    userAgent,
+  });
 
   return NextResponse.json({ ok: true });
 }

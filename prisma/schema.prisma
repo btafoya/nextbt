@@ -634,3 +634,19 @@ model mantis_digest_pref_table {
   last_digest_sent     Int?   @db.UnsignedInt
   next_digest_scheduled Int?  @db.UnsignedInt
 }
+
+model mantis_user_activity_log_table {
+  id           Int     @id @default(autoincrement()) @db.UnsignedInt
+  user_id      Int     @default(0) @db.UnsignedInt
+  action_type  String  @db.VarChar(32)
+  description  String  @default("") @db.VarChar(255)
+  old_value    String? @db.Text
+  new_value    String? @db.Text
+  ip_address   String? @db.VarChar(45)
+  user_agent   String? @db.VarChar(255)
+  date_created Int     @default(1) @db.UnsignedInt
+
+  @@index([user_id], map: "idx_activity_user_id")
+  @@index([action_type], map: "idx_activity_action_type")
+  @@index([date_created], map: "idx_activity_date_created")
+}

@@ -3,10 +3,11 @@
 import { useState, useEffect } from "react";
 import { logger } from "@/lib/logger";
 import Link from "next/link";
+import { getStatusLabel, getPriorityLabel, getSeverityLabel, getReproducibilityLabel } from "@/lib/mantis-enums";
 
 interface HistoryEntry {
   id: number;
-  source: "bug_history" | "notification_history";
+  source: "bug_history" | "notification_history" | "user_activity";
   user_id: number;
   bug_id: number;
   field_name: string;
@@ -20,6 +21,10 @@ interface HistoryEntry {
   channel?: string;
   status?: string;
   error_message?: string;
+  // User activity specific fields
+  description?: string;
+  ip_address?: string;
+  user_agent?: string;
   user: {
     id: number;
     username: string;
@@ -55,9 +60,13 @@ export default function HistoryLog() {
   const [userIdFilter, setUserIdFilter] = useState("");
   const [fieldNameFilter, setFieldNameFilter] = useState("");
 
+  // Sorting
+  const [sortBy, setSortBy] = useState<string>("date_modified");
+  const [sortOrder, setSortOrder] = useState<"asc" | "desc">("desc");
+
   useEffect(() => {
     fetchHistory();
-  }, [page, bugIdFilter, userIdFilter, fieldNameFilter]);
+  }, [page, bugIdFilter, userIdFilter, fieldNameFilter, sortBy, sortOrder]);
 
   async function fetchHistory() {
     try {
@@ -65,6 +74,8 @@ export default function HistoryLog() {
       const params = new URLSearchParams({
         page: page.toString(),
         limit: limit.toString(),
+        sort_by: sortBy,
+        sort_order: sortOrder,
       });
 
       if (bugIdFilter) params.append("bug_id", bugIdFilter);
@@ -96,8 +107,65 @@ export default function HistoryLog() {
       .join(" ");
   }
 
-  function getSourceBadgeColor(source: string): string {
-    return source === "notification_history" ? "bg-blue-500" : "bg-success";
+  function formatFieldValue(fieldName: string, value: string): string {
+    if (!value) return value;
+
+    const numValue = parseInt(value, 10);
+    if (isNaN(numValue)) return value;
+
+    // Map field names to their formatting functions
+    switch (fieldName) {
+      case "status":
+        return getStatusLabel(numValue);
+      case "priority":
+        return getPriorityLabel(numValue);
+      case "severity":
+        return getSeverityLabel(numValue);
+      case "reproducibility":
+        return getReproducibilityLabel(numValue);
+      case "handler_id":
+        return numValue === 0 ? "Unassigned" : `User #${numValue}`;
+      default:
+        return value;
+    }
+  }
+
+  function getFieldBadgeColor(fieldName: string, source: string): string {
+    // Notification history entries get blue badge
+    if (source === "notification_history") {
+      return "bg-blue-500";
+    }
+
+    // User activity entries get specific colors
+    if (source === "user_activity") {
+      switch (fieldName) {
+        case "login":
+          return "bg-green-500";
+        case "logout":
+          return "bg-gray-500";
+        case "login_failed":
+          return "bg-red-500";
+        case "profile_update":
+        case "email_change":
+          return "bg-blue-500";
+        case "password_change":
+          return "bg-amber-500";
+        default:
+          return "bg-purple-500";
+      }
+    }
+
+    // Bug history entries get different colors based on field type
+    if (fieldName === "bugnote_added") {
+      return "bg-purple-500";
+    }
+
+    if (fieldName === "status") {
+      return "bg-amber-500";
+    }
+
+    // Default for other bug history fields
+    return "bg-gray-600 dark:bg-gray-500";
   }
 
   function getStatusBadgeColor(status: string | undefined): string {
@@ -118,6 +186,21 @@ export default function HistoryLog() {
     }
   }
 
+  function handleSort(field: string) {
+    if (sortBy === field) {
+      setSortOrder(sortOrder === "asc" ? "desc" : "asc");
+    } else {
+      setSortBy(field);
+      setSortOrder("desc");
+    }
+    setPage(1);
+  }
+
+  function getSortIcon(field: string): string {
+    if (sortBy !== field) return "↕";
+    return sortOrder === "asc" ? "↑" : "↓";
+  }
+
   function applyFilters() {
     setPage(1);
     fetchHistory();
@@ -128,6 +211,20 @@ export default function HistoryLog() {
     setUserIdFilter("");
     setFieldNameFilter("");
     setPage(1);
+  }
+
+  async function syncNotifications() {
+    try {
+      const res = await fetch("/api/notifications/sync", { method: "POST" });
+      if (res.ok) {
+        const data = await res.json();
+        logger.log(`Synced ${data.synced} notifications`);
+        // Refresh the history after sync
+        fetchHistory();
+      }
+    } catch (error) {
+      logger.error("Error syncing notifications:", error);
+    }
   }
 
   if (loading && history.length === 0) {
@@ -194,6 +291,13 @@ export default function HistoryLog() {
           >
             Clear Filters
           </button>
+          <button
+            onClick={syncNotifications}
+            className="inline-flex items-center justify-center rounded-md bg-success px-5 py-3 text-center font-medium text-white hover:bg-opacity-90"
+            title="Sync MantisBT notifications to history"
+          >
+            🔄 Sync MantisBT
+          </button>
         </div>
       </div>
 
@@ -202,20 +306,29 @@ export default function HistoryLog() {
         <table className="w-full table-auto">
           <thead>
             <tr className="bg-gray-2 text-left dark:bg-meta-4">
-              <th className="min-w-[50px] px-4 py-4 font-medium text-black dark:text-white">
-                ID
+              <th
+                className="min-w-[120px] px-4 py-4 font-medium text-black dark:text-white cursor-pointer hover:bg-gray-3 dark:hover:bg-meta-5"
+                onClick={() => handleSort("date_modified")}
+              >
+                Date {getSortIcon("date_modified")}
               </th>
-              <th className="min-w-[120px] px-4 py-4 font-medium text-black dark:text-white">
-                Date
+              <th
+                className="min-w-[80px] px-4 py-4 font-medium text-black dark:text-white cursor-pointer hover:bg-gray-3 dark:hover:bg-meta-5"
+                onClick={() => handleSort("bug_id")}
+              >
+                Bug {getSortIcon("bug_id")}
               </th>
-              <th className="min-w-[80px] px-4 py-4 font-medium text-black dark:text-white">
-                Bug
+              <th
+                className="min-w-[120px] px-4 py-4 font-medium text-black dark:text-white cursor-pointer hover:bg-gray-3 dark:hover:bg-meta-5"
+                onClick={() => handleSort("user_id")}
+              >
+                User {getSortIcon("user_id")}
               </th>
-              <th className="min-w-[120px] px-4 py-4 font-medium text-black dark:text-white">
-                User
-              </th>
-              <th className="min-w-[120px] px-4 py-4 font-medium text-black dark:text-white">
-                Field
+              <th
+                className="min-w-[120px] px-4 py-4 font-medium text-black dark:text-white cursor-pointer hover:bg-gray-3 dark:hover:bg-meta-5"
+                onClick={() => handleSort("field_name")}
+              >
+                Field {getSortIcon("field_name")}
               </th>
               <th className="min-w-[150px] px-4 py-4 font-medium text-black dark:text-white">
                 Old Value
@@ -223,15 +336,18 @@ export default function HistoryLog() {
               <th className="min-w-[150px] px-4 py-4 font-medium text-black dark:text-white">
                 New Value
               </th>
-              <th className="min-w-[50px] px-4 py-4 font-medium text-black dark:text-white">
-                Type
+              <th
+                className="min-w-[50px] px-4 py-4 font-medium text-black dark:text-white cursor-pointer hover:bg-gray-3 dark:hover:bg-meta-5"
+                onClick={() => handleSort("type")}
+              >
+                Type {getSortIcon("type")}
               </th>
             </tr>
           </thead>
           <tbody>
             {history.length === 0 ? (
               <tr>
-                <td colSpan={8} className="text-center py-10 dark:text-bodydark">
+                <td colSpan={7} className="text-center py-10 dark:text-bodydark">
                   No history entries found
                 </td>
               </tr>
@@ -239,22 +355,30 @@ export default function HistoryLog() {
               history.map((entry) => (
                 <tr key={entry.id} className="border-b border-stroke dark:border-strokedark">
                   <td className="px-4 py-5 dark:text-white">
-                    {entry.id}
-                  </td>
-                  <td className="px-4 py-5 dark:text-white">
                     <div className="text-sm">{formatDate(entry.date_modified)}</div>
                   </td>
                   <td className="px-4 py-5">
-                    <Link
-                      href={`/issues/${entry.bug_id}`}
-                      className="text-primary hover:underline"
-                    >
-                      #{entry.bug_id}
-                    </Link>
-                    {entry.bug && (
-                      <div className="text-xs text-gray-500 dark:text-gray-400 mt-1 truncate max-w-[200px]">
-                        {entry.bug.summary}
+                    {entry.source === "user_activity" ? (
+                      <div className="text-sm text-gray-500 dark:text-gray-400">
+                        {entry.description || "—"}
+                        {entry.ip_address && (
+                          <div className="text-xs mt-1 font-mono">{entry.ip_address}</div>
+                        )}
                       </div>
+                    ) : (
+                      <>
+                        <Link
+                          href={`/issues/${entry.bug_id}`}
+                          className="text-primary hover:underline"
+                        >
+                          #{entry.bug_id}
+                        </Link>
+                        {entry.bug && (
+                          <div className="text-xs text-gray-500 dark:text-gray-400 mt-1 truncate max-w-[200px]">
+                            {entry.bug.summary}
+                          </div>
+                        )}
+                      </>
                     )}
                   </td>
                   <td className="px-4 py-5 dark:text-white">
@@ -267,29 +391,31 @@ export default function HistoryLog() {
                   </td>
                   <td className="px-4 py-5 dark:text-white">
                     <div className="flex flex-col gap-1">
-                      <span className={`inline-flex rounded-full bg-opacity-10 px-3 py-1 text-sm font-medium ${getSourceBadgeColor(entry.source)} text-white dark:bg-opacity-20`}>
+                      <span className={`inline-flex rounded-full px-3 py-1 text-sm font-medium ${getFieldBadgeColor(entry.field_name, entry.source)} text-white`}>
                         {formatFieldName(entry.field_name)}
                       </span>
                       {entry.source === "notification_history" && entry.channel && (
-                        <span className="text-xs text-gray-500 dark:text-gray-400">
+                        <span className="text-xs text-gray-600 dark:text-gray-300">
                           via {entry.channel}
                         </span>
                       )}
                     </div>
                   </td>
-                  <td className="px-4 py-5 dark:text-white">
-                    <div className="max-w-[200px] truncate text-sm">
+                  <td className="px-4 py-5">
+                    <div className="max-w-[200px] truncate text-sm text-black dark:text-white">
                       {entry.source === "notification_history" ? (
-                        <span className="text-gray-400 dark:text-gray-500">—</span>
+                        <span className="text-gray-500 dark:text-gray-400">—</span>
+                      ) : entry.old_value ? (
+                        formatFieldValue(entry.field_name, entry.old_value)
                       ) : (
-                        entry.old_value || <span className="text-gray-400 dark:text-gray-500">—</span>
+                        <span className="text-gray-500 dark:text-gray-400">—</span>
                       )}
                     </div>
                   </td>
-                  <td className="px-4 py-5 dark:text-white">
+                  <td className="px-4 py-5">
                     <div className="flex flex-col gap-1">
-                      <div className="max-w-[200px] truncate text-sm">
-                        {entry.new_value || <span className="text-gray-400 dark:text-gray-500">—</span>}
+                      <div className="max-w-[200px] truncate text-sm text-black dark:text-white">
+                        {entry.new_value ? formatFieldValue(entry.field_name, entry.new_value) : <span className="text-gray-500 dark:text-gray-400">—</span>}
                       </div>
                       {entry.source === "notification_history" && entry.status && (
                         <span className={`inline-flex rounded-full px-2 py-0.5 text-xs font-medium text-white ${getStatusBadgeColor(entry.status)}`}>
@@ -297,7 +423,7 @@ export default function HistoryLog() {
                         </span>
                       )}
                       {entry.source === "notification_history" && entry.error_message && (
-                        <span className="text-xs text-red-500 dark:text-red-400 truncate max-w-[200px]" title={entry.error_message}>
+                        <span className="text-xs text-red-600 dark:text-red-400 truncate max-w-[200px]" title={entry.error_message}>
                           Error: {entry.error_message}
                         </span>
                       )}

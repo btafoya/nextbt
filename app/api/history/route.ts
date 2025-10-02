@@ -8,7 +8,7 @@ import { logger } from "@/lib/logger";
 
 interface UnifiedHistoryEntry {
   id: number;
-  source: "bug_history" | "notification_history";
+  source: "bug_history" | "notification_history" | "user_activity";
   user_id: number;
   bug_id: number;
   field_name: string;
@@ -22,6 +22,10 @@ interface UnifiedHistoryEntry {
   channel?: string;
   status?: string;
   error_message?: string;
+  // User activity specific fields
+  description?: string;
+  ip_address?: string;
+  user_agent?: string;
 }
 
 export async function GET(req: Request) {
@@ -35,6 +39,15 @@ export async function GET(req: Request) {
     const userId = searchParams.get("user_id");
     const fieldName = searchParams.get("field_name");
     const source = searchParams.get("source"); // "bug_history" or "email_audit"
+
+    // Sorting parameters
+    const sortBy = searchParams.get("sort_by") || "date_modified";
+    const sortOrder = searchParams.get("sort_order") || "desc";
+
+    // Validate sort parameters to prevent SQL injection
+    const allowedSortFields = ["id", "date_modified", "bug_id", "user_id", "field_name", "type"];
+    const validSortBy = allowedSortFields.includes(sortBy) ? sortBy : "date_modified";
+    const validSortOrder = sortOrder.toLowerCase() === "asc" ? "ASC" : "DESC";
 
     // Build where conditions for SQL
     const conditions: string[] = [];
@@ -51,92 +64,156 @@ export async function GET(req: Request) {
 
     const whereClause = conditions.length > 0 ? `WHERE ${conditions.join(" AND ")}` : "";
 
-    // Use raw SQL for UNION query
+    // Fetch data from each table separately to avoid collation issues with UNION
     const offset = (page - 1) * limit;
 
-    let unionQuery = `
+    // Build individual queries
+    const bugHistoryQuery = `
       SELECT
         id,
-        'bug_history' as source,
         user_id,
         bug_id,
         field_name,
         old_value,
         new_value,
         type,
-        date_modified,
-        NULL as recipient,
-        NULL as subject,
-        NULL as channel,
-        NULL as status,
-        NULL as error_message
+        date_modified
       FROM mantis_bug_history_table
       ${whereClause}
       ${fieldName ? (whereClause ? "AND" : "WHERE") + " field_name = ?" : ""}
+    `;
 
-      UNION ALL
-
+    const notificationHistoryQuery = `
       SELECT
         id,
-        'notification_history' as source,
         user_id,
         bug_id,
-        event_type as field_name,
-        '' as old_value,
-        subject as new_value,
-        0 as type,
-        date_sent as date_modified,
-        NULL as recipient,
+        event_type,
         subject,
+        date_sent,
         JSON_UNQUOTE(JSON_EXTRACT(channels_sent, '$[0]')) as channel,
-        CASE WHEN read_status = 1 THEN 'read' ELSE 'unread' END as status,
-        NULL as error_message
+        read_status
       FROM mantis_notification_history_table
       ${whereClause}
-
-      ORDER BY date_modified DESC
-      LIMIT ? OFFSET ?
     `;
 
-    // Build params array: whereParams for first query + fieldName (if set) + whereParams for second query + limit + offset
-    const params: any[] = [
-      ...whereParams,
-      ...(fieldName ? [fieldName] : []),
-      ...whereParams,
-      limit,
-      offset
-    ];
-
-    // Execute the UNION query
-    const history = await prisma.$queryRawUnsafe<UnifiedHistoryEntry[]>(
-      unionQuery,
-      ...params
-    );
-
-    // Get total count using UNION for accurate pagination
-    let countQuery = `
-      SELECT COUNT(*) as total FROM (
-        SELECT id FROM mantis_bug_history_table ${whereClause} ${fieldName ? (whereClause ? "AND" : "WHERE") + " field_name = ?" : ""}
-        UNION ALL
-        SELECT id FROM mantis_notification_history_table ${whereClause}
-      ) as combined
+    const userActivityQuery = `
+      SELECT
+        id,
+        user_id,
+        action_type,
+        old_value,
+        new_value,
+        description,
+        ip_address,
+        user_agent,
+        date_created
+      FROM mantis_user_activity_log_table
+      ${conditions.length > 0 ? `WHERE ${conditions.filter(c => c.includes('user_id')).join(' AND ')}` : ''}
     `;
 
-    // Build count params: whereParams for first query + fieldName (if set) + whereParams for second query
-    const countParams = [
-      ...whereParams,
-      ...(fieldName ? [fieldName] : []),
-      ...whereParams
-    ];
-    const countResult = await prisma.$queryRawUnsafe<[{ total: bigint }]>(
-      countQuery,
-      ...countParams
-    );
-    const total = Number(countResult[0]?.total || 0);
+    // Execute queries in parallel
+    const [bugHistoryRaw, notificationHistoryRaw, userActivityRaw] = await Promise.all([
+      prisma.$queryRawUnsafe<any[]>(
+        bugHistoryQuery,
+        ...whereParams,
+        ...(fieldName ? [fieldName] : [])
+      ),
+      prisma.$queryRawUnsafe<any[]>(
+        notificationHistoryQuery,
+        ...whereParams
+      ),
+      prisma.$queryRawUnsafe<any[]>(
+        userActivityQuery,
+        ...(conditions.length > 0 ? whereParams.filter((_, i) => conditions[i]?.includes('user_id')) : [])
+      )
+    ]);
+
+    // Transform each result set into common format
+    const bugHistory = bugHistoryRaw.map(entry => ({
+      id: Number(entry.id),
+      source: 'bug_history' as const,
+      user_id: Number(entry.user_id),
+      bug_id: Number(entry.bug_id),
+      field_name: entry.field_name,
+      old_value: entry.old_value,
+      new_value: entry.new_value,
+      type: Number(entry.type),
+      date_modified: Number(entry.date_modified),
+      recipient: null,
+      subject: null,
+      channel: null,
+      status: null,
+      error_message: null,
+      description: null,
+      ip_address: null,
+      user_agent: null,
+    }));
+
+    const notificationHistory = notificationHistoryRaw.map(entry => ({
+      id: Number(entry.id),
+      source: 'notification_history' as const,
+      user_id: Number(entry.user_id),
+      bug_id: Number(entry.bug_id),
+      field_name: entry.event_type,
+      old_value: '',
+      new_value: entry.subject,
+      type: 0,
+      date_modified: Number(entry.date_sent),
+      recipient: null,
+      subject: entry.subject,
+      channel: entry.channel,
+      status: entry.read_status === 1 ? 'read' : 'unread',
+      error_message: null,
+      description: null,
+      ip_address: null,
+      user_agent: null,
+    }));
+
+    const userActivity = userActivityRaw.map(entry => ({
+      id: Number(entry.id),
+      source: 'user_activity' as const,
+      user_id: Number(entry.user_id),
+      bug_id: 0,
+      field_name: entry.action_type,
+      old_value: entry.old_value || '',
+      new_value: entry.new_value || '',
+      type: 0,
+      date_modified: Number(entry.date_created),
+      recipient: null,
+      subject: null,
+      channel: null,
+      status: null,
+      error_message: null,
+      description: entry.description,
+      ip_address: entry.ip_address,
+      user_agent: entry.user_agent,
+    }));
+
+    // Combine all results
+    const rawHistory = [...bugHistory, ...notificationHistory, ...userActivity];
+
+    // Sort by date_modified
+    rawHistory.sort((a, b) => {
+      if (validSortBy === 'date_modified') {
+        return validSortOrder === 'DESC' ? b.date_modified - a.date_modified : a.date_modified - b.date_modified;
+      }
+      return 0;
+    });
+
+    // Apply pagination
+    const paginatedHistory = rawHistory.slice(offset, offset + limit);
+
+    // Use paginatedHistory for the response
+    const history: UnifiedHistoryEntry[] = paginatedHistory;
+
+    // Total is the combined length before pagination
+    const total = rawHistory.length;
 
     // Fetch related user and bug data
-    const userIds = Array.from(new Set(history.map((h) => h.user_id)));
-    const bugIds = Array.from(new Set(history.map((h) => h.bug_id)));
+    // Convert BigInt to number for Prisma compatibility
+    const userIds = Array.from(new Set(history.map((h) => Number(h.user_id))));
+    const bugIds = Array.from(new Set(history.map((h) => Number(h.bug_id))));
 
     const [users, bugs] = await Promise.all([
       prisma.mantis_user_table.findMany({
