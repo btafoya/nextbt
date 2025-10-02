@@ -24,10 +24,14 @@ Complete design documentation available:
 - **18_DEPLOYMENT_GUIDE.md** - Deployment options (Vercel, Docker, VPS), environment setup
 - **19_MCP_INTEGRATION.md** - MCP (Model Context Protocol) integration guide for Claude Code
 - **20_TESTING_GUIDE.md** - Comprehensive testing guide with Vitest (40+ tests)
-- **ACCESSIBILITY-TESTING-GUIDE.md** - WCAG 2.1 AA accessibility testing with Playwright (47 tests)
-- **CODE-ANALYSIS-REPORT.md** - Comprehensive code quality, security, and architecture analysis
-- **NOTIFICATION-AUDIT-FIX.md** - Notification preference system audit and comprehensive fixes
-- **NOTIFICATION-FEATURES-IMPLEMENTATION.md** - Advanced notification features (digest, web push, history, filters)
+- **claudedocs/ACCESSIBILITY-TESTING-GUIDE.md** - WCAG 2.1 AA accessibility testing with Playwright (47 tests)
+- **claudedocs/CODE-ANALYSIS-REPORT.md** - Comprehensive code quality, security, and architecture analysis
+- **claudedocs/NOTIFICATION-AUDIT-FIX.md** - Notification preference system audit and comprehensive fixes
+- **claudedocs/NOTIFICATION-FEATURES-IMPLEMENTATION.md** - Advanced notification features (digest, web push, history, filters)
+- **claudedocs/NOTIFICATION-IMPLEMENTATION-COMPLETE.md** - Complete notification system implementation summary
+- **claudedocs/API-DOCUMENTATION-IMPLEMENTATION.md** - OpenAPI 3.0 and Swagger UI implementation guide
+- **claudedocs/email-audit-implementation.md** - Email delivery audit system implementation
+- **claudedocs/bug-history-implementation.md** - Bug history tracking implementation
 
 ## Development Commands
 
@@ -65,9 +69,12 @@ pnpm dlx prisma studio     # Open Prisma Studio GUI
 
 ### Configuration System (No .env Files)
 - **Primary config**: `/config/secrets.ts` (copy from `secrets.example.ts`)
+- **Public config**: `/config/public.ts` - Client-safe configuration (Turnstile, branding)
 - **App config**: `/config/app.config.ts` - Application settings
-- All secrets (database, API keys, notification services) defined in TypeScript config files
+- **Branding**: `siteName` and `siteLogo` configured in secrets.ts, exposed via public.ts
+- All secrets (database, API keys, notification services, branding) defined in TypeScript config files
 - Prisma requires `DATABASE_URL` environment variable only for CLI operations
+- **Git Safety**: Custom logos (logo.svg, logo.png, favicon.ico) ignored, logo.example.svg committed as template
 
 ### Database Layer (`/db/` and `/prisma/`)
 - **Prisma Schema**: `prisma/schema.prisma` - Maps to existing MantisBT tables
@@ -79,10 +86,12 @@ pnpm dlx prisma studio     # Open Prisma Studio GUI
 - **Session mechanism**: iron-session encrypted cookie with AES-256-GCM encryption
 - **Session data**: `{uid, username, projects[], createdAt, lastActivity, expiresAt}`
 - **Security**: 7-day expiration, 2-hour inactivity timeout, automatic refresh
-- **Middleware**: Protects dashboard routes, validates sessions, redirects unauthenticated users to login
+- **Middleware**: Protects dashboard routes, validates sessions, redirects unauthenticated users to login with returnUrl parameter
+- **Smart Redirects**: Login page captures returnUrl query parameter and redirects back after successful authentication
 - **Auth endpoints**: `/app/api/auth/login/route.ts` and `/app/api/auth/logout/route.ts`
 - **Validation**: Uses MantisBT password hashing (`lib/mantis-crypto.ts`)
 - **Important**: All auth functions are async (use `await requireSession()`, `await getSession()`)
+- **Suspense Boundaries**: Login page wraps useSearchParams in Suspense for static rendering compatibility
 
 ### Route Organization
 - **`/app/(auth)/login/`**: Login page (outside dashboard layout)
@@ -104,6 +113,8 @@ pnpm dlx prisma studio     # Open Prisma Studio GUI
 - **`/components/wysiwyg/InlineAI.tsx`**: AI assistant integration with OpenRouter
 - **`/components/issues/HtmlContent.tsx`**: Markdown renderer with react-markdown, remark-gfm support, and dark mode styling
 - **`/components/ClientThemeWrapper.tsx`**: Dark mode theme management with localStorage persistence
+- **`/components/layout/Sidebar.tsx`**: Dashboard sidebar with custom branding (siteName/siteLogo) using Next.js Image optimization
+- **`/app/(auth)/login/page.tsx`**: Login page with custom branding, Turnstile support, and return URL redirect handling
 - TailAdmin components (layout, sidebar, header, cards) for dashboard UI with comprehensive dark mode support
 
 ### Notification System (`/lib/notify/`)

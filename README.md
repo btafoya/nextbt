@@ -8,10 +8,11 @@ A modern, user-friendly web interface for MantisBT 2.x bug tracking systems. Nex
 ## Features
 
 - 🎨 **Modern UI** - Clean, responsive interface built with Next.js 14 App Router and Tailwind CSS
+- 🎨 **Custom Branding** - Configurable site name and logo displayed on login and dashboard with Next.js Image optimization
 - 🌓 **Dark Mode** - Full dark mode support with comprehensive theming across all pages and components
 - 📝 **Rich Text Editor** - TipTap WYSIWYG editor with AI-powered writing assistance via OpenRouter
 - 📄 **Markdown Rendering** - GitHub Flavored Markdown support with react-markdown, remark-gfm, and @tailwindcss/typography
-- 🔔 **Multi-Channel Notifications** - Email (Postmark), Push (Pushover), Chat (Rocket.Chat, Microsoft Teams), and Web Push
+- 🔔 **Advanced Notifications** - Multi-channel (Email, Push, Chat, Web Push), digest batching, history tracking, advanced filters, email audit logging
 - 🔌 **MCP Integration** - Model Context Protocol support for Claude Code remote server integration
 - 📚 **API Documentation** - Interactive OpenAPI 3.0 documentation with Swagger UI at `/api-docs`
 - 🗃️ **Non-Destructive** - Reads/writes to existing MantisBT tables via Prisma ORM without schema changes
@@ -19,6 +20,7 @@ A modern, user-friendly web interface for MantisBT 2.x bug tracking systems. Nex
 - ♿ **WCAG 2.1 AA Compliant** - Full accessibility testing with automated axe-core audits
 - 🏆 **High Code Quality** - 8.8/10 overall score (security: 9.2/10, performance: 8.5/10)
 - 🔐 **Secure Authentication** - Encrypted session-based auth with iron-session using existing MantisBT user accounts
+- 🔄 **Smart Redirects** - Automatic return URL handling after login with session validation
 
 ## Tech Stack
 
@@ -53,11 +55,11 @@ NextBT maintains high code quality standards with comprehensive analysis:
 | Accessibility | 9.0/10 | WCAG 2.1 AA compliant, 47 automated tests, multi-browser validation |
 
 **Key Metrics**:
-- **13,550 lines** of TypeScript code
-- **87+ tests** (40 unit + 47 accessibility)
-- **26 API endpoints** with OpenAPI 3.0 documentation
-- **Only 2 TODO comments** across entire codebase
-- **Zero console.log** calls (abstracted logging system)
+- **23,300+ lines** of TypeScript code
+- **200+ tests** (157+ unit test cases + 47 accessibility tests)
+- **51 API endpoints** with OpenAPI 3.0 documentation
+- **14 notification system modules** (email, push, web push, digest, history, filters)
+- **Minimal technical debt** with abstracted logging system
 
 See `claudedocs/CODE-ANALYSIS-REPORT.md` for complete analysis.
 
@@ -126,15 +128,18 @@ Edit `config/app.config.ts` for application-level settings:
 - Session and authentication settings
 - Feature flags and defaults
 
-### Notification Services
+### Notification System
 
 Configure notification channels in `config/secrets.ts`:
 
-- **Postmark**: Email notifications
-- **Pushover**: Mobile push notifications
-- **Rocket.Chat**: Team chat integration
-- **Microsoft Teams**: Webhooks for team channels
-- **Web Push**: Browser push notifications with VAPID keys
+- **Email (Postmark)**: Email notifications with message stream support and delivery audit logging
+- **Push (Pushover)**: Mobile push notifications for iOS/Android
+- **Chat Integration**: Rocket.Chat and Microsoft Teams webhook support
+- **Web Push**: Browser push notifications with VAPID keys (Chrome, Firefox, Edge)
+- **Digest System**: Batch notifications for hourly/daily/weekly delivery
+- **History Tracking**: Complete notification log for user visibility
+- **Advanced Filters**: Category/priority/severity-based filtering with custom actions
+- **Email Audit**: Comprehensive delivery tracking and troubleshooting
 
 ### AI Integration
 
@@ -176,14 +181,31 @@ export const secrets = {
 │   ├── api-docs.ts          # OpenAPI specification
 │   ├── mantis-enums.ts      # MantisBT enum helpers
 │   ├── mcp/                 # MCP client library
-│   └── notify/              # Notification dispatchers
+│   ├── ai/                  # AI integration (OpenRouter)
+│   └── notify/              # Notification system (14 modules)
+│       ├── dispatch.ts      # Multi-channel routing
+│       ├── postmark.ts      # Email notifications
+│       ├── pushover.ts      # Push notifications
+│       ├── rocketchat.ts    # Rocket.Chat integration
+│       ├── teams.ts         # Microsoft Teams integration
+│       ├── webpush.ts       # Web Push notifications
+│       ├── digest.ts        # Digest batching system
+│       ├── history.ts       # Notification history log
+│       ├── filters.ts       # Advanced filtering
+│       └── email-audit.ts   # Email delivery audit
 ├── prisma/                  # Prisma schema
 ├── scripts/                 # Utility scripts
 │   └── accessibility-report.ts  # Automated accessibility audit reporting
-├── __tests__/               # Unit and integration test suite (40+ tests)
-└── claudedocs/              # Comprehensive project documentation
+├── __tests__/               # Unit and integration test suite (157+ test cases across 11 files)
+│   ├── lib/mcp/             # MCP client tests
+│   ├── app/api/mcp/         # MCP API integration tests
+│   └── [additional test suites]
+└── claudedocs/              # Comprehensive project documentation (20+ docs)
     ├── ACCESSIBILITY-TESTING-GUIDE.md
     ├── CODE-ANALYSIS-REPORT.md
+    ├── NOTIFICATION-IMPLEMENTATION-COMPLETE.md
+    ├── NOTIFICATION-FEATURES-IMPLEMENTATION.md
+    ├── API-DOCUMENTATION-IMPLEMENTATION.md
     └── [15+ additional design/architecture docs]
 ```
 
@@ -295,11 +317,13 @@ pnpm test:ui           # Run with interactive UI
 pnpm test:coverage     # Generate coverage report
 ```
 
-**Coverage (40+ tests)**:
-- MCP client functionality
-- API endpoints (issues, users, MCP integration)
+**Coverage (157+ test cases across 11 test files)**:
+- MCP client functionality (17 test cases)
+- API endpoints (issues, users, MCP integration) (24+ test cases)
 - Authentication and session management
-- Notification dispatchers
+- Notification system modules (email, push, digest, filters)
+- Issue management and CRUD operations
+- Comprehensive integration tests
 
 ### Accessibility Tests (Playwright)
 
@@ -332,22 +356,25 @@ NextBT provides comprehensive REST API documentation with OpenAPI 3.0 and Swagge
 
 - **Interactive Documentation**: Visit `/api-docs` for Swagger UI interface
 - **OpenAPI Spec**: JSON specification available at `/api/openapi.json`
-- **26 Endpoints**: Covering Authentication, Issues, Projects, Users, Notes, Categories, Files, MCP, AI, and Profile
+- **51 Endpoints**: Covering Authentication, Issues, Projects, Users, Notes, Categories, Files, History, Attachments, Profile, MCP, AI, and Debug
 - **Try It Out**: Test API endpoints directly in the browser with authentication
 - **Schema Definitions**: Complete request/response type documentation
 
 ### API Categories
 
 - **Authentication** - Login, logout, session management
-- **Issues** - Create, read, update, delete bug reports
+- **Issues** - Create, read, update, delete bug reports with full MantisBT field support
 - **Projects** - Project management and access control
 - **Users** - User management and assignments
 - **Notes** - Bug comments and discussions
 - **Categories** - Project categories
-- **Files** - Attachment downloads
-- **MCP** - Model Context Protocol integration
-- **AI** - AI writing assistance endpoints
+- **Files** - Attachment downloads and management
+- **History** - Bug history tracking and user activity logs
+- **Attachments** - File upload and download operations
 - **Profile** - User profile management
+- **MCP** - Model Context Protocol integration for Claude Code
+- **AI** - AI writing assistance endpoints with OpenRouter
+- **Debug** - Development debugging endpoints (session, memberships)
 
 ## MCP Integration
 
