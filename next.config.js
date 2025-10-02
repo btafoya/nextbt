@@ -1,5 +1,4 @@
 const { withSentryConfig } = require('@sentry/nextjs');
-const { secrets } = require('./config/secrets.ts');
 
 /** @type {import('next').NextConfig} */
 const nextConfig = {
@@ -40,11 +39,11 @@ const sentryWebpackPluginOptions = {
   // For all available options, see:
   // https://github.com/getsentry/sentry-webpack-plugin#options
 
-  org: secrets.sentryOrg,
-  project: secrets.sentryProject,
+  org: process.env.SENTRY_ORG,
+  project: process.env.SENTRY_PROJECT,
 
   // Auth token for source map upload (set in CI/CD environment)
-  authToken: secrets.sentryAuthToken || process.env.SENTRY_AUTH_TOKEN,
+  authToken: process.env.SENTRY_AUTH_TOKEN,
 
   // Only print logs for uploading source maps in CI
   silent: !process.env.CI,
