@@ -10,6 +10,7 @@ A modern, user-friendly web interface for MantisBT 2.x bug tracking systems. Nex
 ## Features
 
 - 🎨 **Modern UI** - Clean, responsive interface built with Next.js 14 App Router and Tailwind CSS
+- 📱 **Progressive Web App** - Installable to home screen (mobile/desktop), offline-ready static assets, app shortcuts, intelligent caching strategies
 - 🎨 **Custom Branding** - Configurable site name and logo displayed on login and dashboard with Next.js Image optimization
 - 🌓 **Dark Mode** - Full dark mode support with comprehensive theming across all pages and components
 - 📝 **Rich Text Editor** - TipTap WYSIWYG editor with AI-powered writing assistance via OpenRouter
@@ -29,6 +30,7 @@ A modern, user-friendly web interface for MantisBT 2.x bug tracking systems. Nex
 ## Tech Stack
 
 - **Framework**: Next.js 14 with App Router
+- **PWA**: next-pwa 5.6.0 with Workbox for service worker generation and intelligent caching
 - **Styling**: Tailwind CSS + TailAdmin Dashboard Theme + @tailwindcss/typography
 - **Theming**: Dark mode support with TailAdmin color system
 - **Database**: Prisma ORM with MySQL (connects to existing MantisBT schema)
@@ -129,6 +131,52 @@ Visit http://localhost:3000 and log in with your existing MantisBT credentials.
 
 Interactive API documentation is available at http://localhost:3000/api-docs with Swagger UI for testing all endpoints.
 
+## Progressive Web App (PWA)
+
+NextBT is a full-featured Progressive Web App that can be installed on your device for a native app-like experience.
+
+### Features
+
+- 📱 **Install to Home Screen** - Works on mobile (iOS/Android) and desktop (Chrome/Edge/Safari)
+- ⚡ **Fast Loading** - Intelligent caching strategies for optimal performance
+- 📴 **Offline Access** - View previously loaded content without internet connection
+- 🚀 **App-like Experience** - Runs in standalone mode without browser UI
+- 🔔 **Push Notifications** - Receive issue updates via browser notifications
+- ⚙️ **App Shortcuts** - Quick access to View Issues and Create Issue
+
+### Installation
+
+#### Desktop (Chrome/Edge/Safari)
+1. Visit NextBT in your browser
+2. Look for the install icon (⊕) in the address bar
+3. Click "Install" or wait for the install prompt
+4. The app opens in its own window
+
+#### Mobile (Android)
+1. Visit NextBT in Chrome or Edge
+2. Tap "Add to Home Screen" prompt (appears after 5 seconds)
+3. Or tap the three-dot menu → "Install app"
+4. Icon appears on your home screen
+
+#### Mobile (iOS/iPadOS)
+1. Visit NextBT in Safari
+2. Tap the Share button (square with arrow)
+3. Scroll and tap "Add to Home Screen"
+4. Tap "Add" to confirm
+
+### PWA Architecture
+
+**Service Worker**: Auto-generated with Workbox for intelligent caching
+- **CacheFirst**: Google Fonts (365 days)
+- **StaleWhileRevalidate**: Images (24h), JS (24h), CSS (24h), Fonts (7d)
+- **NetworkFirst**: API responses (5min cache, 10s timeout)
+
+**Security**: HTTPS required, session cookies not cached, 5-minute API cache expiration
+
+**No Offline Editing**: Creating/editing issues requires an online connection (by design for data integrity)
+
+For detailed PWA documentation, icon generation, and troubleshooting, see `claudedocs/PWA-IMPLEMENTATION-GUIDE.md`.
+
 ## Configuration
 
 ### Application Settings
@@ -205,7 +253,8 @@ See `claudedocs/SENTRY-INTEGRATION.md` for complete setup guide.
 │   └── api-docs/            # Interactive Swagger UI documentation
 ├── components/              # React components
 │   ├── issues/              # Issue-related components
-│   └── wysiwyg/             # TipTap editor components
+│   ├── wysiwyg/             # TipTap editor components
+│   └── PWAInstallPrompt.tsx # Custom PWA install prompt
 ├── config/                  # Configuration files
 ├── db/                      # Database client and utilities
 ├── e2e/                     # End-to-end tests
@@ -230,6 +279,10 @@ See `claudedocs/SENTRY-INTEGRATION.md` for complete setup guide.
 │       ├── filters.ts       # Advanced filtering
 │       └── email-audit.ts   # Email delivery audit
 ├── prisma/                  # Prisma schema
+├── public/                  # Static assets
+│   ├── manifest.json        # PWA web app manifest
+│   ├── icons/               # PWA icons (180x180, 192x192, 512x512)
+│   └── sw.js                # Service worker (auto-generated)
 ├── scripts/                 # Utility scripts
 │   └── accessibility-report.ts  # Automated accessibility audit reporting
 ├── __tests__/               # Unit and integration test suite (157+ test cases across 11 files)
@@ -240,11 +293,12 @@ See `claudedocs/SENTRY-INTEGRATION.md` for complete setup guide.
 ├── instrumentation.client.ts # Client-side Sentry initialization
 ├── sentry.server.config.ts  # Server Sentry configuration
 ├── sentry.edge.config.ts    # Edge runtime Sentry configuration
-└── claudedocs/              # Comprehensive project documentation (20+ docs)
+└── claudedocs/              # Comprehensive project documentation (21+ docs)
     ├── ACCESSIBILITY-TESTING-GUIDE.md
     ├── SENTRY-INTEGRATION.md
     ├── CODE-ANALYSIS-REPORT.md
     ├── SESSION-TIMEOUT-FIX.md
+    ├── PWA-IMPLEMENTATION-GUIDE.md
     ├── NOTIFICATION-IMPLEMENTATION-COMPLETE.md
     ├── NOTIFICATION-FEATURES-IMPLEMENTATION.md
     ├── API-DOCUMENTATION-IMPLEMENTATION.md
@@ -316,13 +370,15 @@ DATABASE_URL="mysql://..."   # Production database connection
 
 ### Production Checklist
 
-- ✅ Run `pnpm build` to create optimized production build
+- ✅ Run `pnpm build` to create optimized production build (PWA enabled automatically)
 - ✅ Set `NODE_ENV=production` environment variable
 - ✅ Configure production database credentials in `config/secrets.ts`
 - ✅ Set up notification service credentials (Postmark, Pushover, etc.)
-- ✅ Configure HTTPS/SSL (recommended for production)
+- ✅ Configure HTTPS/SSL (required for PWA service workers and production use)
+- ✅ Generate PWA icons if not already present (see PWA section above)
 - ✅ Set up process manager (PM2, systemd) for automatic restarts
 - ✅ Configure reverse proxy (nginx, Apache) if needed
+- ✅ Test PWA installation on target devices (mobile/desktop)
 
 ## Database Schema
 
@@ -471,6 +527,7 @@ SOFTWARE.
 ## Acknowledgments
 
 - Built with [Next.js](https://nextjs.org/)
+- PWA powered by [next-pwa](https://github.com/shadowwalker/next-pwa) and [Workbox](https://developer.chrome.com/docs/workbox/)
 - UI based on [TailAdmin](https://github.com/TailAdmin/free-nextjs-admin-dashboard)
 - Integrates with [MantisBT](https://mantisbt.org/)
 - Rich text editing powered by [TipTap](https://tiptap.dev/)
