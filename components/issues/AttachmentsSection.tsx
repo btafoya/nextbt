@@ -166,12 +166,15 @@ export default function AttachmentsSection({ issueId, currentUserId }: { issueId
               {/* Display image inline if it's an image file */}
               {isImage(attachment.file_type) && (
                 <div className="mt-2">
+                  {/* eslint-disable-next-line @next/next/no-img-element */}
                   <img
                     src={`/api/issues/${issueId}/attachments/${attachment.id}`}
                     alt={attachment.filename}
+                    loading="lazy"
                     className="max-w-full h-auto rounded border"
                     style={{ maxHeight: "500px" }}
                   />
+                  {/* Using <img> for dynamic API endpoint with authentication - Next.js Image not compatible */}
                 </div>
               )}
             </div>

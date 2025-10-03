@@ -48,14 +48,17 @@ export default function Lightbox({ src, alt, className, style }: LightboxProps) 
   return (
     <>
       {/* Thumbnail image */}
+      {/* eslint-disable-next-line @next/next/no-img-element */}
       <img
         src={src}
         alt={alt}
+        loading="lazy"
         className={`${className} cursor-pointer hover:opacity-80 transition-opacity`}
         style={style}
         onClick={() => setIsOpen(true)}
         title="Click to expand"
       />
+      {/* Using <img> for custom zoom transforms and instant display */}
 
       {/* Lightbox modal */}
       {isOpen && (
@@ -106,15 +109,18 @@ export default function Lightbox({ src, alt, className, style }: LightboxProps) 
             className="relative max-w-full max-h-full overflow-auto p-4"
             onClick={(e) => e.stopPropagation()}
           >
+            {/* eslint-disable-next-line @next/next/no-img-element */}
             <img
               src={src}
               alt={alt}
+              loading="lazy"
               className="max-w-none transition-transform duration-200"
               style={{
                 transform: `scale(${scale})`,
                 transformOrigin: "center center"
               }}
             />
+            {/* Using <img> for custom zoom transforms and instant display */}
           </div>
 
           {/* Instructions */}

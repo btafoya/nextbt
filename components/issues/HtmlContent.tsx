@@ -155,13 +155,16 @@ export default function HtmlContent({ html }: HtmlContentProps) {
               };
 
               return (
+                // eslint-disable-next-line @next/next/no-img-element
                 <img
                   {...props}
                   alt={props.alt || "Image"}
+                  loading="lazy"
                   onClick={handleClick}
                   style={{ cursor: 'pointer' }}
                   title="Click to expand"
                 />
+                // Using <img> for user-generated markdown content - unknown external URLs
               );
             }
           }}
