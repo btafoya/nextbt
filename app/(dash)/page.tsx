@@ -112,11 +112,11 @@ export default async function HomePage() {
   ]);
 
   return (
-    <div className="space-y-6">
+    <div className="space-y-6 pb-mobile-nav">
       <div className="flex items-center justify-between">
-        <h1 className="text-2xl font-bold dark:text-white">Dashboard</h1>
+        <h1 className="text-xl lg:text-2xl font-bold dark:text-white">Dashboard</h1>
         <Link href="/issues/new">
-          <Button className="bg-blue-600 text-white hover:bg-blue-700">Create New Issue</Button>
+          <Button className="bg-blue-600 text-white hover:bg-blue-700 min-h-[44px]">Create New Issue</Button>
         </Link>
       </div>
 

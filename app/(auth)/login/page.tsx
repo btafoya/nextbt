@@ -30,9 +30,25 @@ function LoginForm() {
   const [turnstileLoaded, setTurnstileLoaded] = useState(false);
   const turnstileRef = useRef<HTMLDivElement>(null);
   const widgetIdRef = useRef<string>("");
+  const usernameRef = useRef<HTMLInputElement>(null);
+  const passwordRef = useRef<HTMLInputElement>(null);
   const router = useRouter();
   const searchParams = useSearchParams();
   const returnUrl = searchParams.get("returnUrl") || "/";
+
+  // Check for autofilled values from password managers
+  useEffect(() => {
+    const timer = setTimeout(() => {
+      if (usernameRef.current?.value && !username) {
+        setUsername(usernameRef.current.value);
+      }
+      if (passwordRef.current?.value && !password) {
+        setPassword(passwordRef.current.value);
+      }
+    }, 100);
+    return () => clearTimeout(timer);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []); // Only run once on mount to capture autofill
 
   useEffect(() => {
     if (publicConfig.turnstileEnabled && turnstileLoaded && turnstileRef.current && !widgetIdRef.current) {
@@ -87,7 +103,12 @@ function LoginForm() {
         />
       )}
       <main className="min-h-screen flex items-center justify-center bg-gray-50 dark:bg-boxdark-2">
-        <form onSubmit={submit} className="bg-white dark:bg-boxdark p-6 rounded shadow w-full max-w-sm space-y-3">
+        <form
+          onSubmit={submit}
+          method="post"
+          action="/api/auth/login"
+          className="bg-white dark:bg-boxdark p-6 rounded shadow w-full max-w-sm space-y-3"
+        >
           <div className="flex flex-col items-center mb-4">
             {publicConfig.siteLogo && (
               <Image
@@ -104,18 +125,28 @@ function LoginForm() {
             </h1>
           </div>
           <input
+            ref={usernameRef}
+            id="username"
+            name="username"
             className="border w-full p-2 rounded"
             placeholder="Username"
+            autoComplete="username"
             value={username}
             onChange={e=>setUsername(e.target.value)}
+            onInput={e=>setUsername((e.target as HTMLInputElement).value)}
             required
           />
           <input
+            ref={passwordRef}
+            id="password"
+            name="password"
             className="border w-full p-2 rounded"
             placeholder="Password"
             type="password"
+            autoComplete="current-password"
             value={password}
             onChange={e=>setPassword(e.target.value)}
+            onInput={e=>setPassword((e.target as HTMLInputElement).value)}
             required
           />
           {publicConfig.turnstileEnabled && (

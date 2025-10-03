@@ -19,12 +19,30 @@
     --color-gray-2: #1f2937;
   }
 
+  /* Mobile-first base font size for better readability */
+  html {
+    font-size: 16px; /* Ensures minimum 16px on mobile */
+  }
+
   body {
     @apply bg-white text-gray-900 antialiased;
   }
 
   .dark body {
     @apply bg-boxdark-2 text-gray-100;
+  }
+
+  /* Responsive heading scales */
+  h1 {
+    @apply text-xl lg:text-3xl;
+  }
+
+  h2 {
+    @apply text-lg lg:text-2xl;
+  }
+
+  h3 {
+    @apply text-base lg:text-xl;
   }
 }
 
@@ -34,7 +52,7 @@
   }
 
   .btn {
-    @apply inline-flex items-center justify-center rounded-lg px-4 py-2 font-medium transition-colors focus:outline-none focus:ring-2 focus:ring-offset-2;
+    @apply inline-flex items-center justify-center rounded-lg px-4 py-2 font-medium transition-colors focus:outline-none focus:ring-2 focus:ring-offset-2 min-h-[44px];
   }
 
   .btn-primary {
@@ -50,7 +68,7 @@
   }
 
   .form-input {
-    @apply w-full rounded-lg border border-stroke bg-transparent px-4 py-2 text-gray-900 outline-none focus:border-primary dark:border-gray-700 dark:bg-gray-800 dark:text-white;
+    @apply w-full rounded-lg border border-stroke bg-transparent px-4 py-2 text-gray-900 outline-none focus:border-primary dark:border-gray-700 dark:bg-gray-800 dark:text-white min-h-[44px] text-base;
   }
 
   .form-label {
@@ -92,12 +110,70 @@
 
 .sidebar {
   @apply fixed left-0 top-0 z-50 flex h-screen w-72 flex-col overflow-y-auto bg-white shadow-xl dark:bg-boxdark;
+  /* Hide sidebar on mobile/tablet, show on desktop */
+  @apply hidden lg:flex;
 }
 
 .sidebar-nav-item {
   @apply flex items-center gap-3 rounded-lg px-4 py-2.5 text-gray-700 transition-colors hover:bg-gray-100 dark:text-gray-300 dark:hover:bg-meta-4;
+  /* Touch-optimized minimum height */
+  @apply min-h-[44px];
 }
 
 .sidebar-nav-item.active {
   @apply bg-primary text-white hover:bg-primary/90 dark:bg-primary dark:hover:bg-primary/90;
+}
+
+/* Mobile-specific utilities */
+@layer utilities {
+  /* Add bottom padding for mobile navigation */
+  .pb-mobile-nav {
+    @apply pb-20 lg:pb-0;
+  }
+
+  /* Touch-optimized button minimum sizes */
+  .touch-target {
+    @apply min-h-[44px] min-w-[44px];
+  }
+}
+
+/* Safe area insets for iOS notch and home indicator */
+@supports (padding: max(0px)) {
+  .safe-area-inset-bottom {
+    padding-bottom: max(0.5rem, env(safe-area-inset-bottom));
+  }
+
+  .safe-area-inset-top {
+    padding-top: max(0.5rem, env(safe-area-inset-top));
+  }
+}
+
+/* Touch-optimized scrolling */
+* {
+  -webkit-overflow-scrolling: touch;
+}
+
+/* Disable text selection on UI elements for better touch experience */
+button,
+a,
+.no-select {
+  -webkit-tap-highlight-color: transparent;
+  -webkit-touch-callout: none;
+  user-select: none;
+}
+
+/* Ensure text inputs allow selection */
+input,
+textarea,
+[contenteditable] {
+  user-select: text;
+}
+
+/* Reduce motion for accessibility */
+@media (prefers-reduced-motion: reduce) {
+  * {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+  }
 }

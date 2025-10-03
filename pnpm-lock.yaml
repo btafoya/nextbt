@@ -107,6 +107,9 @@ importers:
       isomorphic-dompurify:
         specifier: ^2.28.0
         version: 2.28.0(postcss@8.5.6)
+      jotai:
+        specifier: ^2.15.0
+        version: 2.15.0(@babel/core@7.28.4)(@babel/template@7.27.2)(@types/react@18.3.24)(react@18.3.1)
       lucide-react:
         specifier: ^0.544.0
         version: 0.544.0(react@18.3.1)
@@ -3896,6 +3899,24 @@ packages:
   jiti@1.21.7:
     resolution: {integrity: sha512-/imKNG4EbWNrVjoNC/1H5/9GFy+tqjGBHCaSsN+P2RnPqjsLmv6UD3Ej+Kj8nBWaRAwyk7kK5ZUc+OEatnTR3A==}
     hasBin: true
+
+  jotai@2.15.0:
+    resolution: {integrity: sha512-nbp/6jN2Ftxgw0VwoVnOg0m5qYM1rVcfvij+MZx99Z5IK13eGve9FJoCwGv+17JvVthTjhSmNtT5e1coJnr6aw==}
+    engines: {node: '>=12.20.0'}
+    peerDependencies:
+      '@babel/core': '>=7.0.0'
+      '@babel/template': '>=7.0.0'
+      '@types/react': '>=17.0.0'
+      react: '>=17.0.0'
+    peerDependenciesMeta:
+      '@babel/core':
+        optional: true
+      '@babel/template':
+        optional: true
+      '@types/react':
+        optional: true
+      react:
+        optional: true
 
   js-file-download@0.4.12:
     resolution: {integrity: sha512-rML+NkoD08p5Dllpjo0ffy4jRHeY6Zsapvr/W86N7E0yuzAO6qa5X9+xog6zQNlH102J7IXljNY2FtS6Lj3ucg==}
@@ -10254,6 +10275,13 @@ snapshots:
       supports-color: 8.1.1
 
   jiti@1.21.7: {}
+
+  jotai@2.15.0(@babel/core@7.28.4)(@babel/template@7.27.2)(@types/react@18.3.24)(react@18.3.1):
+    optionalDependencies:
+      '@babel/core': 7.28.4
+      '@babel/template': 7.27.2
+      '@types/react': 18.3.24
+      react: 18.3.1
 
   js-file-download@0.4.12: {}
 

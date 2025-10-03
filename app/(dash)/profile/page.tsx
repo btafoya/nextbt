@@ -229,6 +229,22 @@ export default function ProfilePage() {
 
       {/* Notification Preferences */}
       <NotificationPreferences />
+
+      {/* Logout Section */}
+      <div className="bg-white dark:bg-boxdark border dark:border-strokedark rounded p-6">
+        <h2 className="text-xl font-semibold mb-4 dark:text-white">Account</h2>
+        <form action="/api/auth/logout" method="POST">
+          <button
+            type="submit"
+            className="w-full lg:w-auto border rounded px-6 py-3 bg-red-600 text-white hover:bg-red-700 font-medium min-h-[44px]"
+          >
+            Sign Out
+          </button>
+        </form>
+        <p className="text-sm text-gray-500 dark:text-gray-400 mt-3">
+          You will be signed out of your account and redirected to the login page.
+        </p>
+      </div>
     </div>
   );
 }

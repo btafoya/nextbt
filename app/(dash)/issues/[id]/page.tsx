@@ -57,16 +57,18 @@ export default async function IssueShow({ params }: { params: { id: string } }) 
   const userCanEdit = await canEditIssue(session, issue);
 
   return (
-    <div className="space-y-4">
-      <div className="flex items-center justify-between">
-        <h1 className="text-2xl font-bold dark:text-white">#{issue.id} - {issue.summary}</h1>
-        <div className="flex gap-2">
+    <div className="space-y-4 pb-mobile-nav">
+      <div className="flex flex-col lg:flex-row lg:items-center lg:justify-between gap-3">
+        <h1 className="text-lg lg:text-2xl font-bold dark:text-white">
+          <span className="text-gray-500 dark:text-gray-400">#{issue.id}</span> {issue.summary}
+        </h1>
+        <div className="flex flex-wrap gap-2">
           <StatusBadge status={issue.status} />
           <PriorityBadge priority={issue.priority} />
           {userCanEdit && (
             <Link
               href={`/issues/${issue.id}/edit`}
-              className="px-3 py-1 bg-blue-600 text-white rounded hover:bg-blue-700 text-sm"
+              className="px-3 py-2 min-h-[44px] flex items-center bg-blue-600 text-white rounded-lg hover:bg-blue-700 text-sm font-medium"
             >
               Edit
             </Link>

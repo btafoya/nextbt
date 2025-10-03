@@ -1,6 +1,9 @@
 // /app/(dash)/layout.tsx
 import React from "react";
-import { Sidebar } from "@/components/layout/Sidebar";
+import { MobileSidebar } from "@/components/layout/MobileSidebar";
+import { DesktopSidebar } from "@/components/layout/DesktopSidebar";
+import { MobileHeader } from "@/components/layout/MobileHeader";
+import { MobileBottomNav } from "@/components/layout/MobileBottomNav";
 import { requireSession } from "@/lib/auth";
 
 export default async function DashLayout({ children }: { children: React.ReactNode }) {
@@ -16,8 +19,23 @@ export default async function DashLayout({ children }: { children: React.ReactNo
 
   return (
     <div className="flex h-screen bg-gray-50 dark:bg-boxdark-2">
-      <Sidebar session={sidebarSession} />
-      <main className="ml-72 flex-1 overflow-auto p-6 dark:bg-boxdark-2">{children}</main>
+      {/* Mobile: Hidden sidebar with drawer overlay */}
+      <MobileSidebar session={sidebarSession} />
+
+      {/* Desktop: Fixed sidebar (hidden on mobile) */}
+      <DesktopSidebar session={sidebarSession} />
+
+      {/* Main content - responsive margin */}
+      <main className="flex-1 overflow-auto p-4 md:p-6 lg:ml-72 dark:bg-boxdark-2">
+        {/* Mobile header with hamburger menu */}
+        <MobileHeader />
+
+        {/* Page content with bottom nav spacing on mobile */}
+        <div className="pb-20 lg:pb-0">{children}</div>
+      </main>
+
+      {/* Mobile bottom navigation */}
+      <MobileBottomNav session={sidebarSession} />
     </div>
   );
 }
