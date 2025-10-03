@@ -25,6 +25,7 @@ vi.mock("@/config/secrets", () => ({
 
 vi.mock("@/lib/logger", () => ({
   logger: {
+    log: vi.fn(),
     debug: vi.fn(),
     info: vi.fn(),
     warn: vi.fn(),
