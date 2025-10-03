@@ -15,6 +15,7 @@ import {
 vi.mock('@/config/secrets', () => ({
   secrets: {
     sessionSecret: 'test-session-secret-with-at-least-32-characters-long-for-security',
+    sessionLifeDays: 7, // Required for SESSION_CONFIG.MAX_AGE calculation
     // Other secrets can be empty for these tests
     dbHost: '',
     dbPort: 0,
