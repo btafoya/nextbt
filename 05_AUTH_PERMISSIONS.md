@@ -6,7 +6,13 @@
 - Implement `verifyMantisPassword(input, storedHash)` in `/lib/mantis-crypto.ts`. If you also run MantisPHP, you can expose a small HTTP endpoint there to verify; otherwise, port the hash logic.
 
 ## Session
-- Use `iron-session` with a signed cookie. Store user `id`, `username`, and a list of `projectIds` joined via `mantis_project_user_list_table`.
+- Use `iron-session` with a signed cookie (AES-256-GCM encryption). Store user `id`, `username`, and a list of `projectIds` joined via `mantis_project_user_list_table`.
+- **Middleware Protection**: All dashboard routes protected (except `/login` and `/api/*`)
+- **Session Validation**: Expiration (7 days), inactivity timeout (2 hours), automatic refresh
+- **Graceful Timeout**: Expired sessions redirect to login with returnUrl preservation
+- **API Authentication**: API routes handle their own auth via `requireSession()` (return 401/403)
+- **Implementation**: See `middleware.ts`, `lib/auth.ts`, `lib/session-config.ts`
+- **Documentation**: See `claudedocs/SESSION-TIMEOUT-FIX.md` for detailed implementation
 
 ## Authorization (Simplified)
 - **Everything** is keyed off of *project access*:

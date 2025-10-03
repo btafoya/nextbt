@@ -33,6 +33,7 @@ Complete design documentation available:
 - **claudedocs/email-audit-implementation.md** - Email delivery audit system implementation
 - **claudedocs/bug-history-implementation.md** - Bug history tracking implementation
 - **claudedocs/SENTRY-INTEGRATION.md** - Sentry/GlitchTip error tracking integration guide
+- **claudedocs/SESSION-TIMEOUT-FIX.md** - Session timeout graceful handling implementation (2025-10-03)
 
 ## Development Commands
 
@@ -87,8 +88,11 @@ pnpm dlx prisma studio     # Open Prisma Studio GUI
 - **Session mechanism**: iron-session encrypted cookie with AES-256-GCM encryption
 - **Session data**: `{uid, username, projects[], createdAt, lastActivity, expiresAt}`
 - **Security**: 7-day expiration, 2-hour inactivity timeout, automatic refresh
-- **Middleware**: Protects dashboard routes, validates sessions, redirects unauthenticated users to login with returnUrl parameter
+- **Middleware**: Protects ALL dashboard routes (except `/login` and `/api/*`), validates sessions, redirects unauthenticated users to login with returnUrl parameter
+- **Protected Routes**: All routes under `/(dash)/` including `/profile`, `/history`, `/projects`, `/issues`, `/users`
+- **API Authentication**: API routes handle their own auth via `requireSession()` and return 401/403 status codes
 - **Smart Redirects**: Login page captures returnUrl query parameter and redirects back after successful authentication
+- **Graceful Timeout**: Session expiration automatically redirects to login with preservation of intended destination
 - **Auth endpoints**: `/app/api/auth/login/route.ts` and `/app/api/auth/logout/route.ts`
 - **Validation**: Uses MantisBT password hashing (`lib/mantis-crypto.ts`)
 - **Important**: All auth functions are async (use `await requireSession()`, `await getSession()`)

@@ -22,8 +22,9 @@ A modern, user-friendly web interface for MantisBT 2.x bug tracking systems. Nex
 - ✅ **Comprehensive Testing** - 40+ unit tests (Vitest) + 47 accessibility tests (Playwright)
 - ♿ **WCAG 2.1 AA Compliant** - Full accessibility testing with automated axe-core audits
 - 🏆 **High Code Quality** - 8.8/10 overall score (security: 9.2/10, performance: 8.5/10)
-- 🔐 **Secure Authentication** - Encrypted session-based auth with iron-session using existing MantisBT user accounts
-- 🔄 **Smart Redirects** - Automatic return URL handling after login with session validation
+- 🔐 **Secure Authentication** - AES-256-GCM encrypted session auth with iron-session using existing MantisBT user accounts
+- 🔄 **Smart Redirects** - Automatic return URL handling after login with graceful session timeout handling
+- 🛡️ **Session Protection** - Comprehensive middleware protection for all dashboard routes with automatic redirect on expiration
 
 ## Tech Stack
 
@@ -243,6 +244,7 @@ See `claudedocs/SENTRY-INTEGRATION.md` for complete setup guide.
     ├── ACCESSIBILITY-TESTING-GUIDE.md
     ├── SENTRY-INTEGRATION.md
     ├── CODE-ANALYSIS-REPORT.md
+    ├── SESSION-TIMEOUT-FIX.md
     ├── NOTIFICATION-IMPLEMENTATION-COMPLETE.md
     ├── NOTIFICATION-FEATURES-IMPLEMENTATION.md
     ├── API-DOCUMENTATION-IMPLEMENTATION.md
