@@ -326,7 +326,7 @@ describe("Rocket.Chat Sender", () => {
         status: 200,
       });
 
-      await sendRocketChat({
+      const result = await sendRocketChat({
         subject: "Full Context",
         body: "Complete data",
         bugId: 789,
@@ -344,7 +344,11 @@ describe("Rocket.Chat Sender", () => {
       const payload = JSON.parse(callArgs.body);
 
       expect(payload.emoji).toBe(":new:"); // issue_created
-      expect(payload.channel).toBe("#project-one");
+      // Channel field is stripped from webhook payload (webhooks post to fixed channel)
+      expect(payload.channel).toBeUndefined();
+      // But channel is preserved in the result
+      expect(result.channel).toBe("#project-one");
+
       expect(payload.attachments[0].color).toBe("#ff6600"); // high severity
       expect(payload.attachments[0].title_link).toContain("/issues/789");
 

@@ -131,10 +131,14 @@ async function sendViaWebhook(
   const retryDelay = secrets.rocketchatRetryDelay ?? 2000;
 
   try {
+    // Remove channel from webhook payload (webhooks post to fixed channel)
+    // Keep channel info for return value and REST API fallback
+    const { channel: _channel, ...webhookPayload } = payload;
+
     const response = await fetch(secrets.rocketchatWebhookUrl, {
       method: "POST",
       headers: { "Content-Type": "application/json" },
-      body: JSON.stringify(payload),
+      body: JSON.stringify(webhookPayload),
     });
 
     if (!response.ok) {
