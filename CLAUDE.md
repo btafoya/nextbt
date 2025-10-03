@@ -7,12 +7,13 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 - **Project Name**: NextBT (Next.js Bug Tracker for MantisBT)
 - **Tech Stack**: Next.js 14 (App Router), TypeScript, Tailwind CSS, Prisma ORM, MySQL
 - **UI Framework**: [TailAdmin Free Next.js Admin Dashboard](https://github.com/TailAdmin/free-nextjs-admin-dashboard)
+- **Progressive Web App**: Level 1 PWA with next-pwa 5.6.0, installable, offline-ready static assets, app shortcuts
 - **Theming**: Full dark mode support with TailAdmin color system across all components
 - **Markdown**: GitHub Flavored Markdown rendering with react-markdown, remark-gfm, remark-breaks, @tailwindcss/typography
 - **Core Purpose**: Simplified UI for existing MantisBT 2.x bug tracking system
 - **Database Approach**: Read/write to existing MantisBT schema via Prisma (non-destructive, uses `@@map`/`@map`)
 - **Key Integration**: TipTap WYSIWYG editor with AI assist (OpenRouter), MCP (Model Context Protocol) for Claude Code, multi-channel notifications (Postmark, Pushover, Rocket.Chat, Teams, Web Push), Sentry error tracking (GlitchTip)
-- **Platform**: Web application interfacing with existing MantisBT MySQL database
+- **Platform**: Installable Progressive Web App interfacing with existing MantisBT MySQL database
 - **DO NOT**: Modify MantisBT schema directly, rename existing database tables, create destructive migrations, use .env files (use `/config/*.ts` instead)
 
 ## Additional Documentation
@@ -34,6 +35,7 @@ Complete design documentation available:
 - **claudedocs/bug-history-implementation.md** - Bug history tracking implementation
 - **claudedocs/SENTRY-INTEGRATION.md** - Sentry/GlitchTip error tracking integration guide
 - **claudedocs/SESSION-TIMEOUT-FIX.md** - Session timeout graceful handling implementation (2025-10-03)
+- **claudedocs/PWA-IMPLEMENTATION-GUIDE.md** - Progressive Web App implementation with next-pwa, caching strategies, installation guide (2025-10-03)
 
 ## Development Commands
 
@@ -120,7 +122,27 @@ pnpm dlx prisma studio     # Open Prisma Studio GUI
 - **`/components/ClientThemeWrapper.tsx`**: Dark mode theme management with localStorage persistence
 - **`/components/layout/Sidebar.tsx`**: Dashboard sidebar with custom branding (siteName/siteLogo) using Next.js Image optimization
 - **`/app/(auth)/login/page.tsx`**: Login page with custom branding, Turnstile support, and return URL redirect handling
+- **`/components/PWAInstallPrompt.tsx`**: Custom PWA install prompt with dismissal persistence
 - TailAdmin components (layout, sidebar, header, cards) for dashboard UI with comprehensive dark mode support
+
+### Progressive Web App (`/public/manifest.json`, `next.config.js`)
+- **PWA Level**: Level 1 (Basic PWA with lightweight approach)
+- **Framework**: next-pwa 5.6.0 with Workbox for service worker generation
+- **Installability**: Users can install to home screen (mobile/desktop) via custom prompt or browser UI
+- **Offline Support**: Static assets (JS, CSS, images, fonts) cached for offline access
+- **Caching Strategies**:
+  - **CacheFirst**: Google Fonts (365 days)
+  - **StaleWhileRevalidate**: Images (24h), JS (24h), CSS (24h), Fonts (7d)
+  - **NetworkFirst**: API responses (5min cache, 10s timeout)
+- **App Shortcuts**: View Issues, Create Issue (right-click/long-press app icon)
+- **Service Worker**: Auto-generated at `/public/sw.js` (disabled in development)
+- **Install Prompt**: Custom UI appears after 5 seconds, dismissible with localStorage persistence
+- **Icons**: 8 sizes (72x72 to 512x512) required in `/public/icons/` directory
+- **Manifest**: `/public/manifest.json` with NextBT branding, shortcuts, and PWA metadata
+- **Meta Tags**: PWA-specific meta tags in `app/layout.tsx` for iOS/Android support
+- **Security**: HTTPS required, service worker scoped to origin, short API cache (5min)
+- **No Offline Editing**: Requires online connection for creating/editing issues (by design)
+- **Documentation**: See `claudedocs/PWA-IMPLEMENTATION-GUIDE.md` for comprehensive guide
 
 ### Notification System (`/lib/notify/`)
 - **Multi-channel**: Postmark (email), Pushover, Rocket.Chat, Microsoft Teams, Web Push
