@@ -3,10 +3,12 @@ import Link from "next/link";
 import Image from "next/image";
 import { usePathname } from "next/navigation";
 import { useAtom } from "jotai";
+import { useRef } from "react";
 import { X } from "lucide-react";
 import { ThemeToggle } from "@/components/ThemeToggle";
 import { publicConfig } from "@/config/public";
 import { sidebarOpenAtom } from "@/lib/atoms";
+import { useSwipe } from "@/lib/hooks/useSwipe";
 
 type SidebarProps = {
   session: {
@@ -21,6 +23,8 @@ export function MobileSidebar({ session }: SidebarProps) {
   const [isOpen, setIsOpen] = useAtom(sidebarOpenAtom);
   const pathname = usePathname();
   const isAdmin = session.access_level >= 90;
+  const sidebarRef = useRef<HTMLElement>(null);
+  const backdropRef = useRef<HTMLDivElement>(null);
 
   const navItems = [
     { href: "/", label: "Dashboard", icon: "📊" },
@@ -37,11 +41,26 @@ export function MobileSidebar({ session }: SidebarProps) {
   // Add Profile link for all users
   navItems.push({ href: "/profile", label: "Profile", icon: "👤" });
 
+  // Swipe to close sidebar
+  useSwipe(sidebarRef, {
+    onSwipeLeft: () => setIsOpen(false),
+    minSwipeDistance: 50,
+    preventScroll: false,
+  });
+
+  // Swipe to close on backdrop
+  useSwipe(backdropRef, {
+    onSwipeLeft: () => setIsOpen(false),
+    onSwipeRight: () => setIsOpen(false),
+    minSwipeDistance: 30,
+  });
+
   return (
     <>
       {/* Overlay backdrop */}
       {isOpen && (
         <div
+          ref={backdropRef}
           className="fixed inset-0 z-40 bg-black/50 lg:hidden"
           onClick={() => setIsOpen(false)}
         />
@@ -49,6 +68,7 @@ export function MobileSidebar({ session }: SidebarProps) {
 
       {/* Drawer sidebar */}
       <aside
+        ref={sidebarRef}
         className={`
           fixed top-0 left-0 z-50 h-screen w-72
           transform transition-transform duration-300

@@ -4,6 +4,7 @@ import { MobileSidebar } from "@/components/layout/MobileSidebar";
 import { DesktopSidebar } from "@/components/layout/DesktopSidebar";
 import { MobileHeader } from "@/components/layout/MobileHeader";
 import { MobileBottomNav } from "@/components/layout/MobileBottomNav";
+import { EdgeSwipeDetector } from "@/components/layout/EdgeSwipeDetector";
 import { requireSession } from "@/lib/auth";
 
 export default async function DashLayout({ children }: { children: React.ReactNode }) {
@@ -19,6 +20,9 @@ export default async function DashLayout({ children }: { children: React.ReactNo
 
   return (
     <div className="flex h-screen bg-gray-50 dark:bg-boxdark-2">
+      {/* Edge swipe detector for opening sidebar from left edge */}
+      <EdgeSwipeDetector />
+
       {/* Mobile: Hidden sidebar with drawer overlay */}
       <MobileSidebar session={sidebarSession} />
 
