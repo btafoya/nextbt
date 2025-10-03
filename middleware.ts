@@ -23,7 +23,10 @@ export async function middleware(req: NextRequest) {
   const url = req.nextUrl.pathname;
 
   // Check if accessing protected dashboard routes
-  const inDash = url.startsWith("/issues") || url.startsWith("/projects") || url === "/";
+  // Protect page routes except login, but allow all API routes through
+  // (API routes handle their own auth via requireSession())
+  const isPublicRoute = url.startsWith("/login") || url.startsWith("/api/");
+  const inDash = !isPublicRoute;
 
   if (inDash) {
     // Get and validate session
@@ -64,9 +67,9 @@ export const config = {
      * - _next/image (image optimization)
      * - favicon.ico
      * - public folder
-     * - login page and its assets
-     * - auth API routes
+     * - login page
+     * - all API routes (they handle their own auth)
      */
-    "/((?!_next/static|_next/image|favicon.ico|public|login|api/auth/).*)",
+    "/((?!_next/static|_next/image|favicon.ico|public|login|api/).*)",
   ],
 };

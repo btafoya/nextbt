@@ -27,12 +27,25 @@ export default function ProfilePage() {
 
   useEffect(() => {
     fetch("/api/profile", { cache: 'no-store' })
-      .then(res => res.json())
+      .then(res => {
+        if (res.status === 401 || res.status === 403) {
+          // Session expired - redirect to login
+          const returnUrl = encodeURIComponent(window.location.pathname);
+          window.location.href = `/login?returnUrl=${returnUrl}`;
+          return null;
+        }
+        if (!res.ok) {
+          throw new Error("Failed to fetch profile");
+        }
+        return res.json();
+      })
       .then(data => {
-        setProfile(data);
-        setRealname(data.realname || "");
-        setEmail(data.email || "");
-        setLoading(false);
+        if (data) {
+          setProfile(data);
+          setRealname(data.realname || "");
+          setEmail(data.email || "");
+          setLoading(false);
+        }
       })
       .catch(() => {
         setError("Failed to load profile");
