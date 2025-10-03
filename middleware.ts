@@ -65,11 +65,10 @@ export const config = {
      * Match all request paths except:
      * - _next/static (static files)
      * - _next/image (image optimization)
-     * - favicon.ico
-     * - public folder
+     * - Static assets (images, fonts, etc.)
      * - login page
      * - all API routes (they handle their own auth)
      */
-    "/((?!_next/static|_next/image|favicon.ico|public|login|api/).*)",
+    "/((?!_next/static|_next/image|favicon.ico|.*\\.(?:svg|png|jpg|jpeg|gif|webp|ico|woff|woff2|ttf|eot|otf|txt|xml|json)$|login|api/).*)",
   ],
 };
