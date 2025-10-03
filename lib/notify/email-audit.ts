@@ -11,6 +11,7 @@ export interface EmailAuditEntry {
   channel: string; // "email", "pushover", "rocketchat", "teams", "webpush"
   status: "success" | "failed" | "pending";
   errorMessage?: string;
+  metadata?: string; // JSON string for channel-specific data (e.g., message IDs)
 }
 
 /**
@@ -18,6 +19,13 @@ export interface EmailAuditEntry {
  */
 export async function logEmailAudit(entry: EmailAuditEntry): Promise<void> {
   try {
+    // Store metadata in error_message field as JSON when available
+    // (error_message is TEXT field, suitable for JSON storage)
+    const errorOrMetadata =
+      entry.status === "success" && entry.metadata
+        ? entry.metadata
+        : entry.errorMessage || "";
+
     await prisma.mantis_email_audit_table.create({
       data: {
         bug_id: entry.bugId,
@@ -26,7 +34,7 @@ export async function logEmailAudit(entry: EmailAuditEntry): Promise<void> {
         subject: entry.subject,
         channel: entry.channel,
         status: entry.status,
-        error_message: entry.errorMessage || "",
+        error_message: errorOrMetadata,
         date_sent: Math.floor(Date.now() / 1000),
       },
     });
@@ -45,16 +53,23 @@ export async function logEmailAuditBatch(
   try {
     const timestamp = Math.floor(Date.now() / 1000);
     await prisma.mantis_email_audit_table.createMany({
-      data: entries.map((entry) => ({
-        bug_id: entry.bugId,
-        user_id: entry.userId,
-        recipient: entry.recipient,
-        subject: entry.subject,
-        channel: entry.channel,
-        status: entry.status,
-        error_message: entry.errorMessage || "",
-        date_sent: timestamp,
-      })),
+      data: entries.map((entry) => {
+        const errorOrMetadata =
+          entry.status === "success" && entry.metadata
+            ? entry.metadata
+            : entry.errorMessage || "";
+
+        return {
+          bug_id: entry.bugId,
+          user_id: entry.userId,
+          recipient: entry.recipient,
+          subject: entry.subject,
+          channel: entry.channel,
+          status: entry.status,
+          error_message: errorOrMetadata,
+          date_sent: timestamp,
+        };
+      }),
     });
   } catch (error) {
     logger.error("Failed to log email audit batch:", error);

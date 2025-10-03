@@ -96,16 +96,27 @@ export async function notifyAll(
     }
 
     if (r.rocketchat) {
-      const rocketTask = sendRocketChat(`**${subject}**\n${text}`)
-        .then(() => {
+      const rocketTask = sendRocketChat({
+        subject,
+        body: text,
+        bugId,
+        eventType: eventType || "notification",
+        link: bugId ? `/issues/${bugId}` : undefined,
+        // Note: projectId, severity, priority, status, reporter, assignedTo
+        // should be passed from the caller for rich formatting
+      })
+        .then((result) => {
           if (bugId && r.userId) {
             auditEntries.push({
               bugId,
               userId: r.userId,
-              recipient: "rocketchat",
+              recipient: result.channel || "rocketchat",
               subject,
               channel: "rocketchat",
               status: "success",
+              metadata: result.messageId
+                ? JSON.stringify({ messageId: result.messageId })
+                : undefined,
             });
           }
           return { success: true };
@@ -168,7 +179,28 @@ export async function notifyAll(
   const results = await Promise.allSettled(tasks);
 
   // Collect successfully sent channels for each recipient
+  // Map to track specific channel details (e.g., Rocket.Chat channel names)
   const recipientChannels = new Map<number, string[]>();
+  const rocketChatChannels = new Map<number, string>(); // Track Rocket.Chat channel per user
+
+  // Extract Rocket.Chat channel info from successful tasks
+  for (let i = 0; i < results.length; i++) {
+    const result = results[i];
+    if (result.status === "fulfilled" && result.value?.success) {
+      // Find corresponding recipient by matching task index
+      // (tasks are added in same order as recipients)
+      const recipient = recipients[Math.floor(i / 4)]; // Rough approximation
+      // Better approach: check audit entries for channel info
+    }
+  }
+
+  // Use audit entries to get actual Rocket.Chat channels
+  const rocketChatChannelMap = new Map<number, string>();
+  for (const entry of auditEntries) {
+    if (entry.channel === "rocketchat" && entry.status === "success") {
+      rocketChatChannelMap.set(entry.userId, entry.recipient);
+    }
+  }
 
   for (const r of recipients) {
     if (r.userId && bugId) {
@@ -177,7 +209,15 @@ export async function notifyAll(
       // Check which channels were successfully sent
       if (r.email) channels.push("email");
       if (r.pushover) channels.push("pushover");
-      if (r.rocketchat) channels.push("rocketchat");
+      if (r.rocketchat) {
+        // Include specific Rocket.Chat channel if available
+        const specificChannel = rocketChatChannelMap.get(r.userId);
+        if (specificChannel && specificChannel !== "rocketchat") {
+          channels.push(`rocketchat:${specificChannel}`);
+        } else {
+          channels.push("rocketchat");
+        }
+      }
       if (r.teams) channels.push("teams");
 
       if (channels.length > 0) {

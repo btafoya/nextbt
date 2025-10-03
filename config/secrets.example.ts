@@ -34,6 +34,30 @@ export const secrets = {
   // Rocket.Chat Incoming Webhook URL
   rocketchatEnabled: false,
   rocketchatWebhookUrl: "https://chat.example.com/hooks/xxxx",
+  // Rocket.Chat Advanced Options
+  rocketchatUsername: "MantisBT", // Bot username displayed in messages
+  rocketchatDefaultChannel: "#mantis-bugs", // Default channel for notifications
+  rocketchatUseRichFormatting: true, // Enable rich attachments with colors and fields
+  rocketchatRetryAttempts: 3, // Number of retry attempts on failure
+  rocketchatRetryDelay: 2000, // Delay between retries in milliseconds
+  // Rocket.Chat Color Mapping (severity-based)
+  rocketchatColorMap: {
+    critical: "#ff0000", // Red
+    high: "#ff6600", // Orange
+    normal: "#ffcc00", // Yellow
+    low: "#00cc00", // Green
+    info: "#0099ff", // Blue
+  } as Record<string, string>,
+  // Rocket.Chat Channel Mapping (per-project routing)
+  rocketchatChannelMap: {
+    // 1: "#project-alpha",
+    // 2: "#project-beta",
+    // 0: "#general-issues",  // Default for unmapped projects
+  } as Record<number, string>,
+  // Rocket.Chat REST API (optional, for advanced features)
+  rocketchatApiUrl: "", // e.g., "https://chat.example.com"
+  rocketchatAuthToken: "", // User auth token for REST API
+  rocketchatUserId: "", // Bot user ID for REST API
   // Microsoft Teams Incoming Webhook
   teamsEnabled: false,
   teamsWebhookUrl: "https://outlook.office.com/webhook/xxxx",

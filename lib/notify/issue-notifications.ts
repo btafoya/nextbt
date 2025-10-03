@@ -226,7 +226,14 @@ export async function notifyIssueAction(ctx: NotificationContext, baseUrl: strin
 
     if (secrets.rocketchatEnabled) {
       otherTasks.push(
-        sendRocketChat(`**${subject}**\n${textNotification}`).catch(err => {
+        sendRocketChat({
+          subject,
+          body: textNotification,
+          bugId: ctx.issueId,
+          eventType: ctx.action,
+          link: `/issues/${ctx.issueId}`,
+          projectId: ctx.projectId,
+        }).catch(err => {
           logger.error('Failed to send Rocket.Chat notification:', err);
         })
       );

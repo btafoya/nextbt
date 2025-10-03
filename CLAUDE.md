@@ -153,6 +153,18 @@ pnpm dlx prisma studio     # Open Prisma Studio GUI
 - **Advanced Filters**: `filters.ts` provides category/priority/severity-based filtering with actions (notify/ignore/digest_only)
 - **Dispatch**: `dispatch.ts` routes notifications to configured channels
 - **Project-based**: Notifications configured per project access, not user type
+- **Rocket.Chat Integration**:
+  - `rocketchat.ts` - Enhanced webhook sender with retry logic and REST API fallback
+  - `rocketchat-formatter.ts` - Rich message formatting with attachments, colors, fields, emojis
+  - `rocketchat-api.ts` - REST API client for message operations, user/channel lookup
+  - `rocketchat-audit.ts` - Comprehensive audit reporting and statistics (9 functions)
+  - Rich formatting: Severity-based colors, event-based emojis, clickable links, structured fields
+  - Channel routing: Per-project channel mapping with default fallback
+  - Retry logic: Configurable attempts (default 3) with exponential backoff
+  - REST API features: Message IDs, message updates/deletes, user lookup, channel validation
+  - Audit functions: Stats, health checks, message ID tracking, delivery method breakdown
+  - Error handling: Comprehensive logging and graceful degradation
+  - See `claudedocs/ROCKETCHAT-IMPLEMENTATION-PLAN.md` and `ROCKETCHAT-REST-API-SETUP.md`
 - **Database Tables**:
   - `mantis_notification_queue_table` - Digest queuing
   - `mantis_webpush_subscription_table` - Web push subscriptions
