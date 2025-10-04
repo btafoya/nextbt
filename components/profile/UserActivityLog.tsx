@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useEffect } from "react";
+import { useState, useEffect, useCallback } from "react";
 import { logger } from "@/lib/logger";
 
 interface ActivityEntry {
@@ -34,11 +34,7 @@ export default function UserActivityLog() {
   const [limit] = useState(50);
   const [filterType, setFilterType] = useState("");
 
-  useEffect(() => {
-    fetchActivities();
-  }, [page, filterType]);
-
-  async function fetchActivities() {
+  const fetchActivities = useCallback(async () => {
     try {
       setLoading(true);
       const params = new URLSearchParams({
@@ -60,7 +56,11 @@ export default function UserActivityLog() {
     } finally {
       setLoading(false);
     }
-  }
+  }, [page, filterType, limit]);
+
+  useEffect(() => {
+    fetchActivities();
+  }, [fetchActivities]);
 
   function formatDate(timestamp: number): string {
     return new Date(timestamp * 1000).toLocaleString();

@@ -14,12 +14,10 @@ export async function GET() {
     return NextResponse.json({
       count: subscriptions.length,
       subscriptions: subscriptions.map((s: any) => ({
-        id: s.id,
-        endpoint: s.endpoint.substring(0, 50) + "...", // Truncate for security
-        userAgent: s.user_agent,
-        enabled: s.enabled === 1,
-        dateCreated: s.date_created,
-        dateLastUsed: s.date_last_used,
+        id: String(s.id),
+        endpoint: s.endpoint,
+        userAgent: s.user_agent || "Unknown",
+        createdAt: new Date(s.date_created * 1000).toISOString(),
       })),
     });
   } catch (error: any) {

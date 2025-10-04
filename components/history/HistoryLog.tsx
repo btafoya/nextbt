@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useEffect } from "react";
+import { useState, useEffect, useCallback } from "react";
 import { logger } from "@/lib/logger";
 import Link from "next/link";
 import { getStatusLabel, getPriorityLabel, getSeverityLabel, getReproducibilityLabel } from "@/lib/mantis-enums";
@@ -64,11 +64,7 @@ export default function HistoryLog() {
   const [sortBy, setSortBy] = useState<string>("date_modified");
   const [sortOrder, setSortOrder] = useState<"asc" | "desc">("desc");
 
-  useEffect(() => {
-    fetchHistory();
-  }, [page, sortBy, sortOrder]);
-
-  async function fetchHistory() {
+  const fetchHistory = useCallback(async () => {
     try {
       setLoading(true);
       const params = new URLSearchParams({
@@ -94,7 +90,11 @@ export default function HistoryLog() {
     } finally {
       setLoading(false);
     }
-  }
+  }, [page, limit, sortBy, sortOrder, bugIdFilter, userIdFilter, fieldNameFilter]);
+
+  useEffect(() => {
+    fetchHistory();
+  }, [fetchHistory]);
 
   function formatDate(timestamp: number): string {
     return new Date(timestamp * 1000).toLocaleString();

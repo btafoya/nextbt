@@ -3,7 +3,6 @@
 
 import { useState, useEffect } from "react";
 import { useRouter } from "next/navigation";
-import NotificationPreferences from "@/components/profile/NotificationPreferences";
 
 interface UserProfile {
   id: number;
@@ -240,8 +239,19 @@ export default function ProfilePage() {
         </form>
       </div>
 
-      {/* Notification Preferences */}
-      <NotificationPreferences />
+      {/* Notification Center */}
+      <div className="bg-white dark:bg-boxdark border dark:border-strokedark rounded p-6">
+        <h2 className="text-xl font-semibold mb-4 dark:text-white">Notification Center</h2>
+        <p className="text-sm text-gray-600 dark:text-gray-400 mb-4">
+          Manage your notification preferences, digest settings, push subscriptions, history, and filters.
+        </p>
+        <button
+          onClick={() => router.push('/profile/notifications')}
+          className="w-full lg:w-auto border rounded px-6 py-3 bg-blue-600 text-white hover:bg-blue-700 font-medium min-h-[44px]"
+        >
+          🔔 Open Notification Center
+        </button>
+      </div>
 
       {/* Logout Section */}
       <div className="bg-white dark:bg-boxdark border dark:border-strokedark rounded p-6">

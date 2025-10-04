@@ -6,6 +6,7 @@
     "dev": "PORT=3818 next dev",
     "build": "./scripts/fresh-build.sh",
     "build:cached": "next build",
+    "postbuild": "node scripts/inject-push-sw.js",
     "start": "next start",
     "start:prod": "PORT=3818 next start",
     "lint": "next lint",

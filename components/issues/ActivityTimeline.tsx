@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useEffect, useRef } from "react";
+import { useState, useEffect, useRef, useCallback } from "react";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { faDownload, faTrash, faFile, faUpload, faComment } from "@fortawesome/free-solid-svg-icons";
 import Editor from "@/components/wysiwyg/Editor";
@@ -41,11 +41,7 @@ export default function ActivityTimeline({ issueId, currentUserId }: { issueId: 
   const [error, setError] = useState("");
   const fileInputRef = useRef<HTMLInputElement>(null);
 
-  useEffect(() => {
-    fetchActivities();
-  }, [issueId]);
-
-  async function fetchActivities() {
+  const fetchActivities = useCallback(async () => {
     try {
       const [notesRes, attachmentsRes] = await Promise.all([
         fetch(`/api/issues/${issueId}/notes`),
@@ -78,7 +74,11 @@ export default function ActivityTimeline({ issueId, currentUserId }: { issueId: 
     } catch (err) {
       logger.error("Failed to load activities:", err);
     }
-  }
+  }, [issueId]);
+
+  useEffect(() => {
+    fetchActivities();
+  }, [fetchActivities]);
 
   async function handleAddNote(e: React.FormEvent) {
     e.preventDefault();

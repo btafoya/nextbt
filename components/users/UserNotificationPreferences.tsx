@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useEffect } from "react";
+import { useState, useEffect, useCallback } from "react";
 import { logger } from "@/lib/logger";
 import { getSeverityLabel } from "@/lib/mantis-enums";
 
@@ -46,11 +46,7 @@ export default function UserNotificationPreferences({ userId }: UserNotification
   const [saving, setSaving] = useState(false);
   const [message, setMessage] = useState("");
 
-  useEffect(() => {
-    fetchPreferences();
-  }, [userId]);
-
-  async function fetchPreferences() {
+  const fetchPreferences = useCallback(async () => {
     try {
       const res = await fetch(`/api/users/${userId}/notifications`);
       if (res.ok) {
@@ -62,7 +58,11 @@ export default function UserNotificationPreferences({ userId }: UserNotification
     } finally {
       setLoading(false);
     }
-  }
+  }, [userId]);
+
+  useEffect(() => {
+    fetchPreferences();
+  }, [fetchPreferences]);
 
   async function savePreferences() {
     if (!prefs) return;

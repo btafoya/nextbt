@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useEffect } from "react";
+import { useState, useEffect, useCallback } from "react";
 import { sanitizeHtml } from "@/lib/sanitize";
 import Editor from "@/components/wysiwyg/Editor";
 import { logger } from "@/lib/logger";
@@ -23,11 +23,7 @@ export default function NotesSection({ issueId, currentUserId }: { issueId: numb
   const [error, setError] = useState("");
 
   // Load notes
-  useEffect(() => {
-    fetchNotes();
-  }, [issueId]);
-
-  async function fetchNotes() {
+  const fetchNotes = useCallback(async () => {
     try {
       const res = await fetch(`/api/issues/${issueId}/notes`);
       if (res.ok) {
@@ -37,7 +33,11 @@ export default function NotesSection({ issueId, currentUserId }: { issueId: numb
     } catch (err) {
       logger.error("Failed to load notes:", err);
     }
-  }
+  }, [issueId]);
+
+  useEffect(() => {
+    fetchNotes();
+  }, [fetchNotes]);
 
   async function handleAddNote(e: React.FormEvent) {
     e.preventDefault();

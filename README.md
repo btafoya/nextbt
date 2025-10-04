@@ -11,11 +11,14 @@ A modern, user-friendly web interface for MantisBT 2.x bug tracking systems. Nex
 
 - 🎨 **Modern UI** - Clean, responsive interface built with Next.js 14 App Router and Tailwind CSS
 - 📱 **Progressive Web App** - Installable to home screen (mobile/desktop), offline-ready static assets, app shortcuts, intelligent caching strategies
+- 📱 **Mobile Gestures** - Natural swipe navigation for sidebar (swipe from edge to open, swipe to close)
 - 🎨 **Custom Branding** - Configurable site name and logo displayed on login and dashboard with Next.js Image optimization
 - 🌓 **Dark Mode** - Full dark mode support with comprehensive theming across all pages and components
 - 📝 **Rich Text Editor** - TipTap WYSIWYG editor with AI-powered writing assistance via OpenRouter
 - 📄 **Markdown Rendering** - GitHub Flavored Markdown support with react-markdown, remark-gfm, and @tailwindcss/typography
-- 🔔 **Advanced Notifications** - Multi-channel (Email, Push, Chat, Web Push), digest batching, history tracking, advanced filters, email audit logging
+- 🔔 **Advanced Notifications** - Multi-channel (Email, Push, Rocket.Chat with REST API, Teams, Web Push), digest batching, history tracking, advanced filters, email audit logging
+- 🎛️ **Notification Center** - Complete UI for managing all notification preferences (email, digest, web push, history, filters) with 5-tab interface
+- 💬 **Rocket.Chat Integration** - Rich message formatting with attachments, severity colors, channel routing, REST API support, retry logic
 - 🔌 **MCP Integration** - Model Context Protocol support for Claude Code remote server integration
 - 📚 **API Documentation** - Interactive OpenAPI 3.0 documentation with Swagger UI at `/api-docs`
 - 🐛 **Error Tracking** - Sentry/GlitchTip integration for error monitoring, performance tracking, and session replay
@@ -62,10 +65,11 @@ NextBT maintains high code quality standards with comprehensive analysis:
 | Accessibility | 9.0/10 | WCAG 2.1 AA compliant, 47 automated tests, multi-browser validation |
 
 **Key Metrics**:
-- **23,300+ lines** of TypeScript code
+- **24,000+ lines** of TypeScript code
 - **200+ tests** (157+ unit test cases + 47 accessibility tests)
 - **51 API endpoints** with OpenAPI 3.0 documentation
-- **14 notification system modules** (email, push, web push, digest, history, filters)
+- **17 notification system modules** (email, push, Rocket.Chat with REST API, Teams, web push, digest, history, filters)
+- **Mobile-optimized** with custom swipe gesture hooks and responsive navigation
 - **Minimal technical debt** with abstracted logging system
 
 See `claudedocs/CODE-ANALYSIS-REPORT.md` for complete analysis.
@@ -193,7 +197,14 @@ Configure notification channels in `config/secrets.ts`:
 
 - **Email (Postmark)**: Email notifications with message stream support and delivery audit logging
 - **Push (Pushover)**: Mobile push notifications for iOS/Android
-- **Chat Integration**: Rocket.Chat and Microsoft Teams webhook support
+- **Rocket.Chat Integration**: Enhanced webhook and REST API support
+  - Rich formatting with severity colors, event emojis, clickable links, structured attachments
+  - Per-project channel routing with default fallback configuration
+  - Retry logic with exponential backoff (default 3 attempts), REST API fallback
+  - Message operations, user/channel lookup, message updates/deletes via REST API
+  - Comprehensive audit system with statistics, health checks, delivery tracking
+  - See `claudedocs/ROCKETCHAT-IMPLEMENTATION-PLAN.md` and `ROCKETCHAT-REST-API-SETUP.md`
+- **Microsoft Teams**: Webhook support for Microsoft Teams channels
 - **Web Push**: Browser push notifications with VAPID keys (Chrome, Firefox, Edge)
 - **Digest System**: Batch notifications for hourly/daily/weekly delivery
 - **History Tracking**: Complete notification log for user visibility
@@ -265,13 +276,19 @@ See `claudedocs/SENTRY-INTEGRATION.md` for complete setup guide.
 │   ├── api-docs.ts          # OpenAPI specification
 │   ├── mantis-enums.ts      # MantisBT enum helpers
 │   ├── sentry-context.ts    # Sentry tagging and context utilities
+│   ├── cache-busting.ts     # Build-time cache version management
 │   ├── mcp/                 # MCP client library
 │   ├── ai/                  # AI integration (OpenRouter)
-│   └── notify/              # Notification system (14 modules)
+│   ├── hooks/               # Custom React hooks
+│   │   └── useSwipe.ts      # Swipe gesture detection (useSwipe, useEdgeSwipe)
+│   └── notify/              # Notification system (17 modules)
 │       ├── dispatch.ts      # Multi-channel routing
 │       ├── postmark.ts      # Email notifications
 │       ├── pushover.ts      # Push notifications
-│       ├── rocketchat.ts    # Rocket.Chat integration
+│       ├── rocketchat.ts    # Rocket.Chat webhook with retry logic
+│       ├── rocketchat-formatter.ts  # Rich message formatting
+│       ├── rocketchat-api.ts        # REST API client
+│       ├── rocketchat-audit.ts      # Audit reporting and statistics
 │       ├── teams.ts         # Microsoft Teams integration
 │       ├── webpush.ts       # Web Push notifications
 │       ├── digest.ts        # Digest batching system
@@ -293,7 +310,7 @@ See `claudedocs/SENTRY-INTEGRATION.md` for complete setup guide.
 ├── instrumentation.client.ts # Client-side Sentry initialization
 ├── sentry.server.config.ts  # Server Sentry configuration
 ├── sentry.edge.config.ts    # Edge runtime Sentry configuration
-└── claudedocs/              # Comprehensive project documentation (21+ docs)
+└── claudedocs/              # Comprehensive project documentation (24+ docs)
     ├── ACCESSIBILITY-TESTING-GUIDE.md
     ├── SENTRY-INTEGRATION.md
     ├── CODE-ANALYSIS-REPORT.md
@@ -301,6 +318,12 @@ See `claudedocs/SENTRY-INTEGRATION.md` for complete setup guide.
     ├── PWA-IMPLEMENTATION-GUIDE.md
     ├── NOTIFICATION-IMPLEMENTATION-COMPLETE.md
     ├── NOTIFICATION-FEATURES-IMPLEMENTATION.md
+    ├── ROCKETCHAT-IMPLEMENTATION-PLAN.md
+    ├── ROCKETCHAT-REST-API-SETUP.md
+    ├── GESTURE-IMPLEMENTATION-SUMMARY.md
+    ├── GESTURE-QUICK-REFERENCE.md
+    ├── CACHE-BUSTING-IMPLEMENTATION.md
+    ├── ISSUE-FORM-ENHANCEMENT-SPEC.md
     ├── API-DOCUMENTATION-IMPLEMENTATION.md
     └── [15+ additional design/architecture docs]
 ```
@@ -400,8 +423,10 @@ NextBT provides comprehensive issue management with all MantisBT fields:
 - **Severity**: feature, trivial, text, tweak, minor, major, crash, block
 - **Reproducibility**: always, sometimes, random, have not tried, unable to reproduce, n/a
 - **Assignee**: User assignment with project-based permissions
+- **Category-Based Forms**: Dynamic issue forms that adapt based on category selection for simplified non-technical submissions
 - **Markdown Support**: Full GitHub Flavored Markdown rendering in notes and descriptions (tables, task lists, code blocks)
 - **Dark Mode**: Complete dark theme support for enhanced readability and reduced eye strain
+- **Mobile Experience**: Touch-optimized with swipe gestures for sidebar navigation (swipe from left edge to open, swipe to close)
 
 ## Testing
 

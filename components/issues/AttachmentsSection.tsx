@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useEffect, useRef } from "react";
+import { useState, useEffect, useRef, useCallback } from "react";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { faDownload, faTrash, faFile, faUpload } from "@fortawesome/free-solid-svg-icons";
 import { logger } from "@/lib/logger";
@@ -21,11 +21,7 @@ export default function AttachmentsSection({ issueId, currentUserId }: { issueId
   const [error, setError] = useState("");
   const fileInputRef = useRef<HTMLInputElement>(null);
 
-  useEffect(() => {
-    fetchAttachments();
-  }, [issueId]);
-
-  async function fetchAttachments() {
+  const fetchAttachments = useCallback(async () => {
     try {
       const res = await fetch(`/api/issues/${issueId}/attachments`);
       if (res.ok) {
@@ -35,7 +31,11 @@ export default function AttachmentsSection({ issueId, currentUserId }: { issueId
     } catch (err) {
       logger.error("Failed to load attachments:", err);
     }
-  }
+  }, [issueId]);
+
+  useEffect(() => {
+    fetchAttachments();
+  }, [fetchAttachments]);
 
   async function handleFileUpload(e: React.ChangeEvent<HTMLInputElement>) {
     const file = e.target.files?.[0];

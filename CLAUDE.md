@@ -30,6 +30,12 @@ Complete design documentation available:
 - **claudedocs/NOTIFICATION-AUDIT-FIX.md** - Notification preference system audit and comprehensive fixes
 - **claudedocs/NOTIFICATION-FEATURES-IMPLEMENTATION.md** - Advanced notification features (digest, web push, history, filters)
 - **claudedocs/NOTIFICATION-IMPLEMENTATION-COMPLETE.md** - Complete notification system implementation summary
+- **claudedocs/ROCKETCHAT-IMPLEMENTATION-PLAN.md** - Rocket.Chat REST API and webhook integration (Phase 5 complete)
+- **claudedocs/ROCKETCHAT-REST-API-SETUP.md** - Rocket.Chat REST API setup and configuration guide
+- **claudedocs/GESTURE-IMPLEMENTATION-SUMMARY.md** - Mobile swipe gesture implementation for sidebar navigation
+- **claudedocs/GESTURE-QUICK-REFERENCE.md** - Quick reference guide for swipe gesture usage
+- **claudedocs/CACHE-BUSTING-IMPLEMENTATION.md** - Comprehensive cache-busting system implementation
+- **claudedocs/ISSUE-FORM-ENHANCEMENT-SPEC.md** - Category-based dynamic issue forms for non-technical users
 - **claudedocs/API-DOCUMENTATION-IMPLEMENTATION.md** - OpenAPI 3.0 and Swagger UI implementation guide
 - **claudedocs/email-audit-implementation.md** - Email delivery audit system implementation
 - **claudedocs/bug-history-implementation.md** - Bug history tracking implementation
@@ -120,9 +126,17 @@ pnpm dlx prisma studio     # Open Prisma Studio GUI
 - **`/components/wysiwyg/InlineAI.tsx`**: AI assistant integration with OpenRouter
 - **`/components/issues/HtmlContent.tsx`**: Markdown renderer with react-markdown, remark-gfm support, and dark mode styling
 - **`/components/ClientThemeWrapper.tsx`**: Dark mode theme management with localStorage persistence
-- **`/components/layout/Sidebar.tsx`**: Dashboard sidebar with custom branding (siteName/siteLogo) using Next.js Image optimization
+- **`/components/layout/Sidebar.tsx`**: Dashboard sidebar with custom branding, mobile gestures (swipe to open/close)
 - **`/app/(auth)/login/page.tsx`**: Login page with custom branding, Turnstile support, and return URL redirect handling
 - **`/components/PWAInstallPrompt.tsx`**: Custom PWA install prompt with dismissal persistence
+- **`/lib/hooks/useSwipe.ts`**: Custom React hooks for swipe gesture detection (useSwipe, useEdgeSwipe)
+- **`/lib/cache-busting.ts`**: Build-time cache version management and invalidation
+- **Notification Preferences UI** (`/app/(dash)/profile/notifications/page.tsx`):
+  - **`/components/profile/NotificationPreferences.tsx`**: Email notification preferences with severity thresholds
+  - **`/components/profile/DigestPreferences.tsx`**: Digest settings (frequency, time, channels)
+  - **`/components/profile/WebPushManager.tsx`**: Web push subscription management
+  - **`/components/profile/NotificationHistory.tsx`**: Paginated notification history viewer
+  - **`/components/profile/NotificationFilters.tsx`**: Advanced filter management UI
 - TailAdmin components (layout, sidebar, header, cards) for dashboard UI with comprehensive dark mode support
 
 ### Progressive Web App (`/public/manifest.json`, `next.config.js`)
@@ -263,16 +277,58 @@ await dispatchNotification({
 - **Notifications**: Test channels independently via `/lib/notify/*` modules
 - See **20_TESTING_GUIDE.md** for comprehensive testing documentation
 
-## Recent Improvements (September 2025)
+## Recent Improvements (October 2025)
 
-### Dark Mode Implementation
+### Notification Preferences UI (October 4, 2025) ✅
+- **Complete UI Implementation**: 5-tab notification center with Email Preferences, Digest Settings, Push Notifications, History, and Filters
+- **Digest Management**: Frequency selection (hourly/daily/weekly), time/day scheduling, channel selection, minimum notification threshold
+- **Web Push**: Browser push subscription management with VAPID keys, active subscription listing, test notifications, unsubscribe functionality
+- **Notification History**: Paginated viewer with event type icons, channel badges, read/unread status, mark as read, filter by channel
+- **Advanced Filters**: Create/edit/delete filters, category/priority/severity criteria, action selection (notify/ignore/digest), test functionality, statistics
+- **Comprehensive Testing**: Unit tests for all components, 12 E2E accessibility tests (WCAG 2.1 AA compliance)
+- **Documentation**: Updated CLAUDE.md, README.md, TODO with implementation details
+- See `/app/(dash)/profile/notifications/page.tsx` for complete implementation
+
+## Recent Improvements (September-October 2025)
+
+### Rocket.Chat Integration Enhancement (de089a3, cedd483, 1be5476)
+- **REST API Client**: Full REST API integration with message operations, user/channel lookup
+- **Rich Formatting**: Severity-based colors, event-based emojis, clickable links, structured fields via attachments
+- **Enhanced Webhooks**: Retry logic with exponential backoff (default 3 attempts), REST API fallback
+- **Channel Routing**: Per-project channel mapping with default fallback configuration
+- **Audit System**: Comprehensive audit reporting with 9 functions (stats, health checks, message tracking, delivery methods)
+- **Error Handling**: Graceful degradation with comprehensive logging
+- See `claudedocs/ROCKETCHAT-IMPLEMENTATION-PLAN.md` and `ROCKETCHAT-REST-API-SETUP.md`
+
+### Mobile Experience Improvements (5b3f08d, cab4460)
+- **Swipe Gestures**: Custom React hooks for natural touch navigation (`useSwipe`, `useEdgeSwipe`)
+- **Edge Swipe**: Swipe from left edge to open sidebar, swipe right to close
+- **Content Swipe**: Swipe left/right on sidebar content for quick open/close
+- **Responsive Navigation**: Mobile-optimized sidebar with hamburger menu and touch-friendly controls
+- **Performance**: Passive event listeners, configurable thresholds, automatic cleanup
+- See `claudedocs/GESTURE-IMPLEMENTATION-SUMMARY.md` and `GESTURE-QUICK-REFERENCE.md`
+
+### Cache Busting System (4c4c044)
+- **Build-Time Hashing**: Automatic cache version generation on each build
+- **Static Asset Management**: CSS, JS, images, fonts cache invalidation
+- **Service Worker Sync**: Coordinated cache clearing across browser and service worker
+- **Developer Tools**: Cache management utilities and debugging endpoints
+- See `claudedocs/CACHE-BUSTING-IMPLEMENTATION.md`
+
+### Category-Based Dynamic Forms (0fcd94e)
+- **Non-Technical UI**: Simplified issue submission with category-driven field visibility
+- **Smart Field Management**: Context-aware form fields based on issue category selection
+- **UX Enhancement**: Reduced cognitive load for non-technical users
+- See `claudedocs/ISSUE-FORM-ENHANCEMENT-SPEC.md`
+
+### Dark Mode Implementation (September 2025)
 - Comprehensive dark mode styling across all pages and components
 - Theme toggle in user profile with localStorage persistence
 - Dark mode classes: `dark:bg-boxdark`, `dark:bg-meta-4`, `dark:text-bodydark`, `dark:border-strokedark`
 - Consistent theming in forms, inputs, cards, tables, and navigation
 - Proper contrast and readability in both light and dark themes
 
-### Markdown Rendering
+### Markdown Rendering (September 2025)
 - Replaced `marked` library with `react-markdown` per Next.js best practices
 - Added `remark-gfm` for GitHub Flavored Markdown (tables, strikethrough, task lists, autolinks)
 - Added `remark-breaks` for automatic line break conversion (newlines → `<br>`)
