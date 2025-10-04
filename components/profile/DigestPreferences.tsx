@@ -124,10 +124,11 @@ export default function DigestPreferences() {
           <>
             {/* Frequency */}
             <div className="space-y-2">
-              <label className="block text-sm font-medium dark:text-white">
+              <label htmlFor="digest-frequency" className="block text-sm font-medium dark:text-white">
                 Digest Frequency
               </label>
               <select
+                id="digest-frequency"
                 value={prefs.frequency}
                 onChange={(e) =>
                   setPrefs({ ...prefs, frequency: e.target.value as DigestPrefs["frequency"] })
